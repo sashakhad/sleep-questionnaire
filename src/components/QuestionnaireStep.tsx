@@ -276,23 +276,22 @@ export function QuestionnaireStep({
     mode: 'onChange'
   });
 
+  const [lastSectionId, setLastSectionId] = React.useState(section.id);
+  
   React.useEffect(() => {
     console.log('useEffect triggered for section:', section.id);
     console.log('useEffect - formDefaults:', formDefaults);
     console.log('useEffect - current form values:', form.getValues());
-    const currentValues = form.getValues();
-    const hasExistingData = Object.values(currentValues).some(value => 
-      value !== undefined && value !== '' && (Array.isArray(value) ? value.length > 0 : true)
-    );
     
-    if (!hasExistingData) {
-      console.log('No existing data found, resetting form with defaults');
+    if (section.id !== lastSectionId) {
+      console.log('Section changed from', lastSectionId, 'to', section.id, '- resetting form');
       form.reset(formDefaults);
+      setLastSectionId(section.id);
+      setIsFormValid(false);
     } else {
-      console.log('Existing data found, preserving form state');
+      console.log('Same section, not resetting form');
     }
-    setIsFormValid(false);
-  }, [section.id]);
+  }, [section.id, formDefaults, lastSectionId]);
   
   const watchedValues = form.watch();
   

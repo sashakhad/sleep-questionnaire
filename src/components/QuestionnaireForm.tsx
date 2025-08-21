@@ -164,7 +164,7 @@ export function QuestionnaireForm({ onComplete }: QuestionnaireFormProps) {
       />
       
       <QuestionnaireStep
-        key={`${currentSection.id}-${currentStep}`}
+        key={currentStep}
         section={currentSection}
         onNext={handleStepComplete}
         onPrevious={currentStep > 0 ? handlePrevious : undefined}
