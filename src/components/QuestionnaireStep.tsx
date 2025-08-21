@@ -116,6 +116,7 @@ function renderQuestion(question: Question, form: any, formValues: Record<string
             <FormControl>
               {question.type === 'radio' && question.options ? (
                 <RadioGroup
+                  {...field}
                   onValueChange={(value) => {
                     console.log(`Radio change for ${question.id}: ${value}`);
                     field.onChange(value);
@@ -167,8 +168,13 @@ function renderQuestion(question: Question, form: any, formValues: Record<string
                   min={question.min}
                   max={question.max}
                   step={question.step}
+                  {...field}
                   value={field.value ?? ''}
-                  onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                  onChange={(e) => {
+                    const value = e.target.value ? Number(e.target.value) : undefined;
+                    console.log(`Number input change for ${question.id}: ${value}`);
+                    field.onChange(value);
+                  }}
                 />
               ) : question.type === 'time' ? (
                 <Input
@@ -198,8 +204,12 @@ function renderQuestion(question: Question, form: any, formValues: Record<string
                 <Input
                   type="text"
                   placeholder={question.placeholder}
+                  {...field}
                   value={field.value ?? ''}
-                  onChange={field.onChange}
+                  onChange={(e) => {
+                    console.log(`Text input change for ${question.id}: ${e.target.value}`);
+                    field.onChange(e.target.value);
+                  }}
                 />
               )}
             </FormControl>
@@ -263,6 +273,8 @@ export function QuestionnaireStep({
   console.log('QuestionnaireStep render - Section title:', section.title);
   console.log('QuestionnaireStep render - Section questions:', section.questions.map(q => q.id));
   console.log('QuestionnaireStep render - Default values passed:', defaultValues);
+  console.log('QuestionnaireStep render - Section object:', section);
+  console.log('QuestionnaireStep render - isFirst:', isFirst, 'isLast:', isLast);
   console.log('=== END PROPS DEBUG ===');
   
   const formDefaults = React.useMemo(() => {
@@ -271,7 +283,12 @@ export function QuestionnaireStep({
     return calculated;
   }, [section.id, defaultValues]);
   
+  const dynamicSchema = React.useMemo(() => {
+    return createDynamicSchema(section.questions, formDefaults);
+  }, [section.id, section.questions]);
+  
   const form = useForm({
+    resolver: zodResolver(dynamicSchema),
     defaultValues: formDefaults,
     mode: 'onChange'
   });
@@ -291,7 +308,7 @@ export function QuestionnaireStep({
     } else {
       console.log('Same section, not resetting form');
     }
-  }, [section.id, formDefaults, lastSectionId]);
+  }, [section.id, lastSectionId]);
   
   const watchedValues = form.watch();
   

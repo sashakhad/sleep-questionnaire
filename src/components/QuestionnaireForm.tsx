@@ -19,6 +19,7 @@ export function QuestionnaireForm({ onComplete }: QuestionnaireFormProps) {
   const [responses, setResponses] = useState<Partial<QuestionnaireResponse>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [forceRender, setForceRender] = useState(0);
 
   const allSections = [
     { id: 'demographics', title: 'Basic Information', questions: demographicQuestions },
@@ -38,7 +39,16 @@ export function QuestionnaireForm({ onComplete }: QuestionnaireFormProps) {
     setResponses(updatedResponses);
 
     if (currentStep < allSections.length - 1) {
-      setCurrentStep(currentStep + 1);
+      const nextStep = currentStep + 1;
+      console.log('=== STEP NAVIGATION DEBUG ===');
+      console.log('Current step:', currentStep);
+      console.log('Next step:', nextStep);
+      console.log('Current section:', currentSection.id);
+      console.log('Next section:', allSections[nextStep]?.id);
+      console.log('=== END STEP NAVIGATION DEBUG ===');
+      
+      setCurrentStep(nextStep);
+      setForceRender(prev => prev + 1);
     } else {
       await handleSubmitQuestionnaire(updatedResponses);
     }
@@ -164,7 +174,7 @@ export function QuestionnaireForm({ onComplete }: QuestionnaireFormProps) {
       />
       
       <QuestionnaireStep
-        key={currentStep}
+        key={`${currentSection.id}-${currentStep}-${forceRender}-${Date.now()}`}
         section={currentSection}
         onNext={handleStepComplete}
         onPrevious={currentStep > 0 ? handlePrevious : undefined}
