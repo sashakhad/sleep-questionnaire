@@ -4,12 +4,16 @@ import React, { useState } from 'react';
 import { DemographicsForm } from '../../components/DemographicsForm';
 import { useRouter } from 'next/navigation';
 
-export default function QuestionnairePage() {
-  const router = useRouter();
-  const [demographicsData, setDemographicsData] = useState(null);
+interface DemographicsData {
+  birthYear: number;
+  zipcode: string;
+  sex: string;
+}
 
-  const handleDemographicsNext = (data: any) => {
-    console.log('Demographics completed:', data);
+export default function QuestionnairePage() {
+  const [demographicsData, setDemographicsData] = useState<DemographicsData | null>(null);
+
+  const handleDemographicsNext = (data: DemographicsData) => {
     setDemographicsData(data);
     alert(`Demographics completed! Birth Year: ${data.birthYear}, Zipcode: ${data.zipcode}, Sex: ${data.sex}`);
   };

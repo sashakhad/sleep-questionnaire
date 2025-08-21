@@ -43,7 +43,6 @@ export function DemographicsForm({ onNext, onPrevious, isFirst = true }: Demogra
   });
 
   function onSubmit(values: DemographicsData) {
-    console.log('Demographics form submission:', values);
     onNext(values);
   }
 

@@ -116,13 +116,12 @@ function renderQuestion(question: Question, form: any, formValues: Record<string
             <FormControl>
               {question.type === 'radio' && question.options ? (
                 <RadioGroup
-                  {...field}
                   onValueChange={(value) => {
                     console.log(`Radio change for ${question.id}: ${value}`);
                     field.onChange(value);
                   }}
-                  value={field.value ?? ""}
-                  className="flex flex-col space-y-2"
+                  value={field.value || ''}
+                  className="flex flex-col space-y-3"
                 >
                   {question.options.map((option) => (
                     <div key={option.value} className="flex items-center space-x-2">
@@ -137,13 +136,14 @@ function renderQuestion(question: Question, form: any, formValues: Record<string
                   ))}
                 </RadioGroup>
               ) : question.type === 'checkbox' && question.options ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {question.options.map((option) => (
                     <div key={option.value} className="flex items-center space-x-2">
                       <Checkbox
                         id={`${question.id}-${option.value}`}
                         checked={(field.value ?? []).includes(option.value)}
                         onCheckedChange={(checked) => {
+                          console.log(`Checkbox change for ${question.id}: ${option.value} = ${checked}`);
                           const currentValues = field.value ?? [];
                           if (checked) {
                             field.onChange([...currentValues, option.value]);
@@ -168,7 +168,6 @@ function renderQuestion(question: Question, form: any, formValues: Record<string
                   min={question.min}
                   max={question.max}
                   step={question.step}
-                  {...field}
                   value={field.value ?? ''}
                   onChange={(e) => {
                     const value = e.target.value ? Number(e.target.value) : undefined;
@@ -204,7 +203,6 @@ function renderQuestion(question: Question, form: any, formValues: Record<string
                 <Input
                   type="text"
                   placeholder={question.placeholder}
-                  {...field}
                   value={field.value ?? ''}
                   onChange={(e) => {
                     console.log(`Text input change for ${question.id}: ${e.target.value}`);
@@ -279,13 +277,15 @@ export function QuestionnaireStep({
   
   const formDefaults = React.useMemo(() => {
     const calculated = { ...createDefaultValues(section.questions), ...defaultValues };
-    console.log('QuestionnaireStep render - Calculated formDefaults:', calculated);
+    console.log('QuestionnaireStep render - Calculated formDefaults for section', section.id, ':', calculated);
     return calculated;
-  }, [section.id, defaultValues]);
+  }, [section.id, section.questions, defaultValues]);
   
   const dynamicSchema = React.useMemo(() => {
-    return createDynamicSchema(section.questions, formDefaults);
-  }, [section.id, section.questions]);
+    const schema = createDynamicSchema(section.questions, formDefaults);
+    console.log('QuestionnaireStep render - Created schema for section', section.id, 'with questions:', section.questions.map(q => q.id));
+    return schema;
+  }, [section.id, section.questions, formDefaults]);
   
   const form = useForm({
     resolver: zodResolver(dynamicSchema),
@@ -304,43 +304,14 @@ export function QuestionnaireStep({
       console.log('Section changed from', lastSectionId, 'to', section.id, '- resetting form');
       form.reset(formDefaults);
       setLastSectionId(section.id);
-      setIsFormValid(false);
     } else {
       console.log('Same section, not resetting form');
     }
-  }, [section.id, lastSectionId]);
+  }, [section.id, lastSectionId, formDefaults, form]);
   
   const watchedValues = form.watch();
   
-  const [isFormValid, setIsFormValid] = React.useState(false);
-  
-  React.useEffect(() => {
-    const validationResults = section.questions.map(question => {
-      const value = watchedValues[question.id];
-      let isValid = true;
-      
-      if (question.type === 'radio' && question.required !== false) {
-        isValid = value && value !== '';
-      } else if (question.type === 'checkbox') {
-        isValid = true;
-      } else if (question.type === 'number' && question.required !== false) {
-        isValid = value !== undefined && value !== null && value !== '';
-      } else if ((question.type === 'text' || question.type === 'time') && question.required !== false) {
-        isValid = value && value !== '';
-      }
-      
-      console.log(`Question ${question.id} (${question.type}): value=${JSON.stringify(value)}, required=${question.required !== false}, isValid=${isValid}`);
-      return isValid;
-    });
-    
-    const allValid = validationResults.every(Boolean);
-    console.log('Form validation results:', validationResults);
-    console.log('All questions valid:', allValid);
-    console.log('Watched values:', watchedValues);
-    console.log('Setting isFormValid to:', allValid);
-    
-    setIsFormValid(allValid);
-  }, [watchedValues, section.questions]);
+  const isFormValid = form.formState.isValid;
   
   function onSubmit(data: Record<string, unknown>) {
     console.log('Form submission data:', data);
