@@ -16,19 +16,17 @@ import { IntroSection } from './sections/IntroSection'
 import { DaytimeSection } from './sections/DaytimeSection'
 import { ScheduledSleepSection } from './sections/ScheduledSleepSection'
 import { UnscheduledSleepSection } from './sections/UnscheduledSleepSection'
-import { 
-  BreathingDisordersSection,
-  RestlessLegsSection,
-  ParasomniaSection,
-  NightmaresSection,
-  ChronotypeSection,
-  SleepHygieneSection,
-  BedroomSection,
-  LifestyleSection,
-  MentalHealthSection,
-  DemographicsSection,
-  ReportSection
-} from './sections/stub-sections'
+import { BreathingDisordersSection } from './sections/BreathingDisordersSection'
+import { RestlessLegsSection } from './sections/RestlessLegsSection'
+import { ParasomniaSection } from './sections/ParasomniaSection'
+import { NightmaresSection } from './sections/NightmaresSection'
+import { ChronotypeSection } from './sections/ChronotypeSection'
+import { SleepHygieneSection } from './sections/SleepHygieneSection'
+import { BedroomSection } from './sections/BedroomSection'
+import { LifestyleSection } from './sections/LifestyleSection'
+import { MentalHealthSection } from './sections/MentalHealthSection'
+import { DemographicsSection } from './sections/DemographicsSection'
+import { ReportSection } from './sections/ReportSection'
 
 const sections: QuestionnaireSection[] = [
   'intro',

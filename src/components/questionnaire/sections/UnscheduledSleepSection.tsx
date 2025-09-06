@@ -36,7 +36,7 @@ export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) 
       </div>
 
       <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-        This section helps us understand your natural sleep patterns when you don't have 
+        This section helps us understand your natural sleep patterns when you don&apos;t have 
         work or school obligations.
       </div>
 
