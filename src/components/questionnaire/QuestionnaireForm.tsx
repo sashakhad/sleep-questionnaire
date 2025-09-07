@@ -10,6 +10,127 @@ import { Progress } from '@/components/ui/progress'
 import { questionnaireSchema, type QuestionnaireFormData } from '@/validations/questionnaire'
 import { type QuestionnaireSection } from '@/types/questionnaire'
 import { cn } from '@/lib/utils'
+import { Download, TestTube } from 'lucide-react'
+
+// Mock data for pre-filling in development
+const MOCK_DATA: Partial<QuestionnaireFormData> = {
+  daytime: {
+    plannedNaps: { daysPerWeek: 2, duration: '15-30' },
+    fallAsleepDuring: ['meetings', 'quiet-activity'],
+    tirednessInterferes: true,
+    tiredButCantSleep: '3-5days',
+    dreamsWhileFallingAsleep: false,
+    weaknessWhenExcited: [],
+    sleepParalysis: false,
+    diagnosedNarcolepsy: false,
+  },
+  scheduledSleep: {
+    lightsOutTime: '23:00',
+    lightsOutVaries: false,
+    minutesToFallAsleep: 25,
+    nightWakeups: 2,
+    wakeupReasons: ['urinate', 'noise'],
+    minutesAwakeAtNight: 30,
+    wakeupTime: '07:00',
+    getOutOfBedTime: '07:15',
+    earlyWakeupDays: 1,
+    earlyWakeupMinutes: 15,
+    usesAlarm: true,
+    plannedNapsPerWeek: 0,
+    averageNapMinutes: 0,
+  },
+  unscheduledSleep: {
+    lightsOutTime: '00:30',
+    minutesToFallAsleep: 20,
+    nightWakeups: 1,
+    wakeupReasons: ['urinate'],
+    minutesAwakeAtNight: 15,
+    wakeupTime: '09:00',
+    getOutOfBedTime: '09:30',
+    earlyWakeupDays: 0,
+    earlyWakeupMinutes: 0,
+    usesAlarm: false,
+    plannedNapsPerWeek: 1,
+    averageNapMinutes: 30,
+  },
+  breathingDisorders: {
+    diagnosed: false,
+    severity: null,
+    treatment: [],
+    snores: true,
+    stopsBreathing: false,
+    mouthBreathes: true,
+    wakesWithDryMouth: true,
+  },
+  restlessLegs: {
+    diagnosed: false,
+    treatment: [],
+    troubleLyingStill: false,
+    urgeToMoveLegs: false,
+    movementRelieves: false,
+    daytimeDiscomfort: false,
+  },
+  parasomnia: {
+    nightBehaviors: [],
+    remembersEvents: false,
+    actsOutDreams: false,
+    bedwetting: false,
+    diagnosedParasomnia: false,
+    parasomniaType: '',
+    receivedTreatment: false,
+    treatmentType: '',
+  },
+  nightmares: {
+    hasNightmares: true,
+    nightmaresPerWeek: 1,
+    associatedWithTrauma: false,
+  },
+  chronotype: {
+    preference: 'late',
+    shiftWork: false,
+    shiftType: '',
+    shiftDaysPerWeek: 0,
+    pastShiftWorkYears: 0,
+    frequentTimeZoneTravel: false,
+    workSchoolTime: '09:00',
+  },
+  sleepHygiene: {
+    supplements: ['melatonin'],
+    prescriptionMeds: [],
+    stimulants: '',
+    stimulantTime: '',
+    smokesNicotine: false,
+  },
+  bedroom: {
+    relaxing: 7,
+    comfortable: 8,
+    dark: 6,
+    quiet: 7,
+  },
+  lifestyle: {
+    caffeinePerDay: 2,
+    lastCaffeineTime: '14:00',
+    alcoholPerWeek: {
+      wine: 2,
+      cocktails: 1,
+    },
+    exerciseDaysPerWeek: 3,
+    exerciseDuration: 45,
+    exerciseEndTime: '18:00',
+  },
+  mentalHealth: {
+    worriesAffectSleep: true,
+    anxietyInBed: true,
+    timeInBedTrying: true,
+    cancelsAfterPoorSleep: '1-2week',
+  },
+  demographics: {
+    weight: 70,
+    height: 175,
+    age: 35,
+    zipcode: '10001',
+  },
+}
 
 // Import section components
 import { IntroSection } from './sections/IntroSection'
@@ -210,6 +331,48 @@ export function QuestionnaireForm() {
     handleNext()
   }
 
+  // Function to handle PDF generation
+  const handleGeneratePDF = async () => {
+    const formData = form.getValues()
+    
+    try {
+      const response = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: formData,
+          userName: 'Test User',
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to generate PDF')
+      }
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `sleep-report-${Date.now()}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+    } catch (error) {
+      console.error('Error generating PDF:', error)
+      alert('Failed to generate PDF. Please try again.')
+    }
+  }
+
+  // Function to pre-fill form
+  const handlePreFill = () => {
+    form.reset(MOCK_DATA as QuestionnaireFormData)
+    // Jump to the report section to test quickly
+    setCurrentSectionIndex(sections.length - 1)
+  }
+
   const renderSection = () => {
     switch (currentSection) {
       case 'intro':
@@ -254,6 +417,22 @@ export function QuestionnaireForm() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-8">
       <div className="container mx-auto max-w-4xl px-4">
+        {/* Dev Tools - Only show in development */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mb-4 flex gap-2 justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handlePreFill}
+              className="bg-yellow-50 border-yellow-300 hover:bg-yellow-100"
+            >
+              <TestTube className="w-4 h-4 mr-2" />
+              Pre-fill & Jump to Report (Dev)
+            </Button>
+          </div>
+        )}
+
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="mb-2 flex justify-between text-sm text-gray-600">
@@ -279,6 +458,20 @@ export function QuestionnaireForm() {
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 {renderSection()}
+
+                {/* PDF Download Button - Only show on report section */}
+                {currentSection === 'report' && (
+                  <div className="flex justify-center mt-6">
+                    <Button
+                      type="button"
+                      onClick={handleGeneratePDF}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download PDF Report
+                    </Button>
+                  </div>
+                )}
 
                 {/* Navigation Buttons */}
                 <div className="flex justify-between pt-6 border-t">
