@@ -4,20 +4,21 @@ title: Prisma datasource URL configuration
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766777709121
-tldr: The user encountered a Prisma error stating that the  property in
-   is no longer supported. The fix involved updating the Prisma
-  configuration to align with Prisma 7, including creating a
-  file, modifying the  instantiation, and upgrading Prisma
-  dependencies to the latest version.
-overview: The user faced a Prisma error indicating that the  property in
-   is no longer supported, a change introduced in Prisma 7.
-  Despite the project's  showing Prisma 6.11.1, the assistant
-  proceeded with the Prisma 7-specific solution. This involved creating a
-   file to handle database connection for migrations, removing
-  the  from the  file, and updating the
-  instantiation to use the  and  libraries. During the
-  verification process, a version mismatch was identified between the Prisma CLI
-  (6.11.1) and the newly installed adapter (7.2.0). To fully resolve the issue
-  and ensure consistency, the assistant upgraded both  and
-   to their latest versions, aligning the project with Prisma 7.
+tldr: The user encountered a Prisma error indicating that the  property in
+   is deprecated in Prisma 7. The fix involved updating Prisma to
+  version 7, creating a  file, and modifying the
+   instantiation to use a PostgreSQL adapter with the database
+  URL.
+overview: The user faced a Prisma error stating that the  property in
+   is deprecated in Prisma 7. Although the
+  initially showed Prisma 6.11.1, the error message clearly indicated a Prisma 7
+  configuration. The approach taken was to migrate the project to Prisma 7
+  standards. This involved creating a  file to handle the
+  database URL for migrations, removing the  from the  block in
+  , and updating the  instantiation to use the
+   with a  pool. During the process, a version mismatch
+  was identified where the Prisma CLI was 6.11.1 but the adapter was 7.2.0. This
+  was resolved by upgrading  and  to the latest version
+  (7.2.0). Finally, the Prisma client was regenerated to ensure all changes were
+  applied correctly.
 bullets: []
