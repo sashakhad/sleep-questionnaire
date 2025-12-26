@@ -4,21 +4,26 @@ title: Vercel .env file programmatic upload
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766777371219
-tldr: The user wanted to programmatically upload their .env file to Vercel and
-  then control the visibility of development tools in deployed environments. The
-  assistant used  for the initial upload and then implemented a
-   environment variable to toggle dev features for
-  client testing on Vercel Preview deployments.
-overview: The user's primary goal was to programmatically upload their
-  file to Vercel. After exploring several options, the
-  community tool was selected. This involved troubleshooting initial command
-  arguments, handling confirmation prompts, and linking the local project to
-  Vercel. Subsequently, the user requested a way to show development-specific
-  features (prefill and jump to report) to clients in a deployed environment,
-  controlled by an environment variable. The approach taken was to introduce a
-   environment variable. The application code was
-  modified to check this variable, allowing dev tools to be enabled in Vercel
-  Preview deployments for client testing while remaining disabled in Production.
-  The necessary environment variables were added to Vercel, and the code changes
-  were committed and pushed to the remote branch.
+tldr: The user wanted to programmatically upload environment variables to Vercel
+  and then control the visibility of development tools (prefill and jump to
+  report) in different Vercel environments. The assistant successfully used a
+  community tool to push initial environment variables and then implemented a
+  solution using a new environment variable () to
+  toggle dev tool visibility for client testing on Vercel Preview deployments.
+overview: The user initiated the conversation by asking for a programmatic way
+  to upload their  file to Vercel. The assistant explored several options,
+  including the Vercel CLI, Vercel API, and a community tool called
+  . The  tool was chosen, but its execution
+  required handling interactive prompts for confirmation and linking the local
+  project to Vercel. After successfully linking the project and pushing the
+  initial environment variables, the user requested a solution to control the
+  visibility of development-specific features (prefill and jump to report) for
+  client testing on Vercel deployments. The assistant identified that the
+  existing implementation relied on , which wouldn't work in deployed
+  environments. A new  environment variable was
+  introduced, and the codebase was updated to use it. This variable was then
+  configured on Vercel to be  for Preview deployments (for client testing)
+  and  for Production. Finally, the code changes were committed and
+  pushed to trigger a new Vercel Preview deployment, providing the desired
+  functionality.
 bullets: []
