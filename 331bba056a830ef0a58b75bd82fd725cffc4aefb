@@ -4,22 +4,23 @@ title: Vercel .env file programmatic upload
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766777301303
-tldr: The user wanted to programmatically upload  variables to Vercel and
-  then control the visibility of development features for client testing using
-  environment variables. The assistant helped link the Vercel project, push the
-  initial  file, and then implemented a new environment variable
-   to manage dev feature visibility across different
-  Vercel environments.
-overview: The user's primary goal was to programmatically manage environment
-  variables on Vercel. Initially, they sought a way to upload their  file,
-  for which the  tool was chosen. This involved linking the
-  local project to Vercel first. Subsequently, the user wanted to enable
-  specific "dev state" features (prefill, jump to report) for client testing on
-  a deployed environment, controlled by an environment variable. The existing
-  implementation relied on , which was unsuitable for deployed
-  environments. The assistant addressed this by introducing a new
-   environment variable. The code was modified to
-  check this new variable, and it was then configured to be  for the
-  preview environment (for client testing) and  for production, ensuring
-  programmatic control and distinct client testing environments.
+tldr: The user wanted to programmatically upload environment variables to Vercel
+  and later control dev features in deployed environments. The assistant helped
+  link the Vercel project, push existing environment variables, and then
+  implemented a new environment variable to control dev features for client
+  testing.
+overview: The user's primary intent was to automate the management of
+  environment variables on Vercel. Initially, they sought a programmatic way to
+  upload their  file. The assistant guided them through using the
+   tool, troubleshooting issues like project linking and
+  interactive prompts. After successfully pushing the initial environment
+  variables, the user requested a method to control specific "dev state"
+  features (prefill and jump to report) in deployed environments for client
+  testing, without manual Vercel intervention. The assistant identified that the
+  existing  check was insufficient for deployed environments. The
+  solution involved introducing a new client-side environment variable,
+  , modifying the codebase to utilize it, and then
+  programmatically setting its value to  for the Vercel preview
+  environment and  for production, enabling distinct testing and
+  production experiences.
 bullets: []
