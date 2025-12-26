@@ -61,9 +61,9 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
     <div className='space-y-6'>
       <div className='text-lg font-medium'>Mental Health and Sleep</div>
 
-      <Alert className='border-blue-200 bg-blue-50'>
-        <Brain className='h-4 w-4 text-blue-600' />
-        <AlertDescription className='text-blue-900'>
+      <Alert className='alert-info'>
+        <Brain className='h-4 w-4 text-primary' />
+        <AlertDescription className='text-foreground/90'>
           Mental health and sleep have a bidirectional relationship. Anxiety and worry can prevent
           sleep, while poor sleep can worsen mental health symptoms. Understanding this connection
           helps us provide better support.
@@ -106,9 +106,9 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
       />
 
       {/* Medical History Section */}
-      <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+      <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
         <div className='flex items-center space-x-2'>
-          <Stethoscope className='h-5 w-5 text-blue-600' />
+          <Stethoscope className='h-5 w-5 text-primary' />
           <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
             Medical History
           </h3>
@@ -152,7 +152,7 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
       </div>
 
       {/* Mental Health History Section */}
-      <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+      <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
         <div className='flex items-center space-x-2'>
           <Brain className='h-5 w-5 text-purple-600' />
           <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
@@ -207,7 +207,7 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
 
       {/* Sleep anxiety warning */}
       {hasSignificantAnxiety && (
-        <Alert className='border-amber-200 bg-amber-50'>
+        <Alert className='alert-warning'>
           <Brain className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
             <strong>Sleep-Related Anxiety Detected</strong>
@@ -232,7 +232,7 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
 
       {/* Moderate to severe insomnia */}
       {moderateToSevereInsomnia && (
-        <Alert className='border-red-200 bg-red-50'>
+        <Alert className='alert-danger'>
           <AlertCircle className='h-4 w-4 text-red-600' />
           <AlertDescription className='text-red-900'>
             <strong>Significant Sleep Impact on Daily Life</strong>
@@ -269,7 +269,7 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
         !anxietyInBed &&
         !timeInBedTrying &&
         cancelsAfterPoorSleep === 'never' && (
-          <Alert className='border-green-200 bg-green-50'>
+          <Alert className='alert-success'>
             <Heart className='h-4 w-4 text-green-600' />
             <AlertDescription className='text-green-900'>
               <strong>Good Mental Sleep Health!</strong>

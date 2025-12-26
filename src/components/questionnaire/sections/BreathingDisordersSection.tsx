@@ -25,9 +25,9 @@ export function BreathingDisordersSection({ form }: BreathingDisordersSectionPro
     <div className='space-y-6'>
       <div className='text-lg font-medium'>Sleep Related Breathing Disorders</div>
 
-      <Alert className='border-blue-200 bg-blue-50'>
-        <AlertCircle className='h-4 w-4 text-blue-600' />
-        <AlertDescription className='text-blue-900'>
+      <Alert className='alert-info'>
+        <AlertCircle className='h-4 w-4 text-primary' />
+        <AlertDescription className='text-foreground/90'>
           Diagnosis and treatment of sleep related breathing disorders is exceedingly important as
           they contribute to significant health problems.
         </AlertDescription>
@@ -43,7 +43,7 @@ export function BreathingDisordersSection({ form }: BreathingDisordersSectionPro
 
       {/* If diagnosed, show severity and treatment */}
       {diagnosed && (
-        <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+        <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
           <RadioGroupField
             control={form.control}
             name='breathingDisorders.severity'
@@ -130,7 +130,7 @@ export function BreathingDisordersSection({ form }: BreathingDisordersSectionPro
       {!diagnosed &&
         (form.watch('breathingDisorders.snores') ||
           form.watch('breathingDisorders.stopsBreathing')) && (
-          <Alert className='border-amber-200 bg-amber-50'>
+          <Alert className='alert-warning'>
             <AlertCircle className='h-4 w-4 text-amber-600' />
             <AlertDescription className='text-amber-900'>
               Based on your responses, we recommend that you discuss treatment options with your

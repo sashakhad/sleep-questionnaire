@@ -52,7 +52,7 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
       </div>
 
       {/* Planned naps */}
-      <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+      <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
         <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
           Planned Naps
         </h3>
@@ -82,7 +82,7 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
       </div>
 
       {/* Fall asleep during activities */}
-      <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+      <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
         <FormField
           control={form.control}
           name='daytime.fallAsleepDuring'
@@ -131,7 +131,7 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
 
       {/* Tiredness severity scale - only show if tiredness interferes */}
       {form.watch('daytime.tirednessInterferes') && (
-        <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+        <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
           <FormField
             control={form.control}
             name='daytime.tirednessSeverity'
@@ -217,7 +217,7 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
       />
 
       {/* Weakness when excited */}
-      <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+      <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
         <FormField
           control={form.control}
           name='daytime.weaknessWhenExcited'
@@ -272,7 +272,7 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
       />
 
       {/* Pain and Chronic Fatigue Screening */}
-      <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+      <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
         <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
           Pain and Energy Levels
         </h3>

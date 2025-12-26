@@ -35,9 +35,9 @@ export function RestlessLegsSection({ form }: RestlessLegsSectionProps) {
     <div className='space-y-6'>
       <div className='text-lg font-medium'>Restless Legs Syndrome (RLS) and Movement Disorders</div>
 
-      <Alert className='border-blue-200 bg-blue-50'>
-        <Info className='h-4 w-4 text-blue-600' />
-        <AlertDescription className='text-blue-900'>
+      <Alert className='alert-info'>
+        <Info className='h-4 w-4 text-primary' />
+        <AlertDescription className='text-foreground/90'>
           Restless legs syndrome is a relatively common disorder that increases discomfort in bed
           and interferes with your ability to fall asleep. RLS can be associated with insufficient
           availability of dopamine, low levels of ferritin, pregnancy, or as an unwanted effect of
@@ -54,7 +54,7 @@ export function RestlessLegsSection({ form }: RestlessLegsSectionProps) {
 
       {/* If diagnosed, show treatment options */}
       {diagnosed && (
-        <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+        <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
           <FormField
             control={form.control}
             name='restlessLegs.treatment'
@@ -130,7 +130,7 @@ export function RestlessLegsSection({ form }: RestlessLegsSectionProps) {
 
       {/* Warning message if symptoms but not diagnosed */}
       {!diagnosed && hasSymptoms && (
-        <Alert className='border-amber-200 bg-amber-50'>
+        <Alert className='alert-warning'>
           <AlertCircle className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
             Your answers suggest that you may have restless legs syndrome. We strongly encourage you

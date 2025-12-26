@@ -31,16 +31,16 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
     <div className='space-y-6'>
       <div className='text-lg font-medium'>Lifestyle Factors Affecting Sleep</div>
 
-      <Alert className='border-blue-200 bg-blue-50'>
-        <Activity className='h-4 w-4 text-blue-600' />
-        <AlertDescription className='text-blue-900'>
+      <Alert className='alert-info'>
+        <Activity className='h-4 w-4 text-primary' />
+        <AlertDescription className='text-foreground/90'>
           Your daily habits including caffeine consumption, alcohol use, and exercise patterns can
           significantly impact your sleep quality and timing.
         </AlertDescription>
       </Alert>
 
       {/* Caffeine section */}
-      <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+      <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
         <div className='flex items-center space-x-2'>
           <Coffee className='h-5 w-5 text-amber-700' />
           <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
@@ -79,7 +79,7 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
       </div>
 
       {/* Alcohol section */}
-      <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+      <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
         <div className='flex items-center space-x-2'>
           <Wine className='h-5 w-5 text-purple-600' />
           <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
@@ -107,7 +107,7 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
       </div>
 
       {/* Exercise section */}
-      <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+      <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
         <div className='flex items-center space-x-2'>
           <Activity className='h-5 w-5 text-green-600' />
           <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
@@ -156,7 +156,7 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
 
       {/* Caffeine warnings */}
       {caffeinePerDay > 4 && (
-        <Alert className='border-amber-200 bg-amber-50'>
+        <Alert className='alert-warning'>
           <Coffee className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
             <strong>High Caffeine Intake</strong>
@@ -169,7 +169,7 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
       )}
 
       {lateCaffeine && (
-        <Alert className='border-amber-200 bg-amber-50'>
+        <Alert className='alert-warning'>
           <AlertCircle className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
             <strong>Late Caffeine Consumption</strong>
@@ -183,7 +183,7 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
 
       {/* Alcohol warnings */}
       {totalAlcohol > 14 && (
-        <Alert className='border-red-200 bg-red-50'>
+        <Alert className='alert-danger'>
           <Wine className='h-4 w-4 text-red-600' />
           <AlertDescription className='text-red-900'>
             <strong>High Alcohol Consumption</strong>
@@ -209,7 +209,7 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
 
       {/* Exercise feedback */}
       {exerciseDaysPerWeek === 0 && (
-        <Alert className='border-amber-200 bg-amber-50'>
+        <Alert className='alert-warning'>
           <Activity className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
             <strong>No Regular Exercise</strong>
@@ -222,7 +222,7 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
       )}
 
       {exerciseDaysPerWeek >= 5 && (
-        <Alert className='border-green-200 bg-green-50'>
+        <Alert className='alert-success'>
           <Activity className='h-4 w-4 text-green-600' />
           <AlertDescription className='text-green-900'>
             <strong>Great Exercise Habits!</strong>

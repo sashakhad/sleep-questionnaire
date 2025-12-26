@@ -70,9 +70,9 @@ export function BedroomSection({ form }: BedroomSectionProps) {
     <div className='space-y-6'>
       <div className='text-lg font-medium'>Bedroom Environment Assessment</div>
 
-      <Alert className='border-blue-200 bg-blue-50'>
-        <Home className='h-4 w-4 text-blue-600' />
-        <AlertDescription className='text-blue-900'>
+      <Alert className='alert-info'>
+        <Home className='h-4 w-4 text-primary' />
+        <AlertDescription className='text-foreground/90'>
           Your bedroom environment plays a crucial role in sleep quality. Please rate your bedroom
           or the place where you typically sleep on a scale of 1-10, with 1 being worst and 10 being
           best.
@@ -112,7 +112,7 @@ export function BedroomSection({ form }: BedroomSectionProps) {
       />
 
       {/* Overall score display */}
-      <div className='border-border/60 bg-card/50 rounded-xl border p-5'>
+      <div className='border-border bg-card/50 rounded-xl border p-5'>
         <h3 className='text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase'>
           Overall Bedroom Score
         </h3>
@@ -134,7 +134,7 @@ export function BedroomSection({ form }: BedroomSectionProps) {
 
       {/* Poor environment warning */}
       {averageScore < 6 && (
-        <Alert className='border-amber-200 bg-amber-50'>
+        <Alert className='alert-warning'>
           <Info className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
             <strong>Room for Improvement</strong>

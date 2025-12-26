@@ -81,7 +81,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
 
       {/* Wakeup reasons - only show if they wake up more than twice */}
       {nightWakeups > 2 && (
-        <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+        <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
           <FormField
             control={form.control}
             name='scheduledSleep.wakeupReasons'

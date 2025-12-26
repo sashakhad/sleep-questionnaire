@@ -40,9 +40,9 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
     <div className='space-y-6'>
       <div className='text-lg font-medium'>About You</div>
 
-      <Alert className='border-blue-200 bg-blue-50'>
-        <User className='h-4 w-4 text-blue-600' />
-        <AlertDescription className='text-blue-900'>
+      <Alert className='alert-info'>
+        <User className='h-4 w-4 text-primary' />
+        <AlertDescription className='text-foreground/90'>
           This information helps us provide more personalized recommendations. Age and body
           measurements can influence sleep patterns and the likelihood of certain sleep disorders.
         </AlertDescription>
@@ -99,7 +99,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
 
       {/* BMI Display */}
       {bmi && (
-        <div className='border-border/60 bg-card/50 rounded-xl border p-5'>
+        <div className='border-border bg-card/50 rounded-xl border p-5'>
           <h3 className='text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase'>
             Body Mass Index (BMI)
           </h3>
@@ -140,7 +140,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
 
       {/* BMI and Sleep Apnea Warning */}
       {bmi && bmi >= 30 && (
-        <Alert className='border-amber-200 bg-amber-50'>
+        <Alert className='alert-warning'>
           <Info className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
             <strong>BMI and Sleep Apnea Risk</strong>
@@ -188,7 +188,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
       )}
 
       {/* Completion message */}
-      <Alert className='border-green-200 bg-green-50'>
+      <Alert className='alert-success'>
         <Info className='h-4 w-4 text-green-600' />
         <AlertDescription className='text-green-900'>
           <strong>Almost Done!</strong>

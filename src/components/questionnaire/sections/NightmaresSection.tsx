@@ -20,9 +20,9 @@ export function NightmaresSection({ form }: NightmaresSectionProps) {
         Nightmares and Dream Disturbances
       </div>
 
-      <Alert className="border-blue-200 bg-blue-50">
-        <Brain className="h-4 w-4 text-blue-600" />
-        <AlertDescription className="text-blue-900">
+      <Alert className="alert-info">
+        <Brain className="h-4 w-4 text-primary" />
+        <AlertDescription className="text-foreground/90">
           Nightmares can disturb sleep and cause distress during the day. Understanding their 
           frequency and triggers helps us provide better recommendations for your sleep health.
         </AlertDescription>
@@ -58,7 +58,7 @@ export function NightmaresSection({ form }: NightmaresSectionProps) {
 
       {/* Frequent nightmares warning */}
       {nightmaresPerWeek >= 3 && (
-        <Alert className="border-amber-200 bg-amber-50">
+        <Alert className="alert-warning">
           <AlertCircle className="h-4 w-4 text-amber-600" />
           <AlertDescription className="text-amber-900">
             <strong>Frequent Nightmares Detected</strong>
@@ -86,7 +86,7 @@ export function NightmaresSection({ form }: NightmaresSectionProps) {
 
       {/* PTSD/Trauma warning */}
       {associatedWithTrauma && (
-        <Alert className="border-red-200 bg-red-50">
+        <Alert className="alert-danger">
           <AlertCircle className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-900">
             <strong>Trauma-Related Nightmares</strong>

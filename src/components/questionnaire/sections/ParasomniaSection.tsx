@@ -29,9 +29,9 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
     <div className='space-y-6'>
       <div className='text-lg font-medium'>Sleep Behaviors and Parasomnias</div>
 
-      <Alert className='border-blue-200 bg-blue-50'>
-        <Info className='h-4 w-4 text-blue-600' />
-        <AlertDescription className='text-blue-900'>
+      <Alert className='alert-info'>
+        <Info className='h-4 w-4 text-primary' />
+        <AlertDescription className='text-foreground/90'>
           Parasomnias are unusual behaviors during sleep that can affect your safety and sleep
           quality. These include sleepwalking, sleep talking, night terrors, and other behaviors.
         </AlertDescription>
@@ -95,7 +95,7 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
 
       {/* RBD Warning */}
       {remembersEvents && actsOutDreams && (
-        <Alert className='border-red-200 bg-red-50'>
+        <Alert className='alert-danger'>
           <AlertTriangle className='h-4 w-4 text-red-600' />
           <AlertDescription className='text-red-900'>
             <strong>Important Safety Notice</strong>
@@ -125,7 +125,7 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
 
       {/* If diagnosed, get details */}
       {diagnosedParasomnia && (
-        <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+        <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
           <FormField
             control={form.control}
             name='parasomnia.parasomniaType'
@@ -169,7 +169,7 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
 
       {/* Safety warning for untreated parasomnia */}
       {(hasNightBehaviors || diagnosedParasomnia) && !receivedTreatment && (
-        <Alert className='border-amber-200 bg-amber-50'>
+        <Alert className='alert-warning'>
           <AlertTriangle className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
             <strong>Safety Measures Recommended</strong>

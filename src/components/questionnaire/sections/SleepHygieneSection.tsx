@@ -50,9 +50,9 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
         Sleep Medications and Supplements
       </div>
 
-      <Alert className="border-blue-200 bg-blue-50">
-        <Pill className="h-4 w-4 text-blue-600" />
-        <AlertDescription className="text-blue-900">
+      <Alert className="alert-info">
+        <Pill className="h-4 w-4 text-primary" />
+        <AlertDescription className="text-foreground/90">
           Understanding what medications and supplements you take helps us provide better 
           recommendations. Some substances can significantly impact sleep quality and timing.
         </AlertDescription>
@@ -189,7 +189,7 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
 
       {/* Medication dependence warning */}
       {prescriptionMeds && prescriptionMeds.length > 0 && (
-        <Alert className="border-amber-200 bg-amber-50">
+        <Alert className="alert-warning">
           <Info className="h-4 w-4 text-amber-600" />
           <AlertDescription className="text-amber-900">
             <strong>Prescription Sleep Medications</strong>
@@ -205,7 +205,7 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
       {/* Multiple medications warning */}
       {supplements && prescriptionMeds && 
        (supplements.length + prescriptionMeds.length) > 3 && (
-        <Alert className="border-red-200 bg-red-50">
+        <Alert className="alert-danger">
           <Pill className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-900">
             <strong>Multiple Sleep Aids Detected</strong>

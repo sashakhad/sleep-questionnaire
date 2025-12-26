@@ -28,9 +28,9 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
     <div className='space-y-6'>
       <div className='text-lg font-medium'>Sleep Preferences and Schedule</div>
 
-      <Alert className='border-blue-200 bg-blue-50'>
-        <Clock className='h-4 w-4 text-blue-600' />
-        <AlertDescription className='text-blue-900'>
+      <Alert className='alert-info'>
+        <Clock className='h-4 w-4 text-primary' />
+        <AlertDescription className='text-foreground/90'>
           Your natural sleep preferences (chronotype) can significantly impact your sleep quality
           when they don&apos;t align with your work or school schedule.
         </AlertDescription>
@@ -57,7 +57,7 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
 
       {/* Shift work details */}
       {shiftWork && (
-        <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+        <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
           <FormField
             control={form.control}
             name='chronotype.shiftType'
@@ -124,7 +124,7 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
 
       {/* Delayed Sleep Phase Syndrome warning */}
       {preference === 'late' && (
-        <Alert className='border-amber-200 bg-amber-50'>
+        <Alert className='alert-warning'>
           <Info className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
             <strong>Night Owl Chronotype</strong>
@@ -156,7 +156,7 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
 
       {/* Shift work warning */}
       {(shiftWork || (pastShiftWorkYears && pastShiftWorkYears > 0)) && (
-        <Alert className='border-amber-200 bg-amber-50'>
+        <Alert className='alert-warning'>
           <Clock className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
             <strong>Shift Work Impact</strong>

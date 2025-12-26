@@ -257,7 +257,7 @@ export function ReportSection({ data }: ReportSectionProps) {
 
       {/* Critical Safety Warning for Severe Tiredness */}
       {hasSevereTiredness && (
-        <Alert className='border-red-300 bg-red-50'>
+        <Alert className='alert-danger'>
           <AlertCircle className='h-5 w-5 text-red-600' />
           <AlertDescription className='text-red-900'>
             <strong className='mb-2 block text-lg'>Urgent Safety Warning</strong>
@@ -408,7 +408,7 @@ export function ReportSection({ data }: ReportSectionProps) {
 
       {/* Identified Issues */}
       <Card className='shadow-sleep overflow-hidden border-0'>
-        <CardHeader className='bg-gradient-to-r from-amber-500 to-orange-500 text-white'>
+        <CardHeader className='bg-gradient-sleep-header text-white'>
           <CardTitle className='flex items-center space-x-2 text-white'>
             <AlertCircle className='h-5 w-5' />
             <span>Identified Sleep Issues</span>
@@ -421,7 +421,7 @@ export function ReportSection({ data }: ReportSectionProps) {
                 <XCircle className='mt-0.5 h-5 w-5 text-red-500' />
                 <div>
                   <h4 className='font-semibold'>Insomnia ({insomniaSeverity})</h4>
-                  <p className='text-sm text-gray-600'>
+                  <p className='text-muted-foreground text-sm'>
                     Difficulty falling asleep and/or staying asleep with daytime impairment
                   </p>
                 </div>
@@ -444,12 +444,12 @@ export function ReportSection({ data }: ReportSectionProps) {
                   <h4 className='font-semibold'>
                     Excessive Daytime Sleepiness ({edsResult.severity})
                     {edsResult.score > 0 && (
-                      <span className='ml-2 text-sm text-gray-500'>
+                      <span className='text-muted-foreground ml-2 text-sm'>
                         (EDS Score: {edsResult.score})
                       </span>
                     )}
                   </h4>
-                  <p className='text-sm text-gray-600'>
+                  <p className='text-muted-foreground text-sm'>
                     {edsResult.severity === 'severe' &&
                       'Falling asleep inappropriately suggests possible narcolepsy, idiopathic hypersomnia, or severe sleep debt. '}
                     {edsResult.severity === 'moderate' &&
@@ -468,7 +468,7 @@ export function ReportSection({ data }: ReportSectionProps) {
                 <XCircle className='mt-0.5 h-5 w-5 text-red-500' />
                 <div>
                   <h4 className='font-semibold'>Possible Sleep Apnea</h4>
-                  <p className='text-sm text-gray-600'>
+                  <p className='text-muted-foreground text-sm'>
                     Symptoms suggest sleep-disordered breathing requiring medical evaluation
                   </p>
                 </div>
@@ -482,7 +482,7 @@ export function ReportSection({ data }: ReportSectionProps) {
                   <h4 className='font-semibold text-red-700'>
                     COMISA (Comorbid Insomnia and Sleep Apnea)
                   </h4>
-                  <p className='text-sm text-gray-600'>
+                  <p className='text-muted-foreground text-sm'>
                     You show signs of both insomnia and sleep apnea occurring together. COMISA is a
                     complex condition that affects approximately 30-50% of people with either
                     disorder. Treatment requires addressing both conditions simultaneously for best
@@ -497,7 +497,9 @@ export function ReportSection({ data }: ReportSectionProps) {
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
                   <h4 className='font-semibold'>Restless Legs Syndrome Symptoms</h4>
-                  <p className='text-sm text-gray-600'>Leg discomfort affecting sleep onset</p>
+                  <p className='text-muted-foreground text-sm'>
+                    Leg discomfort affecting sleep onset
+                  </p>
                 </div>
               </div>
             )}
@@ -507,17 +509,19 @@ export function ReportSection({ data }: ReportSectionProps) {
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
                   <h4 className='font-semibold'>Frequent Nightmares</h4>
-                  <p className='text-sm text-gray-600'>Disturbing dreams affecting sleep quality</p>
+                  <p className='text-muted-foreground text-sm'>
+                    Disturbing dreams affecting sleep quality
+                  </p>
                 </div>
               </div>
             )}
 
             {chronotype === 'delayed' && (
               <div className='flex items-start space-x-3'>
-                <Info className='mt-0.5 h-5 w-5 text-blue-500' />
+                <Info className='text-primary mt-0.5 h-5 w-5' />
                 <div>
                   <h4 className='font-semibold'>Delayed Sleep Phase</h4>
-                  <p className='text-sm text-gray-600'>
+                  <p className='text-muted-foreground text-sm'>
                     Natural tendency to sleep and wake later than conventional times
                   </p>
                 </div>
@@ -529,7 +533,7 @@ export function ReportSection({ data }: ReportSectionProps) {
                 <Info className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
                   <h4 className='font-semibold'>Sleep Hygiene Issues</h4>
-                  <p className='text-sm text-gray-600'>
+                  <p className='text-muted-foreground text-sm'>
                     Lifestyle factors that may be impacting sleep quality
                   </p>
                 </div>
@@ -541,7 +545,7 @@ export function ReportSection({ data }: ReportSectionProps) {
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
                   <h4 className='font-semibold'>Insufficient Sleep Syndrome</h4>
-                  <p className='text-sm text-gray-600'>
+                  <p className='text-muted-foreground text-sm'>
                     Your average sleep time of {avgWeeklySleep.toFixed(1)} hours is below the
                     recommended 7+ hours. Combined with your daytime sleepiness, this suggests you
                     are not getting enough sleep to meet your body&apos;s needs.
@@ -557,7 +561,7 @@ export function ReportSection({ data }: ReportSectionProps) {
                   <h4 className='font-semibold'>
                     Possible Chronic Fatigue / Fibromyalgia Symptoms
                   </h4>
-                  <p className='text-sm text-gray-600'>
+                  <p className='text-muted-foreground text-sm'>
                     You report non-restorative sleep, muscle/joint pain, and daytime tiredness that
                     interferes with activities. These symptoms may be associated with fibromyalgia,
                     chronic fatigue syndrome, post-viral illness (e.g., long COVID), or Lyme
@@ -572,7 +576,7 @@ export function ReportSection({ data }: ReportSectionProps) {
                 <Info className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
                   <h4 className='font-semibold'>Pain Affecting Sleep</h4>
-                  <p className='text-sm text-gray-600'>
+                  <p className='text-muted-foreground text-sm'>
                     Moderate to severe pain ({data.daytime.painSeverity}/10) is affecting your sleep
                     quality. Pain management should be addressed alongside sleep treatment.
                   </p>
@@ -594,7 +598,7 @@ export function ReportSection({ data }: ReportSectionProps) {
                   <CheckCircle className='mt-0.5 h-5 w-5 text-green-500' />
                   <div>
                     <h4 className='font-semibold'>No Major Sleep Issues Detected</h4>
-                    <p className='text-sm text-gray-600'>
+                    <p className='text-muted-foreground text-sm'>
                       Your sleep patterns appear generally healthy
                     </p>
                   </div>
@@ -606,7 +610,7 @@ export function ReportSection({ data }: ReportSectionProps) {
 
       {/* Personalized Recommendations */}
       <Card className='shadow-sleep overflow-hidden border-0'>
-        <CardHeader className='bg-gradient-to-r from-emerald-600 to-teal-600 text-white'>
+        <CardHeader className='bg-gradient-sleep-header text-white'>
           <CardTitle className='flex items-center space-x-2 text-white'>
             <Heart className='h-5 w-5' />
             <span>Personalized Recommendations</span>
@@ -617,7 +621,7 @@ export function ReportSection({ data }: ReportSectionProps) {
             {hasInsomnia && (
               <div>
                 <h4 className='mb-2 font-semibold'>For Your Insomnia:</h4>
-                <ul className='list-inside list-disc space-y-1 text-sm text-gray-700'>
+                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
                   <li>Consider Cognitive Behavioral Therapy for Insomnia (CBT-I)</li>
                   <li>Maintain consistent sleep and wake times, even on weekends</li>
                   <li>Limit time in bed to actual sleep time (sleep restriction)</li>
@@ -636,7 +640,7 @@ export function ReportSection({ data }: ReportSectionProps) {
                 <h4 className='mb-2 font-semibold text-red-600'>
                   ⚠️ Urgent: Sleep Apnea Evaluation
                 </h4>
-                <ul className='list-inside list-disc space-y-1 text-sm text-gray-700'>
+                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
                   <li>Schedule a sleep study with a sleep specialist immediately</li>
                   <li>Discuss CPAP therapy or other treatment options</li>
                   <li>If overweight, weight loss can significantly improve symptoms</li>
@@ -649,12 +653,12 @@ export function ReportSection({ data }: ReportSectionProps) {
             {hasCOMISA && (
               <div>
                 <h4 className='mb-2 font-semibold text-red-600'>⚠️ Urgent: COMISA Treatment</h4>
-                <p className='mb-2 text-sm text-gray-700'>
+                <p className='text-foreground/80 mb-2 text-sm'>
                   COMISA (Comorbid Insomnia and Sleep Apnea) requires coordinated treatment of both
                   conditions. Research shows that treating only one condition often leaves patients
                   with persistent symptoms.
                 </p>
-                <ul className='list-inside list-disc space-y-1 text-sm text-gray-700'>
+                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
                   <li>Schedule a comprehensive sleep evaluation with a sleep specialist</li>
                   <li>A sleep study is essential to diagnose and assess sleep apnea severity</li>
                   <li>Consider combined therapy: CBT-I plus CPAP treatment</li>
@@ -671,7 +675,7 @@ export function ReportSection({ data }: ReportSectionProps) {
             {hasRLS && (
               <div>
                 <h4 className='mb-2 font-semibold'>For Restless Legs Syndrome:</h4>
-                <ul className='list-inside list-disc space-y-1 text-sm text-gray-700'>
+                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
                   <li>Have your ferritin levels checked by your doctor</li>
                   <li>Consider iron supplementation if levels are below 75mcg/ml</li>
                   <li>Reduce caffeine and alcohol consumption</li>
@@ -686,11 +690,11 @@ export function ReportSection({ data }: ReportSectionProps) {
                 <h4 className='mb-2 font-semibold text-amber-600'>
                   For Insufficient Sleep Syndrome:
                 </h4>
-                <p className='mb-2 text-sm text-gray-700'>
+                <p className='text-foreground/80 mb-2 text-sm'>
                   You&apos;re averaging {avgWeeklySleep.toFixed(1)} hours of sleep per night. Most
                   adults need 7-9 hours for optimal health and functioning.
                 </p>
-                <ul className='list-inside list-disc space-y-1 text-sm text-gray-700'>
+                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
                   <li>Prioritize sleep by setting an earlier bedtime</li>
                   <li>
                     Calculate your target bedtime by counting back 7-8 hours from your wake time
@@ -708,11 +712,11 @@ export function ReportSection({ data }: ReportSectionProps) {
             {hasChronicFatigueSymptoms && (
               <div>
                 <h4 className='mb-2 font-semibold text-amber-600'>For Chronic Fatigue Symptoms:</h4>
-                <p className='mb-2 text-sm text-gray-700'>
+                <p className='text-foreground/80 mb-2 text-sm'>
                   Your combination of non-restorative sleep, pain, and fatigue warrants medical
                   evaluation.
                 </p>
-                <ul className='list-inside list-disc space-y-1 text-sm text-gray-700'>
+                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
                   <li>Discuss symptoms with your primary care doctor</li>
                   <li>Consider referral to a rheumatologist for fibromyalgia evaluation</li>
                   <li>Request testing for thyroid function, vitamin D, iron/ferritin levels</li>
@@ -727,7 +731,7 @@ export function ReportSection({ data }: ReportSectionProps) {
             {hasPainAffectingSleep && (
               <div>
                 <h4 className='mb-2 font-semibold'>For Pain Management:</h4>
-                <ul className='list-inside list-disc space-y-1 text-sm text-gray-700'>
+                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
                   <li>Discuss pain management options with your healthcare provider</li>
                   <li>Consider physical therapy or stretching routines before bed</li>
                   <li>Evaluate your sleep position and mattress for proper support</li>
@@ -741,7 +745,7 @@ export function ReportSection({ data }: ReportSectionProps) {
             {chronotype === 'delayed' && (
               <div>
                 <h4 className='mb-2 font-semibold'>For Delayed Sleep Phase:</h4>
-                <ul className='list-inside list-disc space-y-1 text-sm text-gray-700'>
+                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
                   <li>Use bright light therapy in the morning (10,000 lux for 30 minutes)</li>
                   <li>Avoid bright lights and screens in the evening</li>
                   <li>Consider melatonin 3-5 hours before desired bedtime (consult doctor)</li>
@@ -753,7 +757,7 @@ export function ReportSection({ data }: ReportSectionProps) {
             {/* Sleep Hygiene Recommendations */}
             <div>
               <h4 className='mb-2 font-semibold'>General Sleep Hygiene:</h4>
-              <ul className='list-inside list-disc space-y-1 text-sm text-gray-700'>
+              <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
                 {data.lifestyle.caffeinePerDay > 2 && (
                   <li>Reduce caffeine to 1-2 cups per day, none after noon</li>
                 )}
@@ -781,7 +785,7 @@ export function ReportSection({ data }: ReportSectionProps) {
 
       {/* When to Seek Help */}
       <Card className='shadow-sleep overflow-hidden border-0'>
-        <CardHeader className='bg-gradient-to-r from-violet-600 to-purple-600 text-white'>
+        <CardHeader className='bg-gradient-sleep-header text-white'>
           <CardTitle className='flex items-center space-x-2 text-white'>
             <Brain className='h-5 w-5' />
             <span>When to Seek Professional Help</span>
@@ -790,7 +794,7 @@ export function ReportSection({ data }: ReportSectionProps) {
         <CardContent className='pt-6'>
           <div className='space-y-3'>
             {(hasOSA || data.breathingDisorders.diagnosed) && (
-              <Alert className='border-red-200 bg-red-50'>
+              <Alert className='alert-danger'>
                 <AlertCircle className='h-4 w-4 text-red-600' />
                 <AlertDescription className='text-red-900'>
                   <strong>Immediate Medical Attention Recommended</strong>
@@ -802,7 +806,7 @@ export function ReportSection({ data }: ReportSectionProps) {
             )}
 
             {insomniaSeverity === 'severe' && (
-              <Alert className='border-amber-200 bg-amber-50'>
+              <Alert className='alert-warning'>
                 <AlertCircle className='h-4 w-4 text-amber-600' />
                 <AlertDescription className='text-amber-900'>
                   <strong>Professional Sleep Consultation Recommended</strong>
@@ -846,22 +850,26 @@ export function ReportSection({ data }: ReportSectionProps) {
                     href='https://aasm.org/clinical-resources/patient-info/'
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='text-blue-600 hover:underline'
+                    className='text-primary hover:underline'
                   >
                     AASM Sleep Centers →
                   </a>
-                  <p className='text-xs text-gray-500'>Find accredited sleep centers near you</p>
+                  <p className='text-muted-foreground text-xs'>
+                    Find accredited sleep centers near you
+                  </p>
                 </li>
                 <li>
                   <a
                     href='https://www.absm.org/diplomates-directory/'
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='text-blue-600 hover:underline'
+                    className='text-primary hover:underline'
                   >
                     ABSM Certified Specialists →
                   </a>
-                  <p className='text-xs text-gray-500'>Board-certified sleep medicine physicians</p>
+                  <p className='text-muted-foreground text-xs'>
+                    Board-certified sleep medicine physicians
+                  </p>
                 </li>
               </ul>
             </div>
@@ -874,22 +882,26 @@ export function ReportSection({ data }: ReportSectionProps) {
                     href='https://www.behavioralsleep.org/index.php/society-of-behavioral-sleep-medicine-providers'
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='text-blue-600 hover:underline'
+                    className='text-primary hover:underline'
                   >
                     SBSM Provider Directory →
                   </a>
-                  <p className='text-xs text-gray-500'>CBT-I and behavioral sleep specialists</p>
+                  <p className='text-muted-foreground text-xs'>
+                    CBT-I and behavioral sleep specialists
+                  </p>
                 </li>
                 <li>
                   <a
                     href='https://www.perelman.upenn.edu/cbt-i'
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='text-blue-600 hover:underline'
+                    className='text-primary hover:underline'
                   >
                     CBT-I Therapist Directory →
                   </a>
-                  <p className='text-xs text-gray-500'>Cognitive behavioral therapy for insomnia</p>
+                  <p className='text-muted-foreground text-xs'>
+                    Cognitive behavioral therapy for insomnia
+                  </p>
                 </li>
               </ul>
             </div>
@@ -902,22 +914,22 @@ export function ReportSection({ data }: ReportSectionProps) {
                     href='https://locator.apa.org/'
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='text-blue-600 hover:underline'
+                    className='text-primary hover:underline'
                   >
                     APA Psychologist Locator →
                   </a>
-                  <p className='text-xs text-gray-500'>Find mental health professionals</p>
+                  <p className='text-muted-foreground text-xs'>Find mental health professionals</p>
                 </li>
                 <li>
                   <a
                     href='https://www.psychologytoday.com/us/therapists'
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='text-blue-600 hover:underline'
+                    className='text-primary hover:underline'
                   >
                     Psychology Today Directory →
                   </a>
-                  <p className='text-xs text-gray-500'>
+                  <p className='text-muted-foreground text-xs'>
                     Therapists specializing in sleep and anxiety
                   </p>
                 </li>
@@ -932,22 +944,22 @@ export function ReportSection({ data }: ReportSectionProps) {
                     href='https://sleepeducation.org/'
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='text-blue-600 hover:underline'
+                    className='text-primary hover:underline'
                   >
                     Sleep Education (AASM) →
                   </a>
-                  <p className='text-xs text-gray-500'>Evidence-based sleep information</p>
+                  <p className='text-muted-foreground text-xs'>Evidence-based sleep information</p>
                 </li>
                 <li>
                   <a
                     href='https://www.sleepfoundation.org/'
                     target='_blank'
                     rel='noopener noreferrer'
-                    className='text-blue-600 hover:underline'
+                    className='text-primary hover:underline'
                   >
                     National Sleep Foundation →
                   </a>
-                  <p className='text-xs text-gray-500'>Sleep health guides and tools</p>
+                  <p className='text-muted-foreground text-xs'>Sleep health guides and tools</p>
                 </li>
               </ul>
             </div>
