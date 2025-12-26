@@ -449,8 +449,15 @@ export function QuestionnaireForm() {
   const isSecondToLast = currentSectionIndex === sections.length - 2;
 
   return (
-    <div className='min-h-screen bg-gradient-to-b from-blue-50 to-white py-8'>
-      <div className='container mx-auto max-w-4xl px-4'>
+    <div className='bg-gradient-sleep relative min-h-screen py-8 md:py-12'>
+      {/* Subtle decorative background elements */}
+      <div className='pointer-events-none absolute inset-0 overflow-hidden'>
+        <div className='bg-primary/5 absolute -top-24 -right-24 h-96 w-96 rounded-full blur-3xl' />
+        <div className='bg-accent/10 absolute top-1/3 -left-24 h-72 w-72 rounded-full blur-3xl' />
+        <div className='bg-primary/5 absolute right-1/4 bottom-0 h-64 w-64 rounded-full blur-3xl' />
+      </div>
+
+      <div className='relative container mx-auto max-w-3xl px-4'>
         {/* Dev Tools - Only show in development */}
         {process.env.NODE_ENV === 'development' && (
           <div className='mb-4 flex justify-end gap-2'>
@@ -459,7 +466,7 @@ export function QuestionnaireForm() {
               variant='outline'
               size='sm'
               onClick={handlePreFill}
-              className='border-yellow-300 bg-yellow-50 hover:bg-yellow-100'
+              className='border-amber-300/50 bg-amber-50/80 text-amber-700 backdrop-blur-sm hover:bg-amber-100'
             >
               <TestTube className='mr-2 h-4 w-4' />
               Pre-fill & Jump to Report (Dev)
@@ -467,65 +474,145 @@ export function QuestionnaireForm() {
           </div>
         )}
 
-        {/* Progress Bar */}
+        {/* Progress Section */}
         <div className='mb-8'>
-          <div className='mb-2 flex justify-between text-sm text-gray-600'>
-            <span>
-              Section {currentSectionIndex + 1} of {sections.length}
-            </span>
-            <span>{Math.round(progress)}% Complete</span>
+          <div className='mb-3 flex items-center justify-between'>
+            <div className='flex items-center gap-3'>
+              <div className='bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold'>
+                {currentSectionIndex + 1}
+              </div>
+              <div>
+                <p className='text-foreground/80 text-sm font-medium'>
+                  Step {currentSectionIndex + 1} of {sections.length}
+                </p>
+                <p className='text-muted-foreground text-xs'>{sectionTitles[currentSection]}</p>
+              </div>
+            </div>
+            <div className='text-right'>
+              <p className='text-primary text-2xl font-semibold'>{Math.round(progress)}%</p>
+              <p className='text-muted-foreground text-xs'>Complete</p>
+            </div>
           </div>
-          <Progress value={progress} className='h-2' />
+          <div className='relative'>
+            <Progress value={progress} className='h-2' />
+          </div>
         </div>
 
         {/* Main Form Card */}
-        <Card className='shadow-xl'>
-          <CardHeader className='bg-gradient-to-r from-blue-600 to-indigo-600 text-white'>
-            <CardTitle className='text-2xl'>{sectionTitles[currentSection]}</CardTitle>
-            {currentSection !== 'intro' && currentSection !== 'report' && (
-              <CardDescription className='text-blue-100'>
-                Please answer all questions to the best of your ability
-              </CardDescription>
-            )}
+        <Card className='shadow-sleep-lg bg-card/80 overflow-hidden border-0 backdrop-blur-sm'>
+          <CardHeader className='bg-gradient-sleep-header relative overflow-hidden px-6 py-8 text-white md:px-8'>
+            {/* Subtle pattern overlay */}
+            <div className='absolute inset-0 opacity-10'>
+              <svg className='h-full w-full' xmlns='http://www.w3.org/2000/svg'>
+                <defs>
+                  <pattern
+                    id='stars'
+                    x='0'
+                    y='0'
+                    width='50'
+                    height='50'
+                    patternUnits='userSpaceOnUse'
+                  >
+                    <circle cx='2' cy='2' r='1' fill='currentColor' />
+                    <circle cx='25' cy='30' r='0.5' fill='currentColor' />
+                    <circle cx='40' cy='10' r='0.75' fill='currentColor' />
+                  </pattern>
+                </defs>
+                <rect width='100%' height='100%' fill='url(#stars)' />
+              </svg>
+            </div>
+            <div className='relative'>
+              <CardTitle className='text-2xl font-semibold tracking-tight md:text-3xl'>
+                {sectionTitles[currentSection]}
+              </CardTitle>
+              {currentSection !== 'intro' && currentSection !== 'report' && (
+                <CardDescription className='mt-2 text-white/80'>
+                  Please answer all questions to the best of your ability
+                </CardDescription>
+              )}
+            </div>
           </CardHeader>
-          <CardContent className='pt-6'>
+          <CardContent className='px-6 py-8 md:px-8'>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
+              <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
                 {renderSection()}
 
                 {/* PDF Download Button - Only show on report section */}
                 {currentSection === 'report' && (
-                  <div className='mt-6 flex justify-center'>
+                  <div className='mt-8 flex justify-center'>
                     <Button
                       type='button'
                       onClick={handleGeneratePDF}
-                      className='bg-green-600 hover:bg-green-700'
+                      size='lg'
+                      className='bg-emerald-600 px-8 shadow-md hover:bg-emerald-700'
                     >
-                      <Download className='mr-2 h-4 w-4' />
+                      <Download className='mr-2 h-5 w-5' />
                       Download PDF Report
                     </Button>
                   </div>
                 )}
 
                 {/* Navigation Buttons */}
-                <div className='flex justify-between border-t pt-6'>
+                <div className='border-border/50 flex items-center justify-between border-t pt-8'>
                   <Button
                     type='button'
-                    variant='outline'
+                    variant='ghost'
                     onClick={handlePrevious}
                     disabled={isFirstSection}
-                    className={cn(isFirstSection && 'invisible')}
+                    className={cn(
+                      'text-muted-foreground hover:text-foreground gap-2',
+                      isFirstSection && 'invisible'
+                    )}
                   >
+                    <svg className='h-4 w-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={2}
+                        d='M15 19l-7-7 7-7'
+                      />
+                    </svg>
                     Previous
                   </Button>
 
                   {isSecondToLast ? (
-                    <Button type='submit' className='ml-auto'>
+                    <Button type='submit' size='lg' className='ml-auto gap-2 px-6 shadow-md'>
                       Generate Report
+                      <svg
+                        className='h-4 w-4'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                        stroke='currentColor'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+                        />
+                      </svg>
                     </Button>
                   ) : !isLastSection ? (
-                    <Button type='button' onClick={handleNext} className='ml-auto'>
-                      Next Section
+                    <Button
+                      type='button'
+                      onClick={handleNext}
+                      size='lg'
+                      className='ml-auto gap-2 px-6 shadow-md'
+                    >
+                      Continue
+                      <svg
+                        className='h-4 w-4'
+                        fill='none'
+                        viewBox='0 0 24 24'
+                        stroke='currentColor'
+                      >
+                        <path
+                          strokeLinecap='round'
+                          strokeLinejoin='round'
+                          strokeWidth={2}
+                          d='M9 5l7 7-7 7'
+                        />
+                      </svg>
                     </Button>
                   ) : null}
                 </div>
@@ -533,6 +620,11 @@ export function QuestionnaireForm() {
             </Form>
           </CardContent>
         </Card>
+
+        {/* Footer note */}
+        <p className='text-muted-foreground mt-6 text-center text-xs'>
+          Your information is secure and confidential
+        </p>
       </div>
     </div>
   );
