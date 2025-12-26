@@ -4,21 +4,18 @@ title: Prisma datasource URL configuration
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766777872220
-tldr: The user encountered a Prisma 7 error regarding the  in
-  , despite having Prisma 6.x installed. The fix involved
-  upgrading Prisma to version 7, creating a  file for database
-  configuration, and updating the  to use the new adapter pattern.
-overview: "The user's intent was to resolve a Prisma error indicating that the
-   property was no longer supported in  files, a
-  change introduced in Prisma 7. Although the project's  showed
-  Prisma 6.x, the error message pointed to Prisma 7. The approach involved a
-  multi-step fix: first, upgrading Prisma and  to version 7.2.0
-  to align all dependencies. Next, the  property was removed from
-  . A new  file was created to
-  centralize database configuration for migrations, utilizing  to load
-  environment variables. Finally, the  instantiation in
-   was updated to use the  with the
-   directly. This resolved the error, ensured proper database
-  connection handling, and brought the project up to date with Prisma 7's
-  configuration best practices."
+tldr: The user encountered a Prisma 7 error regarding the  property in
+  , despite having Prisma 6 installed. The fix involved upgrading
+  Prisma to version 7, reconfiguring the database connection using
+   and a driver adapter, and updating the PrismaClient
+  instantiation.
+overview: The user faced a Prisma 7 error about the  property in
+  , despite an apparent Prisma 6 installation. The core issue was
+  a version discrepancy, leading to an upgrade of Prisma to 7.2.0. The solution
+  involved removing the  from , creating a
+   file to handle database URL configuration for migrations
+  (including  integration), and updating the
+  instantiation to use the  with the connection string. This
+  approach successfully migrated the project to the new Prisma 7 configuration,
+  resolving the error and ensuring proper database connectivity.
 bullets: []
