@@ -1,4 +1,4 @@
-import { Control, FieldValues, Path } from 'react-hook-form'
+import { Control, FieldValues, Path } from 'react-hook-form';
 import {
   FormControl,
   FormDescription,
@@ -6,32 +6,32 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 
 interface NumberFieldProps<TFieldValues extends FieldValues = FieldValues> {
-  control: Control<TFieldValues>
-  name: Path<TFieldValues>
-  label: string
-  placeholder?: string
-  description?: string
-  min?: number
-  max?: number
-  step?: number
+  control: Control<TFieldValues>;
+  name: Path<TFieldValues>;
+  label: string;
+  placeholder?: string;
+  description?: string;
+  min?: number;
+  max?: number;
+  step?: number;
   /** If true, empty inputs will be set to null instead of 0 */
-  allowNull?: boolean
+  allowNull?: boolean;
 }
 
-export function NumberField<TFieldValues extends FieldValues = FieldValues>({ 
-  control, 
-  name, 
-  label, 
+export function NumberField<TFieldValues extends FieldValues = FieldValues>({
+  control,
+  name,
+  label,
   placeholder,
   description,
   min,
   max,
   step = 1,
-  allowNull = false
+  allowNull = false,
 }: NumberFieldProps<TFieldValues>) {
   return (
     <FormField
@@ -42,11 +42,11 @@ export function NumberField<TFieldValues extends FieldValues = FieldValues>({
           <FormLabel>{label}</FormLabel>
           <FormControl>
             <Input
-              type="number"
+              type='number'
               placeholder={placeholder}
               {...field}
               value={field.value ?? ''}
-              onChange={(e) => {
+              onChange={e => {
                 const value = e.target.valueAsNumber;
                 if (Number.isNaN(value)) {
                   // Empty input - use null if allowed, otherwise 0
@@ -65,5 +65,5 @@ export function NumberField<TFieldValues extends FieldValues = FieldValues>({
         </FormItem>
       )}
     />
-  )
+  );
 }

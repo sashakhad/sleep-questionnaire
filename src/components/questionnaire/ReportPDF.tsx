@@ -199,7 +199,11 @@ function calculateEDSScore(fallAsleepDuring: string[]): {
 }
 
 // Helper function to parse time string to minutes from midnight
-function timeToMinutes(time: string | undefined, defaultHours: number, defaultMinutes: number = 0): number {
+function timeToMinutes(
+  time: string | undefined,
+  defaultHours: number,
+  defaultMinutes: number = 0
+): number {
   // Handle empty strings, undefined, or invalid values
   if (!time || time.trim() === '') {
     return defaultHours * 60 + defaultMinutes;
@@ -231,9 +235,8 @@ function calculateSleepMetrics(data: QuestionnaireFormData) {
   const scheduledWASO = data.scheduledSleep.minutesAwakeAtNight || 0;
   const scheduledTSTMinutes = scheduledTimeInBedMinutes - scheduledSOL - scheduledWASO;
   const scheduledTST = scheduledTSTMinutes / 60; // Convert to hours
-  const scheduledSE = scheduledTimeInBedMinutes > 0 
-    ? (scheduledTSTMinutes / scheduledTimeInBedMinutes) * 100 
-    : 0;
+  const scheduledSE =
+    scheduledTimeInBedMinutes > 0 ? (scheduledTSTMinutes / scheduledTimeInBedMinutes) * 100 : 0;
 
   // Unscheduled/weekend calculations - use minutes for accuracy
   const unscheduledBedtimeMinutes = timeToMinutes(data.unscheduledSleep.lightsOutTime, 23, 0);
@@ -247,9 +250,10 @@ function calculateSleepMetrics(data: QuestionnaireFormData) {
   const unscheduledWASO = data.unscheduledSleep.minutesAwakeAtNight || 0;
   const unscheduledTSTMinutes = unscheduledTimeInBedMinutes - unscheduledSOL - unscheduledWASO;
   const unscheduledTST = unscheduledTSTMinutes / 60; // Convert to hours
-  const unscheduledSE = unscheduledTimeInBedMinutes > 0 
-    ? (unscheduledTSTMinutes / unscheduledTimeInBedMinutes) * 100 
-    : 0;
+  const unscheduledSE =
+    unscheduledTimeInBedMinutes > 0
+      ? (unscheduledTSTMinutes / unscheduledTimeInBedMinutes) * 100
+      : 0;
 
   return {
     scheduledTST,

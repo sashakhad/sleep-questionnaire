@@ -1,10 +1,11 @@
 import { z } from 'zod';
 
 // Time string validation - accepts HH:MM format or empty string
-const timeString = z.string().refine(
-  (val) => val === '' || /^\d{1,2}:\d{2}$/.test(val),
-  { message: 'Time must be in HH:MM format' }
-);
+const timeString = z
+  .string()
+  .refine(val => val === '' || /^\d{1,2}:\d{2}$/.test(val), {
+    message: 'Time must be in HH:MM format',
+  });
 
 // Section 1: Daytime feelings schema
 export const daytimeSchema = z.object({

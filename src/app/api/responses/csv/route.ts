@@ -143,15 +143,15 @@ export async function GET(request: Request) {
   // Auth is handled by middleware
   try {
     const url = new URL(request.url);
-    
+
     // Parse optional pagination/limit parameters for CSV export
     // Default to 10000 rows max to prevent memory exhaustion
     const rawLimit = parseInt(url.searchParams.get('limit') || '10000', 10);
     const limit = Number.isNaN(rawLimit) || rawLimit < 1 ? 10000 : Math.min(rawLimit, 10000);
-    
+
     const rawOffset = parseInt(url.searchParams.get('offset') || '0', 10);
     const offset = Number.isNaN(rawOffset) || rawOffset < 0 ? 0 : rawOffset;
-    
+
     const responses = await prisma.questionnaireResponse.findMany({
       take: limit,
       skip: offset,

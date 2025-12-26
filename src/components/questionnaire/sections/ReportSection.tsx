@@ -983,10 +983,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
           Print Report
         </Button>
         {onDownloadPDF && (
-          <Button 
+          <Button
             onClick={onDownloadPDF}
-            variant='outline' 
-            size='lg' 
+            variant='outline'
+            size='lg'
             className='border-primary/20 hover:bg-primary/5 gap-2'
           >
             <Download className='h-4 w-4' />
