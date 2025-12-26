@@ -4,21 +4,21 @@ title: Somna Health questionnaire acceptance review
 model: claude-4.5-opus-high-thinking
 mode: plan
 updatedAt: 1766769519498
-tldr: The user requested a comprehensive review of a recently implemented
-  interactive sleep questionnaire application and its API endpoints against
-  defined acceptance criteria. The review focused on ensuring all functional and
-  data requirements, including report generation and data access, were met.
-overview: The user initiated a review of a recently developed interactive sleep
-  questionnaire application. The core intent was to verify that the implemented
-  database, API endpoints, and overall functionality align with the detailed
-  acceptance criteria outlined in the provided project documentation. The
-  application is designed to be a freemium tool, collecting minimal
-  de-identified demographic data (year of birth, zipcode/county, sex). It guides
-  patients through psychometrically validated questions to generate a narrative
-  report. This report either points towards sleep health optimization guidance
-  or provides probable diagnoses for specific sleep disorders (e.g., Insomnia,
-  Sleep Apnea), offering recommendations for further information and clinical
-  resources. The review process involved examining the questionnaire's
-  structure, data models, API for response handling, CSV export, PDF report
-  generation, and the admin dashboard for data access.
+tldr: The user requested a comprehensive review of the implemented sleep
+  questionnaire application and its API endpoints against the provided
+  acceptance criteria. The assistant performed a thorough review of the
+  codebase, examining various files related to the questionnaire logic, data
+  handling, and UI components.
+overview: The user initiated a review process for a recently implemented sleep
+  questionnaire application. The primary goal was to verify that the
+  application, including its database and API endpoints, fully met the
+  acceptance criteria outlined in the provided Statement of Work and
+  questionnaire details. The assistant's approach involved systematically
+  reading through key files in the codebase. This included examining the
+  questionnaire's outline, data types, validation schemas, Prisma database
+  schema, API routes for responses, CSV export, and PDF generation, as well as
+  core UI components for the questionnaire form, admin dashboard, and individual
+  sections like demographics and daytime sleepiness. This comprehensive file
+  review was conducted to gather all necessary information before providing a
+  detailed assessment of the implementation against the specified requirements.
 bullets: []
