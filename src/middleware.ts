@@ -1,27 +1,25 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { getSessionFromRequest } from '@/lib/auth';
 
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
-const SESSION_COOKIE = 'admin_authenticated';
-
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   // Only protect /admin routes (not /admin/login)
   if (
     request.nextUrl.pathname.startsWith('/admin') &&
     !request.nextUrl.pathname.startsWith('/admin/login')
   ) {
-    const isAuthenticated = request.cookies.get(SESSION_COOKIE)?.value === 'true';
+    const session = await getSessionFromRequest(request);
 
-    if (!isAuthenticated) {
+    if (!session) {
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }
 
   // Protect API routes under /api/responses (except POST which is public)
   if (request.nextUrl.pathname.startsWith('/api/responses') && request.method !== 'POST') {
-    const isAuthenticated = request.cookies.get(SESSION_COOKIE)?.value === 'true';
+    const session = await getSessionFromRequest(request);
 
-    if (!isAuthenticated) {
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
   }

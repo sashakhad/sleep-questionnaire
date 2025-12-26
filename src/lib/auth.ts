@@ -20,9 +20,18 @@ function createSessionToken(): string {
 function verifySessionToken(token: string): boolean {
   try {
     const parts = token.split(':');
-    if (parts.length !== 3) return false;
+    if (parts.length !== 3) {
+      return false;
+    }
 
-    const [timestamp, randomBytes, signature] = parts;
+    const timestamp = parts[0];
+    const randomBytes = parts[1];
+    const signature = parts[2];
+
+    if (!timestamp || !randomBytes || !signature) {
+      return false;
+    }
+
     const data = `${timestamp}:${randomBytes}`;
 
     const hmac = crypto.createHmac('sha256', SESSION_SECRET);
@@ -30,14 +39,18 @@ function verifySessionToken(token: string): boolean {
     const expectedSignature = hmac.digest('hex');
 
     // Verify signature
-    if (signature !== expectedSignature) return false;
+    if (signature !== expectedSignature) {
+      return false;
+    }
 
     // Check if session is expired (24 hours)
     const sessionTime = parseInt(timestamp, 10);
     const now = Date.now();
     const maxAge = 24 * 60 * 60 * 1000; // 24 hours
 
-    if (now - sessionTime > maxAge) return false;
+    if (now - sessionTime > maxAge) {
+      return false;
+    }
 
     return true;
   } catch {
@@ -64,7 +77,9 @@ export async function getSession(): Promise<string | null> {
   const cookieStore = await cookies();
   const session = cookieStore.get(SESSION_COOKIE_NAME);
 
-  if (!session?.value) return null;
+  if (!session?.value) {
+    return null;
+  }
 
   if (!verifySessionToken(session.value)) {
     return null;
@@ -76,7 +91,9 @@ export async function getSession(): Promise<string | null> {
 export async function getSessionFromRequest(request: NextRequest): Promise<string | null> {
   const session = request.cookies.get(SESSION_COOKIE_NAME);
 
-  if (!session?.value) return null;
+  if (!session?.value) {
+    return null;
+  }
 
   if (!verifySessionToken(session.value)) {
     return null;

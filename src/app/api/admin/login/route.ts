@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createSession } from '@/lib/auth';
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '';
-const SESSION_COOKIE = 'admin_authenticated';
 
 export async function POST(request: NextRequest) {
   try {
@@ -17,17 +17,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
     }
 
-    // Set simple authenticated cookie
-    const response = NextResponse.json({ success: true });
-    response.cookies.set(SESSION_COOKIE, 'true', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60, // 24 hours
-      path: '/',
-    });
+    // Create a secure HMAC-signed session token
+    await createSession();
 
-    return response;
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

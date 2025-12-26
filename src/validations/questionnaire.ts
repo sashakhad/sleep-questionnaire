@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+// Time string validation - accepts HH:MM format or empty string
+const timeString = z.string().refine(
+  (val) => val === '' || /^\d{1,2}:\d{2}$/.test(val),
+  { message: 'Time must be in HH:MM format' }
+);
+
 // Section 1: Daytime feelings schema
 export const daytimeSchema = z.object({
   plannedNaps: z.object({
@@ -23,13 +29,13 @@ export const daytimeSchema = z.object({
 
 // Sleep pattern schema (reusable for scheduled and unscheduled)
 const sleepPatternSchema = z.object({
-  lightsOutTime: z.string(),
+  lightsOutTime: timeString,
   minutesToFallAsleep: z.number().min(0),
   nightWakeups: z.number().min(0),
   wakeupReasons: z.array(z.string()),
   minutesAwakeAtNight: z.number().min(0),
-  wakeupTime: z.string(),
-  getOutOfBedTime: z.string(),
+  wakeupTime: timeString,
+  getOutOfBedTime: timeString,
   earlyWakeupDays: z.number().min(0).max(7),
   earlyWakeupMinutes: z.number().min(0).nullable(),
   usesAlarm: z.boolean(),
@@ -93,7 +99,7 @@ export const chronotypeSchema = z.object({
   shiftDaysPerWeek: z.number().min(0).max(7).nullable(),
   pastShiftWorkYears: z.number().min(0).nullable(),
   frequentTimeZoneTravel: z.boolean(),
-  workSchoolTime: z.string(),
+  workSchoolTime: timeString,
 });
 
 // Section 8: Sleep hygiene
@@ -101,7 +107,7 @@ export const sleepHygieneSchema = z.object({
   supplements: z.array(z.string()),
   prescriptionMeds: z.array(z.string()),
   stimulants: z.string(),
-  stimulantTime: z.string(),
+  stimulantTime: timeString,
   smokesNicotine: z.boolean(),
 });
 
@@ -116,14 +122,14 @@ export const bedroomSchema = z.object({
 // Section 10-12: Lifestyle
 export const lifestyleSchema = z.object({
   caffeinePerDay: z.number().min(0),
-  lastCaffeineTime: z.string(),
+  lastCaffeineTime: timeString,
   alcoholPerWeek: z.object({
     wine: z.number().min(0),
     cocktails: z.number().min(0),
   }),
   exerciseDaysPerWeek: z.number().min(0).max(7),
   exerciseDuration: z.number().min(0).nullable(),
-  exerciseEndTime: z.string(),
+  exerciseEndTime: timeString,
 });
 
 // Section 13-15: Mental health

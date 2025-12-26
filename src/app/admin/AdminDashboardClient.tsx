@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,35 +30,38 @@ export function AdminDashboardClient() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  async function fetchResponses(page = 1) {
-    try {
-      setLoading(true);
-      setError('');
+  const fetchResponses = useCallback(
+    async (page = 1) => {
+      try {
+        setLoading(true);
+        setError('');
 
-      const response = await fetch(`/api/responses?page=${page}&limit=50`);
+        const response = await fetch(`/api/responses?page=${page}&limit=50`);
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          router.push('/admin/login');
-          return;
+        if (!response.ok) {
+          if (response.status === 401) {
+            router.push('/admin/login');
+            return;
+          }
+          throw new Error('Failed to fetch responses');
         }
-        throw new Error('Failed to fetch responses');
-      }
 
-      const data = await response.json();
-      setResponses(data.responses);
-      setPagination(data.pagination);
-    } catch (err) {
-      setError('Failed to load responses. Please try again.');
-      console.error('Error fetching responses:', err);
-    } finally {
-      setLoading(false);
-    }
-  }
+        const data = await response.json();
+        setResponses(data.responses);
+        setPagination(data.pagination);
+      } catch (err) {
+        setError('Failed to load responses. Please try again.');
+        console.error('Error fetching responses:', err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router]
+  );
 
   useEffect(() => {
     void fetchResponses();
-  }, []);
+  }, [fetchResponses]);
 
   async function handleLogout() {
     try {

@@ -198,33 +198,58 @@ function calculateEDSScore(fallAsleepDuring: string[]): {
   return { score, severity };
 }
 
+// Helper function to parse time string to minutes from midnight
+function timeToMinutes(time: string | undefined, defaultHours: number, defaultMinutes: number = 0): number {
+  // Handle empty strings, undefined, or invalid values
+  if (!time || time.trim() === '') {
+    return defaultHours * 60 + defaultMinutes;
+  }
+  const parts = time.split(':');
+  const hours = parseInt(parts[0] || String(defaultHours), 10);
+  const minutes = parseInt(parts[1] || String(defaultMinutes), 10);
+  // Handle NaN cases
+  if (Number.isNaN(hours)) {
+    return defaultHours * 60 + defaultMinutes;
+  }
+  if (Number.isNaN(minutes)) {
+    return hours * 60;
+  }
+  return hours * 60 + minutes;
+}
+
 // Helper function to calculate sleep metrics
 function calculateSleepMetrics(data: QuestionnaireFormData) {
-  // Scheduled/work days calculations
-  const scheduledBedtime = parseInt(data.scheduledSleep.lightsOutTime?.split(':')[0] ?? '22');
-  const scheduledWaketime = parseInt(data.scheduledSleep.wakeupTime?.split(':')[0] ?? '7');
-  let scheduledTimeInBed = scheduledWaketime - scheduledBedtime;
-  if (scheduledTimeInBed < 0) {
-    scheduledTimeInBed += 24;
+  // Scheduled/work days calculations - use minutes for accuracy
+  const scheduledBedtimeMinutes = timeToMinutes(data.scheduledSleep.lightsOutTime, 22, 0);
+  const scheduledWaketimeMinutes = timeToMinutes(data.scheduledSleep.wakeupTime, 7, 0);
+  let scheduledTimeInBedMinutes = scheduledWaketimeMinutes - scheduledBedtimeMinutes;
+  if (scheduledTimeInBedMinutes < 0) {
+    scheduledTimeInBedMinutes += 1440; // 24 hours in minutes
   }
 
-  const scheduledSOL = data.scheduledSleep.minutesToFallAsleep;
-  const scheduledWASO = data.scheduledSleep.minutesAwakeAtNight;
-  const scheduledTST = (scheduledTimeInBed * 60 - scheduledSOL - scheduledWASO) / 60;
-  const scheduledSE = (scheduledTST / scheduledTimeInBed) * 100;
+  const scheduledSOL = data.scheduledSleep.minutesToFallAsleep || 0;
+  const scheduledWASO = data.scheduledSleep.minutesAwakeAtNight || 0;
+  const scheduledTSTMinutes = scheduledTimeInBedMinutes - scheduledSOL - scheduledWASO;
+  const scheduledTST = scheduledTSTMinutes / 60; // Convert to hours
+  const scheduledSE = scheduledTimeInBedMinutes > 0 
+    ? (scheduledTSTMinutes / scheduledTimeInBedMinutes) * 100 
+    : 0;
 
-  // Unscheduled/weekend calculations
-  const unscheduledBedtime = parseInt(data.unscheduledSleep.lightsOutTime?.split(':')[0] ?? '23');
-  const unscheduledWaketime = parseInt(data.unscheduledSleep.wakeupTime?.split(':')[0] ?? '9');
-  let unscheduledTimeInBed = unscheduledWaketime - unscheduledBedtime;
-  if (unscheduledTimeInBed < 0) {
-    unscheduledTimeInBed += 24;
+  // Unscheduled/weekend calculations - use minutes for accuracy
+  const unscheduledBedtimeMinutes = timeToMinutes(data.unscheduledSleep.lightsOutTime, 23, 0);
+  const unscheduledWaketimeMinutes = timeToMinutes(data.unscheduledSleep.wakeupTime, 9, 0);
+  let unscheduledTimeInBedMinutes = unscheduledWaketimeMinutes - unscheduledBedtimeMinutes;
+  if (unscheduledTimeInBedMinutes < 0) {
+    unscheduledTimeInBedMinutes += 1440; // 24 hours in minutes
   }
 
-  const unscheduledSOL = data.unscheduledSleep.minutesToFallAsleep;
-  const unscheduledWASO = data.unscheduledSleep.minutesAwakeAtNight;
-  const unscheduledTST = (unscheduledTimeInBed * 60 - unscheduledSOL - unscheduledWASO) / 60;
-  const unscheduledSE = (unscheduledTST / unscheduledTimeInBed) * 100;
+  const unscheduledSOL = data.unscheduledSleep.minutesToFallAsleep || 0;
+  const unscheduledWASO = data.unscheduledSleep.minutesAwakeAtNight || 0;
+  const unscheduledTSTMinutes = unscheduledTimeInBedMinutes - unscheduledSOL - unscheduledWASO;
+  const unscheduledTST = unscheduledTSTMinutes / 60; // Convert to hours
+  const unscheduledSE = unscheduledTimeInBedMinutes > 0 
+    ? (unscheduledTSTMinutes / unscheduledTimeInBedMinutes) * 100 
+    : 0;
 
   return {
     scheduledTST,
@@ -258,8 +283,9 @@ function getChronotype(
   data: QuestionnaireFormData,
   metrics: ReturnType<typeof calculateSleepMetrics>
 ) {
-  const scheduledBedtime = parseInt(data.scheduledSleep.lightsOutTime?.split(':')[0] ?? '22');
-  const midSleepScheduled = scheduledBedtime + metrics.scheduledTST / 2;
+  const scheduledBedtimeMinutes = timeToMinutes(data.scheduledSleep.lightsOutTime, 22, 0);
+  const scheduledBedtimeHours = scheduledBedtimeMinutes / 60;
+  const midSleepScheduled = scheduledBedtimeHours + metrics.scheduledTST / 2;
 
   if (data.chronotype.preference === 'late' || midSleepScheduled >= 4) {
     return 'evening (night owl)';

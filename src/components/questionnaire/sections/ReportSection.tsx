@@ -17,6 +17,7 @@ import {
 
 interface ReportSectionProps {
   data: QuestionnaireFormData;
+  onDownloadPDF?: () => void;
 }
 
 // EDS weighted scoring - activities with x2 weight are more concerning
@@ -169,7 +170,7 @@ function getChronotype(metrics: SleepMetrics, preference: string): string {
   return 'normal';
 }
 
-export function ReportSection({ data }: ReportSectionProps) {
+export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
   const metrics = calculateSleepMetrics(data);
   const insomniaSeverity = getInsomniaSeverity(data, metrics);
   const chronotype = getChronotype(metrics, data.chronotype.preference);
@@ -981,10 +982,17 @@ export function ReportSection({ data }: ReportSectionProps) {
           <Printer className='h-4 w-4' />
           Print Report
         </Button>
-        <Button variant='outline' size='lg' className='border-primary/20 hover:bg-primary/5 gap-2'>
-          <Download className='h-4 w-4' />
-          Download PDF
-        </Button>
+        {onDownloadPDF && (
+          <Button 
+            onClick={onDownloadPDF}
+            variant='outline' 
+            size='lg' 
+            className='border-primary/20 hover:bg-primary/5 gap-2'
+          >
+            <Download className='h-4 w-4' />
+            Download PDF
+          </Button>
+        )}
       </div>
 
       {/* Disclaimer */}

@@ -18,6 +18,8 @@ interface NumberFieldProps<TFieldValues extends FieldValues = FieldValues> {
   min?: number
   max?: number
   step?: number
+  /** If true, empty inputs will be set to null instead of 0 */
+  allowNull?: boolean
 }
 
 export function NumberField<TFieldValues extends FieldValues = FieldValues>({ 
@@ -28,7 +30,8 @@ export function NumberField<TFieldValues extends FieldValues = FieldValues>({
   description,
   min,
   max,
-  step = 1
+  step = 1,
+  allowNull = false
 }: NumberFieldProps<TFieldValues>) {
   return (
     <FormField
@@ -42,7 +45,16 @@ export function NumberField<TFieldValues extends FieldValues = FieldValues>({
               type="number"
               placeholder={placeholder}
               {...field}
-              onChange={(e) => field.onChange(e.target.valueAsNumber || 0)}
+              value={field.value ?? ''}
+              onChange={(e) => {
+                const value = e.target.valueAsNumber;
+                if (Number.isNaN(value)) {
+                  // Empty input - use null if allowed, otherwise 0
+                  field.onChange(allowNull ? null : 0);
+                } else {
+                  field.onChange(value);
+                }
+              }}
               min={min}
               max={max}
               step={step}

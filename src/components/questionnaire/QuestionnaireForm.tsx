@@ -377,7 +377,8 @@ export function QuestionnaireForm() {
         },
         body: JSON.stringify({
           data: formData,
-          userName: 'Test User',
+          // Use a generic greeting since we don't collect names
+          userName: 'Patient',
         }),
       });
 
@@ -438,7 +439,7 @@ export function QuestionnaireForm() {
       case 'demographics':
         return <DemographicsSection form={form} />;
       case 'report':
-        return <ReportSection data={form.getValues()} />;
+        return <ReportSection data={form.getValues()} onDownloadPDF={handleGeneratePDF} />;
       default:
         return null;
     }

@@ -46,8 +46,15 @@ export async function GET(request: NextRequest) {
   // Auth is handled by middleware
   try {
     const { searchParams } = new URL(request.url);
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const limit = parseInt(searchParams.get('limit') || '50', 10);
+    
+    // Parse and validate page parameter
+    const rawPage = parseInt(searchParams.get('page') || '1', 10);
+    const page = Number.isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+    
+    // Parse and validate limit parameter (max 100 to prevent memory issues)
+    const rawLimit = parseInt(searchParams.get('limit') || '50', 10);
+    const limit = Number.isNaN(rawLimit) || rawLimit < 1 ? 50 : Math.min(rawLimit, 100);
+    
     const skip = (page - 1) * limit;
 
     const [responses, total] = await Promise.all([
