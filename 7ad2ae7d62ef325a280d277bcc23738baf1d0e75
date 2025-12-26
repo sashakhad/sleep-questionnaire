@@ -1,0 +1,27 @@
+version: 1
+conversationId: b5db9f48-afd9-433c-bcdb-c0b2b3299966
+title: Somna Health questionnaire acceptance review
+model: claude-4.5-opus-high-thinking
+mode: plan
+updatedAt: 1766769516883
+tldr: The user requested a thorough review of a recently implemented interactive
+  sleep questionnaire and its associated database and API endpoints. The goal is
+  to ensure all acceptance criteria are met for this freemium tool, which
+  provides personalized sleep health guidance or probable sleep disorder
+  diagnoses based on user input.
+overview: The user's intent was to have a comprehensive review of a recently
+  implemented interactive sleep questionnaire, its database, and API endpoints.
+  The project, named "Somna Health Practical Sleep Questionnaire," aims to be a
+  smart, patient-interactive tool based on psychometrically validated items.
+  It's designed as a freemium service, collecting only de-identified demographic
+  data (year of birth, zipcode/county, sex) while capturing raw, de-identified
+  data. Functionally, it will either guide users toward sleep health
+  optimization or provide probable diagnoses for various sleep disorders (e.g.,
+  Insomnia, OSA, Narcolepsy) with recommendations for further information and
+  treatment. The approach involves a web-based application with branching logic,
+  narrative report generation (including PDF download), and a database for
+  response storage with CSV retrieval. The Statement of Work outlines the scope,
+  responsibilities, timeline, and fees for the development by Helvetica Lake.
+  The user provided a detailed questionnaire structure with "IF Formulas" and
+  "Messages" to guide the review.
+bullets: []
