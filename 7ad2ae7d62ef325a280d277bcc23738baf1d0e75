@@ -4,19 +4,22 @@ title: Somna Health questionnaire acceptance review
 model: claude-4.5-opus-high-thinking
 mode: plan
 updatedAt: 1766769519498
-tldr: The user requested a comprehensive review of a recently implemented
-  interactive sleep questionnaire application. The goal is to ensure the
-  database, API endpoints, and overall functionality meet the detailed
-  acceptance criteria outlined in the provided project documentation, which
-  includes specific logic for sleep health guidance and disorder diagnosis.
-overview: The user wants to validate the current state of a "Somna Health
-  Practical Sleep Questionnaire" application against its defined scope and
-  acceptance criteria. This application is designed to be a freemium,
-  interactive tool that guides patients through a psychometrically validated
-  questionnaire. Based on responses, it aims to provide a narrative report with
-  sleep health optimization tips or probable diagnoses for various sleep
-  disorders, along with recommendations for further information and clinical
-  help. The system is also intended to collect de-identified raw data. The
-  assistant has begun its review by examining key files related to the
-  questionnaire's structure, types, validations, and database schema.
+tldr: The user requested a comprehensive review of a recently implemented sleep
+  questionnaire application to ensure all acceptance criteria were met. This
+  application is an interactive, AI-enabled tool designed to provide patients
+  with sleep health guidance or probable diagnoses for various sleep disorders,
+  along with a narrative report and links to resources.
+overview: The user wanted to ensure that the recently implemented sleep
+  questionnaire application met all the acceptance criteria outlined in the
+  Statement of Work. This application is a smart, interactive patient
+  questionnaire, based on psychometrically validated items, designed to take
+  about 15 minutes. It generates a narrative report with links to educational
+  resources and clinicians, offering either sleep health guidance or probable
+  diagnoses for specific sleep disorders. The application operates on a freemium
+  model, collecting only de-identified demographic data. The review process
+  involved examining the application's structure, data models, and API endpoints
+  for handling questionnaire responses, generating CSV exports, and creating PDF
+  reports. Key functional requirements included an interactive questionnaire
+  with branching logic, report generation with PDF download, raw data capture,
+  and simple data retrieval.
 bullets: []
