@@ -4,24 +4,28 @@ title: Somna Health questionnaire acceptance review
 model: claude-4.5-opus-high-thinking
 mode: plan
 updatedAt: 1766769519498
-tldr: The user requested a comprehensive review of their implemented sleep
-  questionnaire application, including its database and API endpoints, to ensure
-  all acceptance criteria from the provided detailed specification were met. The
-  review involved examining various code components related to the
-  questionnaire's functionality, data handling, report generation, and
-  administrative features.
-overview: The user initiated a comprehensive review of their recently
-  implemented sleep questionnaire application. The primary intent was to
-  validate that the current implementation, including its database and API
-  endpoints, fully satisfies the acceptance criteria outlined in a detailed
-  project specification. The application is designed as an interactive,
-  psychometrically validated questionnaire that provides users with a narrative
-  report, linking to educational resources and clinicians. It operates on a
-  freemium model, collecting minimal de-identified demographic data. The review
-  process involved examining numerous code files across the application's
-  frontend and backend, covering questionnaire logic, data capture, report
-  generation (including PDF and CSV export), and administrative functionalities
-  like user authentication and a dashboard. The goal was to identify any missing
-  features or discrepancies against the specified requirements for sleep health
-  optimization and sleep disorder screening.
+tldr: The conversation involved a comprehensive review of a sleep questionnaire
+  application against its Statement of Work and detailed specifications. The
+  review confirmed core functionality and most sections are implemented, but
+  identified several high-priority missing features and gaps in detection logic
+  and data export.
+overview: The user initiated a comprehensive review of their sleep questionnaire
+  application, providing both the Statement of Work and the detailed
+  questionnaire content. The goal was to verify that all acceptance criteria
+  were met and to identify any missing functionalities. The review involved
+  examining the codebase, including database schema, API endpoints for responses
+  and PDF generation, and various questionnaire components and sections. The
+  analysis confirmed that core functionalities like the interactive
+  questionnaire, database storage, CSV export (for demographics), PDF report
+  generation, and an admin dashboard are in place. Most specified sleep
+  disorders are detected, and essential sleep metrics are calculated. However,
+  the review also highlighted several critical gaps. High-priority missing items
+  include a detailed tiredness severity scale with safety warnings, explicit
+  detection for Comorbid Insomnia and Sleep Apnea (COMISA), the inclusion of
+  outbound educational and clinician links in the reports, and robust detection
+  for Insufficient Sleep Syndrome. Other notable omissions were weighted scoring
+  for Excessive Daytime Sleepiness, comprehensive pain and medical history
+  questions, and a complete CSV export of all questionnaire responses. The
+  findings provide a clear roadmap for further development to fully align the
+  application with the project's requirements.
 bullets: []
