@@ -4,19 +4,24 @@ title: Somna Health questionnaire acceptance review
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766769651958
-tldr: The user requested a review of the sleep questionnaire implementation
-  against the provided specification. The agent then implemented several missing
-  features, including a tiredness severity scale, COMISA detection, insufficient
-  sleep syndrome detection, and outbound resource links in the report.
-overview: The user initiated a review of their sleep questionnaire application,
-  providing a detailed specification and Statement of Work. The agent conducted
-  a comprehensive analysis of the existing codebase, identifying several
-  critical missing features. Subsequently, the agent proceeded to implement
-  these features. Key additions included a 1-10 severity scale for tiredness,
-  complete with safety messaging, and the detection and reporting of specific
-  sleep disorders like COMISA (Comorbid Insomnia and Sleep Apnea) and
-  Insufficient Sleep Syndrome, each with tailored recommendations. Furthermore,
-  a new section for external resources and links was integrated into both the
-  web and PDF versions of the patient report. The implementation followed a
-  structured approach, addressing each identified gap systematically.
+tldr: The user requested a review of a sleep questionnaire application against
+  its acceptance criteria. The implementation focused on adding a tiredness
+  severity scale with safety warnings, detecting and reporting Comorbid Insomnia
+  and Sleep Apnea (COMISA), implementing logic for Insufficient Sleep Syndrome,
+  and integrating a "Resources & Next Steps" section with relevant outbound
+  links into both the web and PDF reports.
+overview: The user initiated a comprehensive review of a sleep questionnaire
+  application to verify its adherence to the provided Statement of Work and
+  detailed questionnaire specification. The review identified several critical
+  gaps in the existing implementation. Subsequently, the focus shifted to
+  implementing these missing features. Key additions included a 1-10 severity
+  scale for tiredness interference, complete with safety warnings for high
+  scores, integrated into both the interactive form and the generated PDF
+  report. Logic for detecting and reporting Comorbid Insomnia and Sleep Apnea
+  (COMISA) and Insufficient Sleep Syndrome was also added, providing more
+  nuanced diagnostic insights and tailored recommendations. Finally, a dedicated
+  "Resources & Next Steps" section with relevant outbound links to professional
+  directories and educational materials was incorporated into both the web and
+  PDF versions of the report, enhancing the actionable guidance provided to
+  users.
 bullets: []
