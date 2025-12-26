@@ -4,22 +4,22 @@ title: Somna Health questionnaire acceptance review
 model: claude-4.5-opus-high-thinking
 mode: plan
 updatedAt: 1766769519498
-tldr: The user requested a comprehensive review of their implemented sleep
-  questionnaire application, including its database and API endpoints, to ensure
-  all acceptance criteria from the provided Statement of Work and detailed
-  questionnaire content are met. The assistant is currently in the process of
-  examining the codebase to understand the existing implementation and identify
-  any missing components or discrepancies.
-overview: The user's intent is to validate an existing implementation of a sleep
-  questionnaire application against a detailed Statement of Work and the full
-  questionnaire content. This application is designed to be an interactive,
-  freemium tool that collects de-identified demographic data and provides
-  personalized reports, including sleep health optimization tips or probable
-  diagnoses for various sleep disorders. The assistant's approach is to first
-  understand the comprehensive requirements outlined in the provided documents,
-  then proceed with a code review of the database and API endpoints to verify
-  that all specified functionalities, data collection, and reporting mechanisms
-  are correctly implemented. The assistant has begun by reviewing key structural
-  and definitional files within the codebase to prepare for this comprehensive
-  review.
+tldr: The user requested a comprehensive review of a recently implemented sleep
+  questionnaire application to ensure all acceptance criteria were met. This
+  application is an interactive, AI-enabled tool designed to provide patients
+  with sleep health guidance or probable diagnoses for various sleep disorders,
+  along with a narrative report and links to resources.
+overview: The user wanted to ensure that the recently implemented sleep
+  questionnaire application met all the acceptance criteria outlined in the
+  Statement of Work. This application is a smart, interactive patient
+  questionnaire, based on psychometrically validated items, designed to take
+  about 15 minutes. It generates a narrative report with links to educational
+  resources and clinicians, offering either sleep health guidance or probable
+  diagnoses for specific sleep disorders. The application operates on a freemium
+  model, collecting only de-identified demographic data. The review process
+  involved examining the application's structure, data models, and API endpoints
+  for handling questionnaire responses, generating CSV exports, and creating PDF
+  reports. Key functional requirements included an interactive questionnaire
+  with branching logic, report generation with PDF download, raw data capture,
+  and simple data retrieval.
 bullets: []
