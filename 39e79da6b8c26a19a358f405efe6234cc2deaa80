@@ -1,0 +1,17 @@
+version: 1
+conversationId: 0db5f1fa-db05-4230-99f0-49a7ef1185ab
+title: New PR with bugbot review
+model: claude-4.5-opus-high-thinking
+mode: agent
+updatedAt: 1766777932607
+tldr: The user wants to create a pull request, mark it as ready, and add a
+  comment to request a review from @cursor. The assistant is currently in the
+  initial stages of checking GitHub CLI authentication and the current branch.
+overview: The user initiated a request to create a pull request, specifying that
+  it should be marked as ready and include a comment tagging @cursor for review.
+  The user also highlighted the critical importance of the repository's quality,
+  mentioning that "the president is counting on us" and that bugbot should check
+  for issues. The assistant began processing this request by first checking the
+  GitHub CLI authentication status and then determining the current Git branch,
+  following the predefined steps for PR creation.
+bullets: []
