@@ -458,8 +458,9 @@ export function QuestionnaireForm() {
       </div>
 
       <div className='relative container mx-auto max-w-3xl px-4'>
-        {/* Dev Tools - Only show in development */}
-        {process.env.NODE_ENV === 'development' && (
+        {/* Dev Tools - Show in development or when explicitly enabled */}
+        {(process.env.NODE_ENV === 'development' ||
+          process.env.NEXT_PUBLIC_SHOW_DEV_TOOLS === 'true') && (
           <div className='mb-4 flex justify-end gap-2'>
             <Button
               type='button'
