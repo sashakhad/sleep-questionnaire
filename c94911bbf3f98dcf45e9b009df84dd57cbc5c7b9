@@ -1,0 +1,13 @@
+version: 1
+conversationId: 305c9a03-388a-4494-a512-a094b38e7f9c
+title: Cursor commands transfer
+model: claude-4.5-opus-high-thinking
+mode: agent
+updatedAt: 1766769359987
+tldr: The user wanted to copy Cursor commands from their blog app into the
+  current repository. This task was completed as requested.
+overview: The user's intent was to transfer Cursor commands from their existing
+  blog application to the current repository. The approach taken was to directly
+  copy these commands as requested, successfully achieving the user's goal of
+  having the Cursor commands available in the new repository.
+bullets: []
