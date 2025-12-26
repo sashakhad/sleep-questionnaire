@@ -8,17 +8,18 @@ tldr: The user encountered a Prisma error regarding the  property in the
   datasource block. The fix involved upgrading Prisma to version 7,
   reconfiguring the database connection using  and
   , and cleaning up unused dependencies and schema models.
-overview: The user reported a Prisma error indicating a breaking change in how
-  database URLs are configured, specifically that the  property is no
-  longer supported in the  block of  for Prisma 7.
-  The core issue was a version mismatch, as the project was on Prisma 6.11.1 but
-  the error message pointed to Prisma 7 changes. The solution involved upgrading
-  Prisma to version 7.2.0, removing the  from , and creating
-  a  file to manage the database connection for migrations.
-  The  instantiation in  was updated to use the
-   with the connection string. Additionally, the  and
-   packages were removed as they are now bundled with the adapter,
-  and an unused  model was cleaned up from the schema. The process
-  involved several iterations to correctly configure  and
-  ensure all dependencies were correctly managed and unused items removed.
+overview: The user reported a Prisma error indicating that the  property in
+  the  block of  was deprecated in Prisma 7. Although
+  the  showed Prisma 6.11.1, the error message pointed to Prisma 7
+  changes. The solution involved a full upgrade to Prisma 7.2.0. This required
+  removing the  from , creating a  file to
+  define the database URL for migrations, and modifying the
+  instantiation in  to use the  with the
+  connection string. Dependencies  and  were added,
+  while  and  were removed as they were no longer directly
+  needed. The  was refined to use the correct Prisma 7
+  configuration syntax and  for environment variable loading.
+  Finally, an unused  model was removed from the schema. The process
+  involved several iterations of debugging configuration and dependency issues
+  to ensure a clean and functional Prisma 7 setup.
 bullets: []
