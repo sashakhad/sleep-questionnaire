@@ -4,21 +4,29 @@ title: Pull request issues and Vercel deploys
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766778512325
-tldr: The agent systematically addressed multiple security vulnerabilities,
-  bugs, and lint errors in a pull request. It also refactored authentication for
-  Edge Runtime compatibility and identified a critical Prisma schema
-  configuration issue causing Vercel deployment failures.
-overview: The user initiated a task to fix numerous issues in a pull request,
-  including critical security vulnerabilities and broken Vercel deployments. The
-  agent began by thoroughly reviewing PR comments and CI failures. It
-  systematically addressed lint errors, upgraded the insecure 'true' cookie
-  authentication to a robust HMAC-based session system, and implemented input
-  validation for API routes and pagination for CSV exports. Key bug fixes
-  included correcting PDF metric calculations, enabling null values in number
-  fields, wiring up the PDF download button, and removing hardcoded user names.
-  A significant challenge was ensuring authentication worked in Vercel's Edge
-  Runtime, leading to a refactor of the crypto functions to use the Web Crypto
-  API. Despite these code fixes, Vercel deploys continued to fail, and the agent
-  ultimately identified a missing database URL configuration in the Prisma
-  schema as the underlying problem.
+tldr: The agent systematically addressed numerous issues in a pull request,
+  including critical security vulnerabilities, several bugs in PDF generation
+  and data handling, and validation problems. A significant effort was made to
+  ensure Vercel deployment compatibility by refactoring authentication to use
+  Web Crypto API for Edge Runtime.
+overview: >-
+  The user initiated a request to fix a pull request riddled with issues,
+  including critical security flaws, functional bugs, and failing Vercel
+  deployments. The agent began by thoroughly reviewing the PR comments and CI
+  logs, identifying insecure authentication, arbitrary API parameter acceptance,
+  memory-intensive CSV exports, PDF generation errors (NaNs, missing minutes,
+  hardcoded names), and missing input validations.
+
+  The agent systematically addressed these by implementing HMAC-signed session
+  tokens, adding pagination and limits to API routes and CSV exports, rewriting
+  PDF metric calculations for accuracy, enabling null inputs for number fields,
+  and integrating a PDF download button. Time input validation was also enhanced
+  with regex.
+
+  A key challenge emerged with Vercel's Edge Runtime, as the initial secure
+  authentication used Node.js , incompatible with the Edge environment.
+  The agent proactively refactored the authentication logic to leverage the Web
+  Crypto API, ensuring compatibility. While local builds and GitHub Actions
+  passed, Vercel deploys continued to fail, indicating further Vercel-specific
+  configuration issues that the agent began to investigate.
 bullets: []
