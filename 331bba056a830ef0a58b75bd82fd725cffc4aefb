@@ -4,26 +4,22 @@ title: Vercel .env file programmatic upload
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766777371219
-tldr: The user wanted to programmatically upload .env variables to Vercel and
-  control the visibility of development features for client testing. The
-  assistant used  for initial variable upload and then
-  implemented a  environment variable to toggle dev
-  features, setting it differently for Vercel's preview and production
-  environments.
-overview: The user's primary intent was to streamline the management of
-  environment variables and feature toggles on Vercel programmatically.
-  Initially, they sought to upload their local  file to Vercel without
-  manual intervention. The assistant successfully achieved this using the
-   community tool, navigating through several troubleshooting
-  steps including providing correct arguments, handling interactive prompts, and
-  linking the Vercel project. Subsequently, the user requested a way to expose
-  specific development features (like prefill and jump to report) to clients in
-  a deployed environment, while keeping them hidden in production. The assistant
-  addressed this by introducing a new  environment
-  variable. The application's code was updated to conditionally display these
-  features based on this variable, which was then configured on Vercel to be
-   for preview deployments (for client testing) and  for
-  production. This approach allowed for programmatic control over feature
-  visibility across different Vercel environments, aligning with the user's
-  preference for automated solutions.
+tldr: The user wanted to programmatically upload their .env file to Vercel and
+  later control dev features (prefill, jump to report) in deployed environments
+  using an environment variable. The assistant used vercel-env-push for the
+  initial upload and then modified the codebase and Vercel environment variables
+  to enable conditional dev tools for client testing.
+overview: The conversation began with the user seeking a programmatic method to
+  upload their  file to Vercel. After exploring various options, the
+   community tool was chosen. The process involved
+  troubleshooting issues like command confirmation and linking the local project
+  to Vercel using . Following the initial upload, the user
+  requested a solution to display specific "dev state" features (prefill and
+  jump to report) to clients in a deployed environment, controlled by an
+  environment variable. The assistant implemented this by introducing a
+   environment variable, modifying the application's
+  code to check this variable, and then setting its value to  for Vercel
+  preview deployments and  for production. This allows clients to test
+  dev features on preview URLs while keeping the production environment clean,
+  all managed programmatically.
 bullets: []
