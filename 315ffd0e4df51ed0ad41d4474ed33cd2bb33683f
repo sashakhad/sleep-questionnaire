@@ -1,0 +1,14 @@
+version: 1
+conversationId: c44a9f46-57b2-4b83-99af-2e233ad30c70
+title: Thorough application testing
+model: claude-4.5-opus-high-thinking
+mode: agent
+updatedAt: 1766770522918
+tldr: The agent performed thorough browser-based testing of the application,
+  focusing on the questionnaire flow. It identified an issue where the "Pre-fill
+  & Jump to Report (Dev)" button populated data but failed to navigate to the
+  report section as intended.
+overview: "The user initiated a request for thorough application testing using
+  the browser. The agent began by checking the dev server status and navigating
+  to the application's home page. It then proceeded to test the questionnaire
+  flow. After an initial attempt to trigger form validation by clicking \Next
