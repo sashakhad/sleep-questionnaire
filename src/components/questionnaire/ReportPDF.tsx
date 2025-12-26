@@ -1,6 +1,6 @@
-import React from 'react'
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
-import { QuestionnaireFormData } from '@/validations/questionnaire'
+import React from 'react';
+import { Document, Page, Text, View, StyleSheet, Link } from '@react-pdf/renderer';
+import { QuestionnaireFormData } from '@/validations/questionnaire';
 
 const styles = StyleSheet.create({
   page: {
@@ -142,41 +142,90 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: '#9ca3af',
   },
-})
+  link: {
+    color: '#2563eb',
+    textDecoration: 'underline',
+    fontSize: 10,
+  },
+  resourceBox: {
+    backgroundColor: '#f8fafc',
+    border: '1 solid #e2e8f0',
+    padding: 10,
+    marginVertical: 5,
+    borderRadius: 4,
+  },
+  resourceTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#1e293b',
+    marginBottom: 5,
+  },
+});
 
 interface ReportPDFProps {
-  data: QuestionnaireFormData
-  userName?: string
+  data: QuestionnaireFormData;
+  userName?: string;
+}
+
+// EDS weighted scoring
+const EDS_WEIGHTS: Record<string, number> = {
+  stoplight: 2,
+  lectures: 1,
+  working: 1,
+  conversation: 2,
+  evening: 1,
+  meal: 2,
+};
+
+function calculateEDSScore(fallAsleepDuring: string[]): {
+  score: number;
+  severity: 'none' | 'mild' | 'moderate' | 'severe';
+} {
+  let score = 0;
+  for (const activity of fallAsleepDuring) {
+    score += EDS_WEIGHTS[activity] ?? 1;
+  }
+
+  let severity: 'none' | 'mild' | 'moderate' | 'severe' = 'none';
+  if (score >= 7) {
+    severity = 'severe';
+  } else if (score >= 5) {
+    severity = 'moderate';
+  } else if (score >= 3) {
+    severity = 'mild';
+  }
+
+  return { score, severity };
 }
 
 // Helper function to calculate sleep metrics
 function calculateSleepMetrics(data: QuestionnaireFormData) {
   // Scheduled/work days calculations
-  const scheduledBedtime = parseInt(data.scheduledSleep.lightsOutTime?.split(':')[0] ?? '22')
-  const scheduledWaketime = parseInt(data.scheduledSleep.wakeupTime?.split(':')[0] ?? '7')
-  let scheduledTimeInBed = scheduledWaketime - scheduledBedtime
+  const scheduledBedtime = parseInt(data.scheduledSleep.lightsOutTime?.split(':')[0] ?? '22');
+  const scheduledWaketime = parseInt(data.scheduledSleep.wakeupTime?.split(':')[0] ?? '7');
+  let scheduledTimeInBed = scheduledWaketime - scheduledBedtime;
   if (scheduledTimeInBed < 0) {
-    scheduledTimeInBed += 24
+    scheduledTimeInBed += 24;
   }
-  
-  const scheduledSOL = data.scheduledSleep.minutesToFallAsleep
-  const scheduledWASO = data.scheduledSleep.minutesAwakeAtNight
-  const scheduledTST = (scheduledTimeInBed * 60 - scheduledSOL - scheduledWASO) / 60
-  const scheduledSE = ((scheduledTST / scheduledTimeInBed) * 100)
-  
+
+  const scheduledSOL = data.scheduledSleep.minutesToFallAsleep;
+  const scheduledWASO = data.scheduledSleep.minutesAwakeAtNight;
+  const scheduledTST = (scheduledTimeInBed * 60 - scheduledSOL - scheduledWASO) / 60;
+  const scheduledSE = (scheduledTST / scheduledTimeInBed) * 100;
+
   // Unscheduled/weekend calculations
-  const unscheduledBedtime = parseInt(data.unscheduledSleep.lightsOutTime?.split(':')[0] ?? '23')
-  const unscheduledWaketime = parseInt(data.unscheduledSleep.wakeupTime?.split(':')[0] ?? '9')
-  let unscheduledTimeInBed = unscheduledWaketime - unscheduledBedtime
+  const unscheduledBedtime = parseInt(data.unscheduledSleep.lightsOutTime?.split(':')[0] ?? '23');
+  const unscheduledWaketime = parseInt(data.unscheduledSleep.wakeupTime?.split(':')[0] ?? '9');
+  let unscheduledTimeInBed = unscheduledWaketime - unscheduledBedtime;
   if (unscheduledTimeInBed < 0) {
-    unscheduledTimeInBed += 24
+    unscheduledTimeInBed += 24;
   }
-  
-  const unscheduledSOL = data.unscheduledSleep.minutesToFallAsleep
-  const unscheduledWASO = data.unscheduledSleep.minutesAwakeAtNight
-  const unscheduledTST = (unscheduledTimeInBed * 60 - unscheduledSOL - unscheduledWASO) / 60
-  const unscheduledSE = ((unscheduledTST / unscheduledTimeInBed) * 100)
-  
+
+  const unscheduledSOL = data.unscheduledSleep.minutesToFallAsleep;
+  const unscheduledWASO = data.unscheduledSleep.minutesAwakeAtNight;
+  const unscheduledTST = (unscheduledTimeInBed * 60 - unscheduledSOL - unscheduledWASO) / 60;
+  const unscheduledSE = (unscheduledTST / unscheduledTimeInBed) * 100;
+
   return {
     scheduledTST,
     scheduledSE,
@@ -187,56 +236,90 @@ function calculateSleepMetrics(data: QuestionnaireFormData) {
     unscheduledSOL,
     unscheduledWASO,
     sleepVariability: Math.abs(scheduledTST - unscheduledTST),
-  }
+  };
 }
 
 // Helper function to get insomnia severity
-function getInsomniaSeverity(data: QuestionnaireFormData, metrics: ReturnType<typeof calculateSleepMetrics>) {
+function getInsomniaSeverity(
+  data: QuestionnaireFormData,
+  metrics: ReturnType<typeof calculateSleepMetrics>
+) {
   if (metrics.scheduledSOL > 30 || metrics.scheduledWASO > 40) {
     if (data.daytime.tirednessInterferes) {
-      return 'moderate to severe'
+      return 'moderate to severe';
     }
-    return 'mild'
+    return 'mild';
   }
-  return 'none'
+  return 'none';
 }
 
 // Helper function to determine chronotype
-function getChronotype(data: QuestionnaireFormData, metrics: ReturnType<typeof calculateSleepMetrics>) {
-  const scheduledBedtime = parseInt(data.scheduledSleep.lightsOutTime?.split(':')[0] ?? '22')
-  const midSleepScheduled = scheduledBedtime + (metrics.scheduledTST / 2)
-  
+function getChronotype(
+  data: QuestionnaireFormData,
+  metrics: ReturnType<typeof calculateSleepMetrics>
+) {
+  const scheduledBedtime = parseInt(data.scheduledSleep.lightsOutTime?.split(':')[0] ?? '22');
+  const midSleepScheduled = scheduledBedtime + metrics.scheduledTST / 2;
+
   if (data.chronotype.preference === 'late' || midSleepScheduled >= 4) {
-    return 'evening (night owl)'
+    return 'evening (night owl)';
   } else if (data.chronotype.preference === 'early' || midSleepScheduled <= 1) {
-    return 'morning (early bird)'
+    return 'morning (early bird)';
   }
-  return 'flexible'
+  return 'flexible';
 }
 
 export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
-  const metrics = calculateSleepMetrics(data)
-  const insomniaSeverity = getInsomniaSeverity(data, metrics)
-  const chronotype = getChronotype(data, metrics)
-  
+  const metrics = calculateSleepMetrics(data);
+  const insomniaSeverity = getInsomniaSeverity(data, metrics);
+  const chronotype = getChronotype(data, metrics);
+
+  // Calculate weighted EDS score
+  const edsResult = calculateEDSScore(data.daytime.fallAsleepDuring);
+  const hasEDSFromActivities = edsResult.severity !== 'none';
+
   // Identify major issues
-  const hasInsomnia = insomniaSeverity !== 'none'
-  const hasEDS = data.daytime.plannedNaps.daysPerWeek >= 3 && 
-                 data.daytime.plannedNaps.duration && 
-                 ['30-90', '>90'].includes(data.daytime.plannedNaps.duration)
-  const hasOSA = data.breathingDisorders.stopsBreathing || 
-                 (data.breathingDisorders.snores && data.breathingDisorders.wakesWithDryMouth)
-  const hasRLS = data.restlessLegs.troubleLyingStill && 
-                 data.restlessLegs.urgeToMoveLegs && 
-                 data.restlessLegs.movementRelieves
-  const hasNightmares = data.nightmares.nightmaresPerWeek && data.nightmares.nightmaresPerWeek >= 3
-  const hasPoorHygiene = data.lifestyle.caffeinePerDay > 4 || 
-                         (data.lifestyle.lastCaffeineTime && parseInt(data.lifestyle.lastCaffeineTime.split(':')[0] ?? '0') >= 14)
-  const hasAnxiety = data.mentalHealth.worriesAffectSleep || data.mentalHealth.anxietyInBed
+  const hasInsomnia = insomniaSeverity !== 'none';
+  const hasEDSFromNaps =
+    data.daytime.plannedNaps.daysPerWeek >= 3 &&
+    data.daytime.plannedNaps.duration &&
+    ['30-90', '>90'].includes(data.daytime.plannedNaps.duration);
+  const hasEDS = hasEDSFromActivities || hasEDSFromNaps;
+  const hasOSA =
+    data.breathingDisorders.stopsBreathing ||
+    (data.breathingDisorders.snores && data.breathingDisorders.wakesWithDryMouth);
+  const hasCOMISA = hasInsomnia && hasOSA; // Comorbid Insomnia and Sleep Apnea
+  const hasRLS =
+    data.restlessLegs.troubleLyingStill &&
+    data.restlessLegs.urgeToMoveLegs &&
+    data.restlessLegs.movementRelieves;
+  const hasNightmares = data.nightmares.nightmaresPerWeek && data.nightmares.nightmaresPerWeek >= 3;
+  const hasPoorHygiene =
+    data.lifestyle.caffeinePerDay > 4 ||
+    (data.lifestyle.lastCaffeineTime &&
+      parseInt(data.lifestyle.lastCaffeineTime.split(':')[0] ?? '0') >= 14);
+  const hasAnxiety = data.mentalHealth.worriesAffectSleep || data.mentalHealth.anxietyInBed;
+  const hasSevereTiredness = (data.daytime.tirednessSeverity ?? 0) > 8;
+
+  // Insufficient Sleep Syndrome detection
+  const avgWeeklySleep = (metrics.scheduledTST * 5 + metrics.unscheduledTST * 2) / 7;
+  const hasDaytimeSleepiness =
+    data.daytime.tirednessInterferes || hasEDS || data.daytime.fallAsleepDuring.length >= 3;
+  const hasNarcolepsy =
+    data.daytime.diagnosedNarcolepsy ||
+    (data.daytime.weaknessWhenExcited.length > 0 && data.daytime.sleepParalysis);
+  const hasInsufficientSleep =
+    avgWeeklySleep < 7 && hasDaytimeSleepiness && !hasNarcolepsy && !hasOSA;
+
+  // Chronic Fatigue / Fibromyalgia screening
+  const hasChronicFatigueSymptoms =
+    data.daytime.nonRestorativeSleep &&
+    data.daytime.muscleJointPain &&
+    data.daytime.tirednessInterferes;
 
   return (
     <Document>
-      <Page size="A4" style={styles.page}>
+      <Page size='A4' style={styles.page}>
         <View style={styles.header}>
           <Text style={styles.title}>Sleep Health Assessment Report</Text>
           <Text style={styles.subtitle}>Generated on {new Date().toLocaleDateString()}</Text>
@@ -245,44 +328,78 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
         {/* Thank you message */}
         <View style={styles.infoBox}>
           <Text style={styles.infoText}>
-            Thank you for completing the SomnaHealth comprehensive sleep questionnaire. With more than 
-            4 decades of collective experience, our team created this questionnaire and personalized 
-            report to provide you with guidance on improving your sleep health.
+            Thank you for completing the SomnaHealth comprehensive sleep questionnaire. With more
+            than 4 decades of collective experience, our team created this questionnaire and
+            personalized report to provide you with guidance on improving your sleep health.
           </Text>
         </View>
+
+        {/* Critical Safety Warning for Severe Tiredness */}
+        {hasSevereTiredness && (
+          <View style={styles.warningBox}>
+            <Text style={styles.warningText}>
+              <Text style={{ fontWeight: 'bold' }}>URGENT SAFETY WARNING</Text>
+              {'\n\n'}
+              Your reported tiredness severity ({data.daytime.tirednessSeverity}/10) indicates a
+              significant safety concern. You should seek immediate help from a healthcare
+              professional. Until you have done so, please avoid potentially dangerous activities
+              such as driving, biking, or jobs involving high-risk activities (construction, heavy
+              equipment operation).{'\n\n'}
+              The good news is that there are many fast-acting and safe treatments for excessive
+              daytime sleepiness. Please consult a healthcare provider as soon as possible.
+            </Text>
+          </View>
+        )}
 
         {/* Personalized Summary */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Dear {userName},</Text>
           <Text style={styles.paragraph}>
-            On average you sleep {metrics.scheduledTST.toFixed(1)} hours on weekdays and {metrics.unscheduledTST.toFixed(1)} hours 
-            on weekends. The time it takes you to fall asleep is {metrics.scheduledSOL > 30 ? 'prolonged' : metrics.scheduledSOL < 15 ? 'short' : 'normal'} 
-            ({metrics.scheduledSOL} minutes). You wake approximately {data.scheduledSleep.nightWakeups} times a night and are 
-            awake for {metrics.scheduledWASO} minutes on average, which is {metrics.scheduledWASO > 40 ? 'prolonged' : 'normal'}.
-          </Text>
-          
-          <Text style={styles.paragraph}>
-            Your sleep efficiency, a measure of sleep quality, is {metrics.scheduledSE.toFixed(0)}% on weekdays 
-            and {metrics.unscheduledSE.toFixed(0)}% on weekends, which is {metrics.scheduledSE >= 85 ? 
-            'in the normal range (≥85%)' : 'low (<85%), indicating room for improvement'}.
-            Your sleep {metrics.sleepVariability > 2 ? 'varies significantly' : 'varies very little'} between 
-            weekdays and weekends. Based on your sleep schedule, you appear to be {chronotype === 'evening (night owl)' ? 
-            'an' : 'a'} {chronotype} chronotype.
+            On average you sleep {metrics.scheduledTST.toFixed(1)} hours on weekdays and{' '}
+            {metrics.unscheduledTST.toFixed(1)} hours on weekends. The time it takes you to fall
+            asleep is{' '}
+            {metrics.scheduledSOL > 30
+              ? 'prolonged'
+              : metrics.scheduledSOL < 15
+                ? 'short'
+                : 'normal'}
+            ({metrics.scheduledSOL} minutes). You wake approximately{' '}
+            {data.scheduledSleep.nightWakeups} times a night and are awake for{' '}
+            {metrics.scheduledWASO} minutes on average, which is{' '}
+            {metrics.scheduledWASO > 40 ? 'prolonged' : 'normal'}.
           </Text>
 
           <Text style={styles.paragraph}>
-            During the day, you have {hasEDS ? 'significant' : data.daytime.tirednessInterferes ? 'moderate' : 'minimal'} daytime 
-            sleepiness, and your daytime tiredness is {data.daytime.tirednessInterferes ? 
-            'a problem that interferes with daily activities' : 'not a significant problem'}.
-            Based on your responses, your sleep hygiene {hasPoorHygiene ? 'could improve and may contribute to sleep challenges' : 
-            'is generally good'}.
+            Your sleep efficiency, a measure of sleep quality, is {metrics.scheduledSE.toFixed(0)}%
+            on weekdays and {metrics.unscheduledSE.toFixed(0)}% on weekends, which is{' '}
+            {metrics.scheduledSE >= 85
+              ? 'in the normal range (≥85%)'
+              : 'low (<85%), indicating room for improvement'}
+            . Your sleep{' '}
+            {metrics.sleepVariability > 2 ? 'varies significantly' : 'varies very little'} between
+            weekdays and weekends. Based on your sleep schedule, you appear to be{' '}
+            {chronotype === 'evening (night owl)' ? 'an' : 'a'} {chronotype} chronotype.
+          </Text>
+
+          <Text style={styles.paragraph}>
+            During the day, you have{' '}
+            {hasEDS ? 'significant' : data.daytime.tirednessInterferes ? 'moderate' : 'minimal'}{' '}
+            daytime sleepiness, and your daytime tiredness is{' '}
+            {data.daytime.tirednessInterferes
+              ? 'a problem that interferes with daily activities'
+              : 'not a significant problem'}
+            . Based on your responses, your sleep hygiene{' '}
+            {hasPoorHygiene
+              ? 'could improve and may contribute to sleep challenges'
+              : 'is generally good'}
+            .
           </Text>
         </View>
 
         {/* Sleep Metrics Table */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Sleep Metrics Summary</Text>
-          
+
           <View style={styles.grid}>
             <View style={styles.gridColumn}>
               <Text style={styles.subsectionTitle}>Work/School Days</Text>
@@ -338,38 +455,54 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Lifestyle & Sleep Hygiene Assessment</Text>
           <View style={styles.bulletPoint}>
-            <Text>• Caffeine intake: {data.lifestyle.caffeinePerDay} cups/day, 
-            last consumed at {data.lifestyle.lastCaffeineTime || 'N/A'}</Text>
+            <Text>
+              • Caffeine intake: {data.lifestyle.caffeinePerDay} cups/day, last consumed at{' '}
+              {data.lifestyle.lastCaffeineTime || 'N/A'}
+            </Text>
           </View>
           <View style={styles.bulletPoint}>
-            <Text>• Alcohol consumption: {data.lifestyle.alcoholPerWeek.wine + data.lifestyle.alcoholPerWeek.cocktails} drinks/week</Text>
+            <Text>
+              • Alcohol consumption:{' '}
+              {data.lifestyle.alcoholPerWeek.wine + data.lifestyle.alcoholPerWeek.cocktails}{' '}
+              drinks/week
+            </Text>
           </View>
           <View style={styles.bulletPoint}>
-            <Text>• Exercise: {data.lifestyle.exerciseDaysPerWeek} days/week for {data.lifestyle.exerciseDuration || 0} minutes</Text>
+            <Text>
+              • Exercise: {data.lifestyle.exerciseDaysPerWeek} days/week for{' '}
+              {data.lifestyle.exerciseDuration || 0} minutes
+            </Text>
           </View>
           <View style={styles.bulletPoint}>
-            <Text>• Daytime naps: {data.daytime.plannedNaps.daysPerWeek} days/week 
-            {data.daytime.plannedNaps.duration ? ` for ${data.daytime.plannedNaps.duration} minutes` : ''}</Text>
+            <Text>
+              • Daytime naps: {data.daytime.plannedNaps.daysPerWeek} days/week
+              {data.daytime.plannedNaps.duration
+                ? ` for ${data.daytime.plannedNaps.duration} minutes`
+                : ''}
+            </Text>
           </View>
           <View style={styles.bulletPoint}>
-            <Text>• Bedroom environment - Comfort: {data.bedroom.comfortable}/10, 
-            Dark: {data.bedroom.dark}/10, Quiet: {data.bedroom.quiet}/10</Text>
+            <Text>
+              • Bedroom environment - Comfort: {data.bedroom.comfortable}/10, Dark:{' '}
+              {data.bedroom.dark}/10, Quiet: {data.bedroom.quiet}/10
+            </Text>
           </View>
         </View>
 
         <Text style={styles.pageNumber}>Page 1 of 2</Text>
       </Page>
 
-      <Page size="A4" style={styles.page}>
+      <Page size='A4' style={styles.page}>
         {/* Identified Issues */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Identified Sleep Issues</Text>
-          
-          {hasInsomnia && (
+
+          {hasInsomnia && !hasCOMISA && (
             <View style={styles.warningBox}>
               <Text style={styles.warningText}>
-                You have symptoms of {insomniaSeverity} insomnia. Insomnia is defined as difficulty falling asleep 
-                and/or staying asleep associated with daytime tiredness. Your symptoms include difficulty 
+                You have symptoms of {insomniaSeverity} insomnia. Insomnia is defined as difficulty
+                falling asleep and/or staying asleep associated with daytime tiredness. Your
+                symptoms include difficulty
                 {metrics.scheduledSOL > 30 ? ' falling asleep (>30 minutes)' : ''}
                 {metrics.scheduledSOL > 30 && metrics.scheduledWASO > 40 ? ' and' : ''}
                 {metrics.scheduledWASO > 40 ? ' staying asleep (>40 minutes awake at night)' : ''}.
@@ -377,11 +510,13 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
             </View>
           )}
 
-          {hasOSA && (
+          {hasOSA && !hasCOMISA && (
             <View style={styles.warningBox}>
               <Text style={styles.warningText}>
-                You have symptoms suggestive of sleep-disordered breathing (possible sleep apnea). 
-                {data.breathingDisorders.stopsBreathing ? ' You report stopping breathing during sleep.' : ''}
+                You have symptoms suggestive of sleep-disordered breathing (possible sleep apnea).
+                {data.breathingDisorders.stopsBreathing
+                  ? ' You report stopping breathing during sleep.'
+                  : ''}
                 {data.breathingDisorders.snores ? ' You snore.' : ''}
                 {data.breathingDisorders.wakesWithDryMouth ? ' You wake with a dry mouth.' : ''}
                 This requires medical evaluation.
@@ -389,12 +524,32 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
             </View>
           )}
 
+          {hasCOMISA && (
+            <View style={styles.warningBox}>
+              <Text style={styles.warningText}>
+                <Text style={{ fontWeight: 'bold' }}>
+                  COMISA (Comorbid Insomnia and Sleep Apnea)
+                </Text>
+                {'\n\n'}
+                You show signs of both insomnia and sleep apnea occurring together. This combination
+                affects 30-50% of people with either disorder and requires coordinated treatment of
+                both conditions.
+                {'\n\n'}
+                Treatment for COMISA should include:{'\n'}• A comprehensive sleep study to assess
+                severity{'\n'}• Combined therapy: CBT-I plus CPAP treatment{'\n'}• Avoidance of
+                sedative sleep medications{'\n'}• Weight management (if applicable){'\n'}•
+                Consistent sleep schedules
+              </Text>
+            </View>
+          )}
+
           {hasRLS && (
             <View style={styles.warningBox}>
               <Text style={styles.warningText}>
-                You have symptoms consistent with Restless Legs Syndrome (RLS), including an urge to move 
-                your legs at night, difficulty lying still, and relief with movement. This condition can 
-                significantly impact sleep quality and should be evaluated by a healthcare provider.
+                You have symptoms consistent with Restless Legs Syndrome (RLS), including an urge to
+                move your legs at night, difficulty lying still, and relief with movement. This
+                condition can significantly impact sleep quality and should be evaluated by a
+                healthcare provider.
               </Text>
             </View>
           )}
@@ -402,9 +557,11 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
           {hasNightmares && (
             <View style={styles.warningBox}>
               <Text style={styles.warningText}>
-                Frequent nightmares ({data.nightmares.nightmaresPerWeek}+ nights/week) can be distressing and 
-                associated with stress, trauma, and mood disturbance. 
-                {data.nightmares.associatedWithTrauma ? ' Your nightmares are associated with trauma/PTSD, which requires specialized treatment.' : ''}
+                Frequent nightmares ({data.nightmares.nightmaresPerWeek}+ nights/week) can be
+                distressing and associated with stress, trauma, and mood disturbance.
+                {data.nightmares.associatedWithTrauma
+                  ? ' Your nightmares are associated with trauma/PTSD, which requires specialized treatment.'
+                  : ''}
               </Text>
             </View>
           )}
@@ -412,25 +569,61 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
           {hasAnxiety && (
             <View style={styles.warningBox}>
               <Text style={styles.warningText}>
-                Anxiety and worries are affecting your sleep. You report that worries about the next day 
-                contribute to difficulty falling asleep and/or persistent rumination while in bed. This 
-                anxiety-sleep cycle needs to be addressed for better sleep quality.
+                Anxiety and worries are affecting your sleep. You report that worries about the next
+                day contribute to difficulty falling asleep and/or persistent rumination while in
+                bed. This anxiety-sleep cycle needs to be addressed for better sleep quality.
               </Text>
             </View>
           )}
 
-          {!hasInsomnia && !hasOSA && !hasRLS && !hasNightmares && !hasAnxiety && (
-            <Text style={styles.text}>
-              No major sleep disorders were identified based on your responses. However, there may still 
-              be opportunities to optimize your sleep quality.
-            </Text>
+          {hasInsufficientSleep && (
+            <View style={styles.warningBox}>
+              <Text style={styles.warningText}>
+                <Text style={{ fontWeight: 'bold' }}>Insufficient Sleep Syndrome</Text>
+                {'\n\n'}
+                Your average sleep time of {avgWeeklySleep.toFixed(1)} hours is below the
+                recommended 7+ hours. Combined with your daytime sleepiness, this suggests you are
+                not getting enough sleep to meet your body&apos;s needs. Most adults need 7-9 hours
+                for optimal health and functioning.
+              </Text>
+            </View>
           )}
+
+          {hasChronicFatigueSymptoms && (
+            <View style={styles.warningBox}>
+              <Text style={styles.warningText}>
+                <Text style={{ fontWeight: 'bold' }}>
+                  Possible Chronic Fatigue / Fibromyalgia Symptoms
+                </Text>
+                {'\n\n'}
+                You report non-restorative sleep, muscle/joint pain, and daytime tiredness that
+                interferes with activities. These symptoms may be associated with fibromyalgia,
+                chronic fatigue syndrome, post-viral illness (e.g., long COVID), or Lyme disease.
+                Please discuss these symptoms with your primary care doctor who may refer you to a
+                rheumatologist or other specialist.
+              </Text>
+            </View>
+          )}
+
+          {!hasInsomnia &&
+            !hasOSA &&
+            !hasCOMISA &&
+            !hasRLS &&
+            !hasNightmares &&
+            !hasAnxiety &&
+            !hasInsufficientSleep &&
+            !hasChronicFatigueSymptoms && (
+              <Text style={styles.text}>
+                No major sleep disorders were identified based on your responses. However, there may
+                still be opportunities to optimize your sleep quality.
+              </Text>
+            )}
         </View>
 
         {/* Recommendations */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Personalized Recommendations</Text>
-          
+
           {hasInsomnia && (
             <View style={styles.recommendationBox}>
               <Text style={styles.recommendationText}>
@@ -479,9 +672,7 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
               <Text style={styles.recommendationText}>
                 • Reduce caffeine intake to 2 cups per day maximum
               </Text>
-              <Text style={styles.recommendationText}>
-                • Avoid caffeine after 2 PM
-              </Text>
+              <Text style={styles.recommendationText}>• Avoid caffeine after 2 PM</Text>
               <Text style={styles.recommendationText}>
                 • Consider switching to decaf or herbal teas in the afternoon
               </Text>
@@ -524,26 +715,75 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
           </View>
         </View>
 
+        {/* Resources Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Resources &amp; Next Steps</Text>
+
+          <View style={styles.resourceBox}>
+            <Text style={styles.resourceTitle}>Find a Sleep Specialist</Text>
+            <Text style={styles.text}>• AASM Sleep Centers: </Text>
+            <Link src='https://aasm.org/clinical-resources/patient-info/' style={styles.link}>
+              aasm.org/clinical-resources/patient-info/
+            </Link>
+            <Text style={styles.text}>• ABSM Certified Specialists: </Text>
+            <Link src='https://www.absm.org/diplomates-directory/' style={styles.link}>
+              absm.org/diplomates-directory/
+            </Link>
+          </View>
+
+          <View style={styles.resourceBox}>
+            <Text style={styles.resourceTitle}>Behavioral Sleep Medicine</Text>
+            <Text style={styles.text}>• SBSM Provider Directory: </Text>
+            <Link
+              src='https://www.behavioralsleep.org/index.php/society-of-behavioral-sleep-medicine-providers'
+              style={styles.link}
+            >
+              behavioralsleep.org (CBT-I specialists)
+            </Link>
+          </View>
+
+          <View style={styles.resourceBox}>
+            <Text style={styles.resourceTitle}>Mental Health Resources</Text>
+            <Text style={styles.text}>• APA Psychologist Locator: </Text>
+            <Link src='https://locator.apa.org/' style={styles.link}>
+              locator.apa.org
+            </Link>
+          </View>
+
+          <View style={styles.resourceBox}>
+            <Text style={styles.resourceTitle}>Educational Resources</Text>
+            <Text style={styles.text}>• Sleep Education (AASM): </Text>
+            <Link src='https://sleepeducation.org/' style={styles.link}>
+              sleepeducation.org
+            </Link>
+            <Text style={styles.text}>• National Sleep Foundation: </Text>
+            <Link src='https://www.sleepfoundation.org/' style={styles.link}>
+              sleepfoundation.org
+            </Link>
+          </View>
+        </View>
+
         {/* Important Note */}
         <View style={styles.warningBox}>
           <Text style={styles.warningText}>
-            <Text style={{ fontWeight: 'bold' }}>Important Medical Disclaimer:</Text>{'\n'}
-            This report is for informational purposes only and does not constitute medical advice. 
-            Please consult with a healthcare professional for proper diagnosis and treatment of any 
-            sleep disorders. If you have been diagnosed with sleep disorders, continue following your 
-            healthcare provider&apos;s treatment plan.
+            <Text style={{ fontWeight: 'bold' }}>Important Medical Disclaimer:</Text>
+            {'\n'}
+            This report is for informational purposes only and does not constitute medical advice.
+            Please consult with a healthcare professional for proper diagnosis and treatment of any
+            sleep disorders. If you have been diagnosed with sleep disorders, continue following
+            your healthcare provider&apos;s treatment plan.
           </Text>
         </View>
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>
-            © SomnaHealth Sleep Assessment | This report was generated based on your questionnaire responses | 
-            For medical emergencies, call 911
+            © SomnaHealth Sleep Assessment | This report was generated based on your questionnaire
+            responses | For medical emergencies, call 911
           </Text>
         </View>
 
         <Text style={styles.pageNumber}>Page 2 of 2</Text>
       </Page>
     </Document>
-  )
+  );
 }
