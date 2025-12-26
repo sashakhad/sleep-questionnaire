@@ -225,17 +225,30 @@ export function ReportSection({ data }: ReportSectionProps) {
   };
 
   return (
-    <div className='space-y-6 print:space-y-4'>
+    <div className='space-y-8 print:space-y-4'>
       {/* Header */}
-      <div className='space-y-2 text-center'>
-        <h1 className='text-3xl font-bold text-gray-900'>Your Personalized Sleep Health Report</h1>
-        <p className='text-gray-600'>Generated on {new Date().toLocaleDateString()}</p>
+      <div className='space-y-3 text-center'>
+        <div className='from-primary/20 to-accent/20 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br'>
+          <Moon className='text-primary h-8 w-8' />
+        </div>
+        <h1 className='text-foreground text-3xl font-bold tracking-tight md:text-4xl'>
+          Your Sleep Health Report
+        </h1>
+        <p className='text-muted-foreground'>
+          Generated on{' '}
+          {new Date().toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        </p>
       </div>
 
       {/* Thank you message */}
-      <Alert className='border-blue-200 bg-blue-50'>
-        <Heart className='h-4 w-4 text-blue-600' />
-        <AlertDescription className='text-blue-900'>
+      <Alert className='border-primary/20 bg-primary/5'>
+        <Heart className='text-primary h-4 w-4' />
+        <AlertDescription className='text-foreground/90'>
           Thank you for completing the SomnaHealth comprehensive sleep questionnaire. With more than
           4 decades of collective experience, our team created this questionnaire and personalized
           report to provide you with guidance on improving your sleep health.
@@ -265,9 +278,9 @@ export function ReportSection({ data }: ReportSectionProps) {
       )}
 
       {/* Sleep Metrics Summary */}
-      <Card>
-        <CardHeader className='bg-gradient-to-r from-blue-600 to-indigo-600 text-white'>
-          <CardTitle className='flex items-center space-x-2'>
+      <Card className='shadow-sleep overflow-hidden border-0'>
+        <CardHeader className='bg-gradient-sleep-header text-white'>
+          <CardTitle className='flex items-center space-x-2 text-white'>
             <Moon className='h-5 w-5' />
             <span>Your Sleep Metrics</span>
           </CardTitle>
@@ -369,13 +382,18 @@ export function ReportSection({ data }: ReportSectionProps) {
             </div>
           </div>
 
-          <div className='mt-4 rounded-lg bg-gray-50 p-3'>
-            <p className='text-sm text-gray-700'>
-              <strong>Sleep Pattern Analysis:</strong> You sleep an average of{' '}
-              <span className='font-semibold'>{metrics.scheduledTST.toFixed(1)} hours</span> on
-              weekdays and{' '}
-              <span className='font-semibold'>{metrics.unscheduledTST.toFixed(1)} hours</span> on
-              weekends.
+          <div className='bg-primary/5 mt-6 rounded-xl p-4'>
+            <p className='text-foreground/80 text-sm'>
+              <strong className='text-foreground'>Sleep Pattern Analysis:</strong> You sleep an
+              average of{' '}
+              <span className='text-primary font-semibold'>
+                {metrics.scheduledTST.toFixed(1)} hours
+              </span>{' '}
+              on weekdays and{' '}
+              <span className='text-primary font-semibold'>
+                {metrics.unscheduledTST.toFixed(1)} hours
+              </span>{' '}
+              on weekends.
               {Math.abs(metrics.scheduledTST - metrics.unscheduledTST) > 2 && (
                 <span className='text-amber-600'>
                   {' '}
@@ -389,9 +407,9 @@ export function ReportSection({ data }: ReportSectionProps) {
       </Card>
 
       {/* Identified Issues */}
-      <Card>
+      <Card className='shadow-sleep overflow-hidden border-0'>
         <CardHeader className='bg-gradient-to-r from-amber-500 to-orange-500 text-white'>
-          <CardTitle className='flex items-center space-x-2'>
+          <CardTitle className='flex items-center space-x-2 text-white'>
             <AlertCircle className='h-5 w-5' />
             <span>Identified Sleep Issues</span>
           </CardTitle>
@@ -587,9 +605,9 @@ export function ReportSection({ data }: ReportSectionProps) {
       </Card>
 
       {/* Personalized Recommendations */}
-      <Card>
-        <CardHeader className='bg-gradient-to-r from-green-600 to-teal-600 text-white'>
-          <CardTitle className='flex items-center space-x-2'>
+      <Card className='shadow-sleep overflow-hidden border-0'>
+        <CardHeader className='bg-gradient-to-r from-emerald-600 to-teal-600 text-white'>
+          <CardTitle className='flex items-center space-x-2 text-white'>
             <Heart className='h-5 w-5' />
             <span>Personalized Recommendations</span>
           </CardTitle>
@@ -762,9 +780,9 @@ export function ReportSection({ data }: ReportSectionProps) {
       </Card>
 
       {/* When to Seek Help */}
-      <Card>
-        <CardHeader className='bg-gradient-to-r from-purple-600 to-pink-600 text-white'>
-          <CardTitle className='flex items-center space-x-2'>
+      <Card className='shadow-sleep overflow-hidden border-0'>
+        <CardHeader className='bg-gradient-to-r from-violet-600 to-purple-600 text-white'>
+          <CardTitle className='flex items-center space-x-2 text-white'>
             <Brain className='h-5 w-5' />
             <span>When to Seek Professional Help</span>
           </CardTitle>
@@ -811,9 +829,9 @@ export function ReportSection({ data }: ReportSectionProps) {
       </Card>
 
       {/* Resources and Links */}
-      <Card>
-        <CardHeader className='bg-gradient-to-r from-indigo-600 to-purple-600 text-white'>
-          <CardTitle className='flex items-center space-x-2'>
+      <Card className='shadow-sleep overflow-hidden border-0'>
+        <CardHeader className='bg-gradient-sleep-header text-white'>
+          <CardTitle className='flex items-center space-x-2 text-white'>
             <Info className='h-5 w-5' />
             <span>Resources &amp; Next Steps</span>
           </CardTitle>
@@ -935,25 +953,25 @@ export function ReportSection({ data }: ReportSectionProps) {
             </div>
           </div>
 
-          <div className='mt-4 rounded-lg border border-blue-200 bg-blue-50 p-4'>
-            <p className='text-sm text-blue-900'>
-              <strong>SomnaHealth Services:</strong> Our team offers personalized sleep
-              consultations, CBT-I treatment, and ongoing support. Visit our website for more
-              information about how we can help you achieve better sleep.
+          <div className='border-primary/20 bg-primary/5 mt-6 rounded-xl border p-4'>
+            <p className='text-foreground/90 text-sm'>
+              <strong className='text-primary'>SomnaHealth Services:</strong> Our team offers
+              personalized sleep consultations, CBT-I treatment, and ongoing support. Visit our
+              website for more information about how we can help you achieve better sleep.
             </p>
           </div>
         </CardContent>
       </Card>
 
       {/* Action Buttons */}
-      <div className='flex justify-center space-x-4 print:hidden'>
-        <Button onClick={handlePrint} className='flex items-center space-x-2'>
+      <div className='flex justify-center gap-4 print:hidden'>
+        <Button onClick={handlePrint} size='lg' className='gap-2 shadow-md'>
           <Printer className='h-4 w-4' />
-          <span>Print Report</span>
+          Print Report
         </Button>
-        <Button variant='outline' className='flex items-center space-x-2'>
+        <Button variant='outline' size='lg' className='border-primary/20 hover:bg-primary/5 gap-2'>
           <Download className='h-4 w-4' />
-          <span>Download PDF</span>
+          Download PDF
         </Button>
       </div>
 

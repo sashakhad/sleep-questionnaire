@@ -99,11 +99,15 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
 
       {/* BMI Display */}
       {bmi && (
-        <div className='rounded-lg bg-gray-50 p-4'>
-          <h3 className='mb-2 font-medium'>Body Mass Index (BMI)</h3>
+        <div className='border-border/60 bg-card/50 rounded-xl border p-5'>
+          <h3 className='text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase'>
+            Body Mass Index (BMI)
+          </h3>
           <div className='flex items-center space-x-4'>
-            <div className='text-2xl font-bold text-blue-600'>{bmi.toFixed(1)}</div>
-            <div className='text-sm text-gray-600'>
+            <div className='bg-primary/10 text-primary flex h-14 w-14 items-center justify-center rounded-full text-xl font-bold'>
+              {bmi.toFixed(1)}
+            </div>
+            <div className='text-muted-foreground text-sm'>
               {bmi < 18.5
                 ? 'Underweight'
                 : bmi < 25

@@ -15,7 +15,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Sun } from 'lucide-react';
 
 interface DaytimeSectionProps {
   form: UseFormReturn<QuestionnaireFormData>;
@@ -38,12 +38,24 @@ const weaknessOptions = [
 
 export function DaytimeSection({ form }: DaytimeSectionProps) {
   return (
-    <div className='space-y-6'>
-      <div className='text-lg font-medium'>Please tell us about how you feel during the day:</div>
+    <div className='space-y-8'>
+      <div className='flex items-center gap-3'>
+        <div className='flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 text-amber-600'>
+          <Sun className='h-5 w-5' />
+        </div>
+        <div>
+          <p className='text-foreground text-lg font-semibold'>Daytime Experience</p>
+          <p className='text-muted-foreground text-sm'>
+            Please tell us about how you feel during the day
+          </p>
+        </div>
+      </div>
 
       {/* Planned naps */}
-      <div className='space-y-4 rounded-lg border bg-gray-50 p-4'>
-        <h3 className='font-medium'>Planned Naps</h3>
+      <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+        <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
+          Planned Naps
+        </h3>
 
         <NumberField
           control={form.control}
@@ -70,20 +82,21 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
       </div>
 
       {/* Fall asleep during activities */}
-      <div className='space-y-4 rounded-lg border bg-gray-50 p-4'>
+      <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
         <FormField
           control={form.control}
           name='daytime.fallAsleepDuring'
           render={({ field }) => (
             <FormItem>
-              <FormLabel className='text-base'>
-                During a typical week, how often do you fall asleep while: (check all that apply)
+              <FormLabel className='text-base font-medium'>
+                During a typical week, how often do you fall asleep while:
               </FormLabel>
-              <div className='mt-2 space-y-2'>
+              <p className='text-muted-foreground text-sm'>Check all that apply</p>
+              <div className='mt-3 space-y-2'>
                 {fallAsleepOptions.map(option => (
                   <FormItem
                     key={option.value}
-                    className='flex flex-row items-start space-y-0 space-x-3'
+                    className='hover:bg-muted/50 has-[[data-state=checked]]:border-primary/20 has-[[data-state=checked]]:bg-primary/5 flex flex-row items-center space-y-0 space-x-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors'
                   >
                     <FormControl>
                       <Checkbox
@@ -97,7 +110,9 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
                         }}
                       />
                     </FormControl>
-                    <FormLabel className='font-normal'>{option.label}</FormLabel>
+                    <FormLabel className='text-foreground/90 cursor-pointer font-normal'>
+                      {option.label}
+                    </FormLabel>
                   </FormItem>
                 ))}
               </div>
@@ -116,18 +131,20 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
 
       {/* Tiredness severity scale - only show if tiredness interferes */}
       {form.watch('daytime.tirednessInterferes') && (
-        <div className='space-y-4 rounded-lg border bg-gray-50 p-4'>
+        <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
           <FormField
             control={form.control}
             name='daytime.tirednessSeverity'
             render={({ field }) => (
               <FormItem>
-                <FormLabel className='text-base'>How severe is the interference?</FormLabel>
-                <FormDescription>
+                <FormLabel className='text-base font-medium'>
+                  How severe is the interference?
+                </FormLabel>
+                <FormDescription className='text-muted-foreground'>
                   1 = a nuisance, 10 = a safety concern (e.g., sleep-related accidents)
                 </FormDescription>
-                <div className='pt-4 pb-2'>
-                  <div className='mb-2 flex justify-between text-xs text-gray-500'>
+                <div className='pt-6 pb-2'>
+                  <div className='text-muted-foreground mb-4 flex justify-between text-xs font-medium'>
                     <span>1 - Nuisance</span>
                     <span>5 - Moderate</span>
                     <span>10 - Safety Concern</span>
@@ -142,8 +159,10 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
                       className='w-full'
                     />
                   </FormControl>
-                  <div className='mt-2 text-center'>
-                    <span className='text-lg font-semibold text-blue-600'>{field.value ?? 5}</span>
+                  <div className='mt-4 text-center'>
+                    <span className='bg-primary/10 text-primary inline-flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold'>
+                      {field.value ?? 5}
+                    </span>
                   </div>
                 </div>
                 <FormMessage />
@@ -153,19 +172,19 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
 
           {/* Critical safety warning for severity > 8 */}
           {(form.watch('daytime.tirednessSeverity') ?? 0) > 8 && (
-            <Alert className='border-red-300 bg-red-50'>
+            <Alert className='border-red-200/80 bg-red-50/80'>
               <AlertTriangle className='h-5 w-5 text-red-600' />
               <AlertDescription className='text-red-900'>
-                <strong className='mb-2 block'>Important Safety Warning</strong>
+                <strong className='mb-2 block text-red-700'>Important Safety Warning</strong>
                 You should seek immediate help from a healthcare professional. Until you have done
                 so, you should consider avoiding potentially dangerous activities such as driving,
                 biking, or jobs involving high-risk activities like construction or operating heavy
                 equipment.
                 <br />
                 <br />
-                <strong>The good news</strong> is that there are many fast-acting and safe
-                treatments for excessive daytime sleepiness that may put you or others at risk of
-                injury.
+                <strong className='text-red-700'>The good news</strong> is that there are many
+                fast-acting and safe treatments for excessive daytime sleepiness that may put you or
+                others at risk of injury.
               </AlertDescription>
             </Alert>
           )}
@@ -198,20 +217,19 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
       />
 
       {/* Weakness when excited */}
-      <div className='space-y-4 rounded-lg border bg-gray-50 p-4'>
+      <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
         <FormField
           control={form.control}
           name='daytime.weaknessWhenExcited'
           render={({ field }) => (
             <FormItem>
-              <FormLabel className='text-base'>
-                When I laugh or feel excited: (check all that apply)
-              </FormLabel>
-              <div className='mt-2 space-y-2'>
+              <FormLabel className='text-base font-medium'>When I laugh or feel excited:</FormLabel>
+              <p className='text-muted-foreground text-sm'>Check all that apply</p>
+              <div className='mt-3 space-y-2'>
                 {weaknessOptions.map(option => (
                   <FormItem
                     key={option.value}
-                    className='flex flex-row items-start space-y-0 space-x-3'
+                    className='hover:bg-muted/50 has-[[data-state=checked]]:border-primary/20 has-[[data-state=checked]]:bg-primary/5 flex flex-row items-center space-y-0 space-x-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors'
                   >
                     <FormControl>
                       <Checkbox
@@ -225,7 +243,9 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
                         }}
                       />
                     </FormControl>
-                    <FormLabel className='font-normal'>{option.label}</FormLabel>
+                    <FormLabel className='text-foreground/90 cursor-pointer font-normal'>
+                      {option.label}
+                    </FormLabel>
                   </FormItem>
                 ))}
               </div>
@@ -252,8 +272,10 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
       />
 
       {/* Pain and Chronic Fatigue Screening */}
-      <div className='space-y-4 rounded-lg border bg-gray-50 p-4'>
-        <h3 className='font-medium'>Pain and Energy Levels</h3>
+      <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
+        <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
+          Pain and Energy Levels
+        </h3>
 
         <CheckboxField
           control={form.control}
@@ -273,11 +295,15 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
             control={form.control}
             name='daytime.painSeverity'
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>How severe is your pain on a scale of 1-10?</FormLabel>
-                <FormDescription>1 = minimal, 10 = worst pain imaginable</FormDescription>
-                <div className='pt-4 pb-2'>
-                  <div className='mb-2 flex justify-between text-xs text-gray-500'>
+              <FormItem className='bg-muted/30 rounded-lg p-4'>
+                <FormLabel className='font-medium'>
+                  How severe is your pain on a scale of 1-10?
+                </FormLabel>
+                <FormDescription className='text-muted-foreground'>
+                  1 = minimal, 10 = worst pain imaginable
+                </FormDescription>
+                <div className='pt-6 pb-2'>
+                  <div className='text-muted-foreground mb-4 flex justify-between text-xs font-medium'>
                     <span>1 - Minimal</span>
                     <span>5 - Moderate</span>
                     <span>10 - Severe</span>
@@ -292,8 +318,10 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
                       className='w-full'
                     />
                   </FormControl>
-                  <div className='mt-2 text-center'>
-                    <span className='text-lg font-semibold text-blue-600'>{field.value ?? 5}</span>
+                  <div className='mt-4 text-center'>
+                    <span className='bg-primary/10 text-primary inline-flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold'>
+                      {field.value ?? 5}
+                    </span>
                   </div>
                 </div>
                 <FormMessage />
@@ -314,10 +342,10 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
       {form.watch('daytime.nonRestorativeSleep') &&
         form.watch('daytime.muscleJointPain') &&
         form.watch('daytime.tirednessInterferes') && (
-          <Alert className='border-amber-200 bg-amber-50'>
+          <Alert className='border-amber-200/80 bg-amber-50/80'>
             <AlertTriangle className='h-4 w-4 text-amber-600' />
-            <AlertDescription className='text-amber-900'>
-              <strong>Potential Chronic Fatigue Symptoms</strong>
+            <AlertDescription className='text-amber-900/90'>
+              <strong className='text-amber-800'>Potential Chronic Fatigue Symptoms</strong>
               <br />
               You have endorsed symptoms of non-restorative sleep, muscle/joint pain, and daytime
               tiredness. These are all symptoms that can be associated with fibromyalgia, chronic

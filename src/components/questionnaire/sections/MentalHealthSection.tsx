@@ -106,10 +106,12 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
       />
 
       {/* Medical History Section */}
-      <div className='space-y-4 rounded-lg border bg-gray-50 p-4'>
+      <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
         <div className='flex items-center space-x-2'>
           <Stethoscope className='h-5 w-5 text-blue-600' />
-          <h3 className='font-medium'>Medical History</h3>
+          <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
+            Medical History
+          </h3>
         </div>
         <FormField
           control={form.control}
@@ -150,10 +152,12 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
       </div>
 
       {/* Mental Health History Section */}
-      <div className='space-y-4 rounded-lg border bg-gray-50 p-4'>
+      <div className='border-border/60 bg-card/50 space-y-4 rounded-xl border p-5'>
         <div className='flex items-center space-x-2'>
           <Brain className='h-5 w-5 text-purple-600' />
-          <h3 className='font-medium'>Mental Health History</h3>
+          <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
+            Mental Health History
+          </h3>
         </div>
         <FormField
           control={form.control}
