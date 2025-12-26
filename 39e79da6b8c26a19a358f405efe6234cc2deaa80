@@ -4,12 +4,16 @@ title: New PR with bugbot review
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766777932607
-tldr: The user wants to create a pull request using the  command.
-  They specified that the PR should be marked as ready and include a request for
-   to review it in the description.
-overview: "The user's intent was to create a new pull request. They used the
-   command and provided specific instructions for its creation: it
-  should be a ready PR (not a draft) and its description should include a
-  request for  to review it. The user also expressed the high
-  importance of this PR."
+tldr: The user initiated a pull request creation, requesting it to be marked as
+  ready and reviewed by @cursor. The assistant has started by checking
+  authentication, current branch, pushing the branch, and checking for existing
+  PRs.
+overview: The user wants to create a pull request for the
+   branch. They specifically requested that
+  the PR be marked as ready (not a draft) and include a comment tagging
+   for review. The assistant has begun the process by verifying GitHub
+  CLI authentication, confirming the current branch, pushing the branch to the
+  remote, and checking if a pull request for this branch already exists. The
+  next steps would involve either creating a new PR or updating an existing one,
+  and then adding the requested comment.
 bullets: []
