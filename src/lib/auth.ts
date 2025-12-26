@@ -1,23 +1,64 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
 
 const SESSION_COOKIE_NAME = 'admin_session';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'default-secret-change-in-production';
 
-function createSessionToken(): string {
-  const randomBytes = crypto.randomBytes(32).toString('hex');
+// Convert string to Uint8Array for Web Crypto
+function stringToUint8Array(str: string): Uint8Array {
+  return new TextEncoder().encode(str);
+}
+
+// Convert ArrayBuffer to hex string
+function arrayBufferToHex(buffer: ArrayBuffer): string {
+  return Array.from(new Uint8Array(buffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+// Generate cryptographically secure random bytes as hex
+function generateRandomHex(length: number): string {
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  return Array.from(array)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+// Create HMAC signature using Web Crypto API
+async function createHmacSignature(data: string, secret: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    'raw',
+    stringToUint8Array(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+  const signature = await crypto.subtle.sign('HMAC', key, stringToUint8Array(data));
+  return arrayBufferToHex(signature);
+}
+
+// Constant-time string comparison to prevent timing attacks
+function secureCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
+async function createSessionToken(): Promise<string> {
+  const randomBytes = generateRandomHex(32);
   const timestamp = Date.now().toString();
   const data = `${timestamp}:${randomBytes}`;
-
-  const hmac = crypto.createHmac('sha256', SESSION_SECRET);
-  hmac.update(data);
-  const signature = hmac.digest('hex');
-
+  const signature = await createHmacSignature(data, SESSION_SECRET);
   return `${data}:${signature}`;
 }
 
-function verifySessionToken(token: string): boolean {
+async function verifySessionToken(token: string): Promise<boolean> {
   try {
     const parts = token.split(':');
     if (parts.length !== 3) {
@@ -33,13 +74,10 @@ function verifySessionToken(token: string): boolean {
     }
 
     const data = `${timestamp}:${randomBytes}`;
+    const expectedSignature = await createHmacSignature(data, SESSION_SECRET);
 
-    const hmac = crypto.createHmac('sha256', SESSION_SECRET);
-    hmac.update(data);
-    const expectedSignature = hmac.digest('hex');
-
-    // Verify signature
-    if (signature !== expectedSignature) {
+    // Verify signature using constant-time comparison
+    if (!secureCompare(signature, expectedSignature)) {
       return false;
     }
 
@@ -59,7 +97,7 @@ function verifySessionToken(token: string): boolean {
 }
 
 export async function createSession(): Promise<string> {
-  const token = createSessionToken();
+  const token = await createSessionToken();
   const cookieStore = await cookies();
 
   cookieStore.set(SESSION_COOKIE_NAME, token, {
@@ -81,7 +119,8 @@ export async function getSession(): Promise<string | null> {
     return null;
   }
 
-  if (!verifySessionToken(session.value)) {
+  const isValid = await verifySessionToken(session.value);
+  if (!isValid) {
     return null;
   }
 
@@ -95,7 +134,8 @@ export async function getSessionFromRequest(request: NextRequest): Promise<strin
     return null;
   }
 
-  if (!verifySessionToken(session.value)) {
+  const isValid = await verifySessionToken(session.value);
+  if (!isValid) {
     return null;
   }
 
