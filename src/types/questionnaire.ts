@@ -9,11 +9,17 @@ export interface QuestionnaireData {
     };
     fallAsleepDuring: string[];
     tirednessInterferes: boolean;
+    tirednessSeverity: number | null; // 1-10 scale: 1=nuisance, 10=safety concern
     tiredButCantSleep: 'everyday' | '5+days' | '3-5days' | '1-3days' | '<1day' | null;
     dreamsWhileFallingAsleep: boolean;
     weaknessWhenExcited: string[];
     sleepParalysis: boolean;
     diagnosedNarcolepsy: boolean;
+    // Pain and chronic fatigue screening
+    painAffectsSleep: boolean;
+    painSeverity: number | null; // 1-10 scale
+    muscleJointPain: boolean;
+    nonRestorativeSleep: boolean;
   };
 
   // Section 2a: Scheduled/work/school days sleep
@@ -133,6 +139,11 @@ export interface QuestionnaireData {
     anxietyInBed: boolean;
     timeInBedTrying: boolean;
     cancelsAfterPoorSleep: 'never' | '1-2week' | '3+week';
+    // Medical history
+    diagnosedMedicalConditions: string[];
+    // Mental health history
+    diagnosedMentalHealthConditions: string[];
+    currentlyReceivingTreatment: boolean;
   };
 
   // Demographics

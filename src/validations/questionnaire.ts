@@ -8,11 +8,17 @@ export const daytimeSchema = z.object({
   }),
   fallAsleepDuring: z.array(z.string()),
   tirednessInterferes: z.boolean(),
+  tirednessSeverity: z.number().min(1).max(10).nullable(), // 1=nuisance, 10=safety concern
   tiredButCantSleep: z.enum(['everyday', '5+days', '3-5days', '1-3days', '<1day']).nullable(),
   dreamsWhileFallingAsleep: z.boolean(),
   weaknessWhenExcited: z.array(z.string()),
   sleepParalysis: z.boolean(),
   diagnosedNarcolepsy: z.boolean(),
+  // Pain and chronic fatigue screening
+  painAffectsSleep: z.boolean(),
+  painSeverity: z.number().min(1).max(10).nullable(),
+  muscleJointPain: z.boolean(),
+  nonRestorativeSleep: z.boolean(),
 });
 
 // Sleep pattern schema (reusable for scheduled and unscheduled)
@@ -126,6 +132,11 @@ export const mentalHealthSchema = z.object({
   anxietyInBed: z.boolean(),
   timeInBedTrying: z.boolean(),
   cancelsAfterPoorSleep: z.enum(['never', '1-2week', '3+week']),
+  // Medical history
+  diagnosedMedicalConditions: z.array(z.string()),
+  // Mental health history
+  diagnosedMentalHealthConditions: z.array(z.string()),
+  currentlyReceivingTreatment: z.boolean(),
 });
 
 // Demographics
