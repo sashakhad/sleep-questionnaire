@@ -41,7 +41,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
       <div className='text-lg font-medium'>About You</div>
 
       <Alert className='alert-info'>
-        <User className='h-4 w-4 text-primary' />
+        <User className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
           This information helps us provide more personalized recommendations. Age and body
           measurements can influence sleep patterns and the likelihood of certain sleep disorders.
