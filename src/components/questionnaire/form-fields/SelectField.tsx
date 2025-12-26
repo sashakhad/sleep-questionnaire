@@ -1,4 +1,4 @@
-import { Control, FieldValues, Path } from 'react-hook-form'
+import { Control, FieldValues, Path } from 'react-hook-form';
 import {
   FormControl,
   FormDescription,
@@ -6,31 +6,31 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form'
+} from '@/components/ui/form';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@/components/ui/select';
 
 interface SelectFieldProps<TFieldValues extends FieldValues = FieldValues> {
-  control: Control<TFieldValues>
-  name: Path<TFieldValues>
-  label: string
-  placeholder?: string
-  description?: string
-  options: { value: string; label: string }[]
+  control: Control<TFieldValues>;
+  name: Path<TFieldValues>;
+  label: string;
+  placeholder?: string;
+  description?: string;
+  options: { value: string; label: string }[];
 }
 
-export function SelectField<TFieldValues extends FieldValues = FieldValues>({ 
-  control, 
-  name, 
-  label, 
-  placeholder = "Select an option",
+export function SelectField<TFieldValues extends FieldValues = FieldValues>({
+  control,
+  name,
+  label,
+  placeholder = 'Select an option',
   description,
-  options 
+  options,
 }: SelectFieldProps<TFieldValues>) {
   return (
     <FormField
@@ -39,14 +39,18 @@ export function SelectField<TFieldValues extends FieldValues = FieldValues>({
       render={({ field }) => (
         <FormItem>
           <FormLabel>{label}</FormLabel>
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
+          <Select
+            onValueChange={value => field.onChange(value === '' ? null : value)}
+            value={field.value ?? ''}
+            defaultValue={field.value ?? ''}
+          >
             <FormControl>
               <SelectTrigger>
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {options.map((option) => (
+              {options.map(option => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -58,5 +62,5 @@ export function SelectField<TFieldValues extends FieldValues = FieldValues>({
         </FormItem>
       )}
     />
-  )
+  );
 }
