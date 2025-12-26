@@ -1,0 +1,20 @@
+version: 1
+conversationId: b3141c06-592a-411e-adf1-d99f535aefa6
+title: Prisma datasource URL configuration
+model: claude-4.5-opus-high-thinking
+mode: agent
+updatedAt: 1766777709121
+tldr: The user encountered an error because the  property in
+  is deprecated in . The fix involves updating the Prisma
+  configuration to use  or passing connection details directly
+  to .
+overview: The user's intent was to resolve a Prisma error indicating that the
+   property within the  block of  is deprecated.
+  This change is part of a Prisma update (likely Prisma 7) that shifts database
+  connection configuration out of the  file. The recommended
+  approach is to either define the connection URL in a  file
+  or provide the connection details (e.g.,  for direct connection or
+   for Prisma Accelerate) directly to the
+  constructor. This change aims to provide more flexible and secure ways to
+  manage database connections.
+bullets: []
