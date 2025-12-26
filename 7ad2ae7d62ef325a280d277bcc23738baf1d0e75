@@ -4,20 +4,26 @@ title: Somna Health questionnaire acceptance review
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766769651958
-tldr: The user requested a review of the sleep questionnaire implementation
-  against the provided specification. The assistant identified several missing
-  features and proceeded to implement high-priority items, including a tiredness
-  severity scale, COMISA detection, and insufficient sleep syndrome detection.
-overview: The user initiated a review of their sleep questionnaire application
-  to verify adherence to the project's acceptance criteria. The assistant
-  conducted a thorough analysis, identifying several critical gaps in the
-  implementation. Following this, the assistant began implementing the
-  high-priority items from the generated plan. Key enhancements included
-  integrating a 1-10 severity scale for tiredness, complete with safety warnings
-  for high scores. Additionally, the assistant implemented detection and
-  detailed reporting for Comorbid Insomnia and Sleep Apnea (COMISA) and
-  Insufficient Sleep Syndrome, ensuring these complex conditions are accurately
-  identified and communicated in both the interactive and PDF reports. The
-  process involved modifying data structures, validation rules, and presentation
-  logic across various components of the application.
+tldr: The user requested a comprehensive review of their sleep questionnaire
+  application against a detailed specification. The assistant identified several
+  missing features and implemented high-priority items, including a tiredness
+  severity scale, COMISA detection, insufficient sleep syndrome detection, and a
+  resources section with outbound links in both the web and PDF reports.
+overview: The user initiated a request for a comprehensive review of their sleep
+  questionnaire application, which included database and API endpoints, against
+  a detailed specification and Statement of Work. The primary goal was to ensure
+  all acceptance criteria were met and to identify any missing functionalities.
+  The assistant conducted a thorough code review to understand the current
+  implementation and then formulated a detailed plan outlining the identified
+  gaps and missing features, prioritizing them based on criticality.
+  Subsequently, the assistant proceeded to implement the high-priority items
+  from the plan. This involved integrating a 1-10 severity scale for tiredness,
+  complete with critical safety messaging for high scores. Detection and
+  reporting mechanisms for Comorbid Insomnia and Sleep Apnea (COMISA) and
+  Insufficient Sleep Syndrome were also added. Furthermore, a new "Resources &
+  Next Steps" section was incorporated into both the web and PDF reports,
+  providing placeholder outbound links to various sleep specialists, behavioral
+  sleep medicine providers, mental health resources, and educational materials.
+  The implementation required modifications across type definitions, validation
+  schemas, UI components, and report generation logic.
 bullets: []
