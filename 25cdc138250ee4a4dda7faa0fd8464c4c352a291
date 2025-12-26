@@ -4,21 +4,21 @@ title: Prisma datasource URL configuration
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766777709121
-tldr: The user encountered a Prisma error indicating that the  property in
-  the datasource block is no longer supported. The assistant upgraded Prisma to
-  version 7 and refactored the database connection configuration to use
-   and the  for
-  instantiation.
-overview: The user reported an error indicating that the  property in the
-  Prisma datasource block was deprecated, a change associated with Prisma 7.
-  Although the project initially showed Prisma 6.11.1, the error suggested a
-  need to migrate to Prisma 7's configuration. The assistant upgraded Prisma to
-  version 7.2.0 and implemented the necessary changes. This involved removing
-  the  from , creating a  file to manage
-  the database URL for migrations, and updating the  instantiation
-  to use the . The process also included installing and
-  later removing the  package as the adapter simplified the connection, and
-  integrating  to ensure environment variables were correctly loaded.
-  The solution was verified through multiple  and
-  commands.
+tldr: The user encountered a Prisma error indicating a configuration change for
+  Prisma 7, despite having Prisma 6.11.1 installed. The fix involved upgrading
+  Prisma to version 7, updating the  file, creating a
+   file, and modifying the  instantiation to use
+  the  with the correct Prisma 7 syntax.
+overview: The user reported a Prisma error stating that the  property in
+   was deprecated, which is a Prisma 7 change. Initially, the
+   showed Prisma 6.11.1, leading to confusion. The assistant
+  discovered a version mismatch where the error was from a newer Prisma version,
+  but the CLI was older. The solution involved upgrading Prisma and
+   to version 7.2.0. The  file was updated by
+  removing the  property. A new  file was created to
+  manage the database URL and migrations path, using  to load
+  environment variables. The  instantiation in
+  was modified to use the  directly with the connection
+  string. Finally, unused  dependencies were removed, and all changes were
+  verified through  and .
 bullets: []
