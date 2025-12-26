@@ -4,18 +4,20 @@ title: Prisma datasource URL configuration
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766777709121
-tldr: The user encountered a Prisma error related to database URL configuration.
-  The assistant upgraded Prisma to version 7, refactored the database connection
-  to use  and a PostgreSQL adapter, and successfully verified
-  the changes.
-overview: "The user faced a Prisma error indicating a change in how database
-  URLs are configured, pointing towards Prisma 7. Although the
-  initially showed Prisma 6.11.1, the error message was consistent with Prisma
-  7. The assistant addressed this by implementing the Prisma 7 configuration:
-  creating a  file for migrations, removing the  from
-  , and updating the  instantiation to use a
-  PostgreSQL adapter with the . A version mismatch between the
-  Prisma CLI and the adapter was discovered and resolved by upgrading Prisma to
-  version 7.2.0. The solution was verified by regenerating the Prisma client and
-  performing type checks."
+tldr: The user encountered a Prisma 7 error regarding the  property in
+  . The fix involved migrating the database URL configuration to
+  , updating the PrismaClient instantiation to use a
+  PostgreSQL adapter, and upgrading Prisma CLI and client to version 7.
+overview: "The user faced a Prisma error indicating that the  property in
+   was deprecated in Prisma 7. Although the
+  initially showed Prisma 6.11.1, the error message and subsequent dependency
+  installations confirmed a Prisma 7 context. The solution involved a multi-step
+  migration: creating a  file to define the database
+  connection for migrations, removing the  from , and
+  refactoring the  instantiation to use the
+  with a  pool. During the process, a version mismatch between the Prisma
+  CLI (6.11.1) and the installed adapter (7.2.0) was identified, prompting an
+  upgrade of Prisma CLI and client to version 7.2.0. Finally, an
+  flag in  was removed as it was no longer necessary for
+  Prisma 7.2.0."
 bullets: []
