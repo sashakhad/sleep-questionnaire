@@ -4,20 +4,20 @@ title: Prisma datasource URL configuration
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766777709121
-tldr: The user encountered a Prisma error where the  property in the
-   block was no longer supported. The assistant fixed this by
-  migrating the database connection configuration to Prisma 7 standards,
-  involving a new  file and an updated
-  instantiation using .
-overview: "The user faced a Prisma error indicating that the  property in
-  the  block of  was deprecated in Prisma 7. Despite
-  the  showing Prisma 6.11.1, the assistant correctly identified
-  the issue as a Prisma 7-related change. The fix involved a multi-step process:
-  first, creating a  file to define the database connection
-  for migrations; second, removing the  property from the
-  block in ; and third, updating the  instantiation
-  in  to use the  and  libraries for
-  database connection. Finally, the necessary  and
-  packages were installed, and the Prisma client was regenerated to verify the
-  changes."
+tldr: The user encountered a Prisma error regarding the  property in the
+  datasource block. The fix involved updating the Prisma configuration to align
+  with Prisma 7, including creating a  file, modifying the
+  , and updating the  instantiation. A version
+  mismatch was also resolved by upgrading Prisma to the latest version.
+overview: The user reported an error in their Prisma setup where the
+  property in the  block was no longer supported, indicating a
+  transition to Prisma 7. Although the  initially showed Prisma
+  6.11.1, the assistant proceeded with the Prisma 7 migration steps. This
+  involved creating a  file to manage the database URL for
+  migrations, removing the  property from , and updating the
+   instantiation to use the  and
+  libraries. During verification, a version mismatch was identified between the
+  Prisma CLI (6.11.1) and the newly installed adapter (7.2.0). To ensure a
+  consistent and correct setup, the assistant then upgraded both  and
+   to their latest versions.
 bullets: []
