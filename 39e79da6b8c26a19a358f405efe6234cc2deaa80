@@ -4,16 +4,17 @@ title: New PR with bugbot review
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766777932607
-tldr: The user wanted to create a PR, mark it as ready, and add a review comment
-  for @cursor. An existing PR was found and was already marked as ready, so the
-  system added the requested review comment to it.
-overview: The user initiated a  command with specific instructions
-  to mark the PR as ready and include a review comment for . The system
-  first verified GitHub CLI authentication and the current branch. It then
-  pushed the branch and discovered an existing Pull Request (#1 "Feat/complete
-  sleep questionnaire"). Since this PR was already marked as ready (not a
-  draft), the system proceeded to add the requested detailed review comment. The
-  comment specifically mentioned  for a thorough review, highlighting
-  the user's emphasis on the project's critical importance and the need for a
-  "rock solid" codebase.
+tldr: The user requested to create a PR, mark it as ready, and add a review
+  comment for @cursor. An existing PR was found, confirmed as ready, and the
+  requested review comment was added to it.
+overview: The user initiated a request to create a pull request, ensure it was
+  marked as ready, and include a specific review comment for @cursor to trigger
+  a bugbot review. The agent first verified GitHub CLI authentication and the
+  current branch. It then pushed the branch and discovered an existing pull
+  request (#1 "Feat/complete sleep questionnaire"). Since this PR was already
+  marked as ready (not a draft), the agent proceeded to add the requested
+  detailed comment to it, instructing @cursor and bugbot to perform a thorough
+  review for security, performance, code quality, and potential bugs, as per the
+  user's urgent and specific instructions. The PR URL was provided, and the
+  agent offered to open it in the browser.
 bullets: []
