@@ -4,24 +4,27 @@ title: Somna Health questionnaire acceptance review
 model: claude-4.5-opus-high-thinking
 mode: plan
 updatedAt: 1766769519498
-tldr: The user requested a thorough review of a recently implemented smart
-  patient interactive sleep questionnaire application, including its database
-  and API endpoints, to ensure all acceptance criteria from the provided
-  Statement of Work were met. The assistant began by examining the project's
-  core files, data models, API routes, and UI components to understand the
-  current implementation.
-overview: The user initiated a request for a comprehensive review of a recently
-  developed smart patient interactive sleep questionnaire application. The
-  primary goal was to ensure that the implemented database, API endpoints, and
-  overall functionality adhered to the acceptance criteria detailed in the
-  provided Statement of Work. The application is intended to be a freemium
-  service, collecting minimal de-identified demographic data (year of birth,
-  zipcode/county, sex). It should generate narrative reports with tailored
-  guidance, educational links, and references to clinicians, either pointing
-  towards sleep health optimization or providing probable diagnoses for a
-  defined set of sleep disorders. The assistant began the review process by
-  systematically examining key project files, including the questionnaire's
-  structure, data types, validation logic, Prisma schema, API routes for
-  handling responses, CSV export, PDF report generation, and relevant UI
-  components like the  and admin dashboard.
+tldr: The user requested a comprehensive review of their implemented sleep
+  questionnaire application against detailed acceptance criteria. The assistant
+  examined the provided documentation and codebase, identifying the implemented
+  database, API endpoints for responses, CSV export, PDF generation, and the
+  questionnaire's front-end and admin components.
+overview: The user initiated a request to review the current implementation of a
+  "Somna Health Practical Sleep Questionnaire" application. The goal was to
+  ensure that the database, API endpoints, and overall functionality met the
+  acceptance criteria outlined in a comprehensive document provided by the user.
+  This document detailed the questionnaire's purpose (interactive, AI-enabled,
+  psychometrically validated), its output (narrative report, links to
+  resources/clinicians), its freemium model (collecting only year of birth,
+  zipcode/county, sex), and its functional outcomes (sleep health guidance or
+  probable diagnoses for various sleep disorders). The assistant proceeded by
+  reading key files related to the database schema (), API
+  routes for responses, CSV export, and PDF generation
+  (, ,
+  ), as well as front-end components like
+  , , and admin pages
+  (, ), along
+  with type definitions and validations. This initial review aimed to understand
+  the scope and current state of the implementation before a detailed assessment
+  against the acceptance criteria.
 bullets: []
