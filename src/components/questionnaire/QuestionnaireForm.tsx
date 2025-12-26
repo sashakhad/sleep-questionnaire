@@ -1,16 +1,16 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Form } from '@/components/ui/form'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Progress } from '@/components/ui/progress'
-import { questionnaireSchema, type QuestionnaireFormData } from '@/validations/questionnaire'
-import { type QuestionnaireSection } from '@/types/questionnaire'
-import { cn } from '@/lib/utils'
-import { Download, TestTube } from 'lucide-react'
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form } from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { questionnaireSchema, type QuestionnaireFormData } from '@/validations/questionnaire';
+import { type QuestionnaireSection } from '@/types/questionnaire';
+import { cn } from '@/lib/utils';
+import { Download, TestTube } from 'lucide-react';
 
 // Mock data for pre-filling in development
 const MOCK_DATA: Partial<QuestionnaireFormData> = {
@@ -125,29 +125,30 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     cancelsAfterPoorSleep: '1-2week',
   },
   demographics: {
+    yearOfBirth: 1990,
+    sex: 'male',
+    zipcode: '10001',
     weight: 70,
     height: 175,
-    age: 35,
-    zipcode: '10001',
   },
-}
+};
 
 // Import section components
-import { IntroSection } from './sections/IntroSection'
-import { DaytimeSection } from './sections/DaytimeSection'
-import { ScheduledSleepSection } from './sections/ScheduledSleepSection'
-import { UnscheduledSleepSection } from './sections/UnscheduledSleepSection'
-import { BreathingDisordersSection } from './sections/BreathingDisordersSection'
-import { RestlessLegsSection } from './sections/RestlessLegsSection'
-import { ParasomniaSection } from './sections/ParasomniaSection'
-import { NightmaresSection } from './sections/NightmaresSection'
-import { ChronotypeSection } from './sections/ChronotypeSection'
-import { SleepHygieneSection } from './sections/SleepHygieneSection'
-import { BedroomSection } from './sections/BedroomSection'
-import { LifestyleSection } from './sections/LifestyleSection'
-import { MentalHealthSection } from './sections/MentalHealthSection'
-import { DemographicsSection } from './sections/DemographicsSection'
-import { ReportSection } from './sections/ReportSection'
+import { IntroSection } from './sections/IntroSection';
+import { DaytimeSection } from './sections/DaytimeSection';
+import { ScheduledSleepSection } from './sections/ScheduledSleepSection';
+import { UnscheduledSleepSection } from './sections/UnscheduledSleepSection';
+import { BreathingDisordersSection } from './sections/BreathingDisordersSection';
+import { RestlessLegsSection } from './sections/RestlessLegsSection';
+import { ParasomniaSection } from './sections/ParasomniaSection';
+import { NightmaresSection } from './sections/NightmaresSection';
+import { ChronotypeSection } from './sections/ChronotypeSection';
+import { SleepHygieneSection } from './sections/SleepHygieneSection';
+import { BedroomSection } from './sections/BedroomSection';
+import { LifestyleSection } from './sections/LifestyleSection';
+import { MentalHealthSection } from './sections/MentalHealthSection';
+import { DemographicsSection } from './sections/DemographicsSection';
+import { ReportSection } from './sections/ReportSection';
 
 const sections: QuestionnaireSection[] = [
   'intro',
@@ -164,31 +165,31 @@ const sections: QuestionnaireSection[] = [
   'lifestyle',
   'mental-health',
   'demographics',
-  'report'
-]
+  'report',
+];
 
 const sectionTitles: Record<QuestionnaireSection, string> = {
-  'intro': 'Welcome',
-  'daytime': 'Daytime Feelings',
+  intro: 'Welcome',
+  daytime: 'Daytime Feelings',
   'scheduled-sleep': 'Sleep on Work/School Days',
   'unscheduled-sleep': 'Sleep on Weekends/Free Days',
   'breathing-disorders': 'Sleep Breathing',
   'restless-legs': 'Restless Legs',
-  'parasomnia': 'Sleep Behaviors',
-  'nightmares': 'Nightmares',
-  'chronotype': 'Sleep Preferences',
+  parasomnia: 'Sleep Behaviors',
+  nightmares: 'Nightmares',
+  chronotype: 'Sleep Preferences',
   'sleep-hygiene': 'Sleep Medications & Supplements',
-  'bedroom': 'Bedroom Environment',
-  'lifestyle': 'Lifestyle Factors',
+  bedroom: 'Bedroom Environment',
+  lifestyle: 'Lifestyle Factors',
   'mental-health': 'Mental Health & Sleep',
-  'demographics': 'About You',
-  'report': 'Your Sleep Report'
-}
+  demographics: 'About You',
+  report: 'Your Sleep Report',
+};
 
 export function QuestionnaireForm() {
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0)
-  const currentSection = sections[currentSectionIndex]!
-  const progress = ((currentSectionIndex + 1) / sections.length) * 100
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
+  const currentSection = sections[currentSectionIndex]!;
+  const progress = ((currentSectionIndex + 1) / sections.length) * 100;
 
   const form = useForm<QuestionnaireFormData>({
     resolver: zodResolver(questionnaireSchema),
@@ -202,7 +203,7 @@ export function QuestionnaireForm() {
         dreamsWhileFallingAsleep: false,
         weaknessWhenExcited: [],
         sleepParalysis: false,
-        diagnosedNarcolepsy: false
+        diagnosedNarcolepsy: false,
       },
       scheduledSleep: {
         lightsOutTime: '',
@@ -217,7 +218,7 @@ export function QuestionnaireForm() {
         earlyWakeupMinutes: null,
         usesAlarm: false,
         plannedNapsPerWeek: 0,
-        averageNapMinutes: null
+        averageNapMinutes: null,
       },
       unscheduledSleep: {
         lightsOutTime: '',
@@ -231,7 +232,7 @@ export function QuestionnaireForm() {
         earlyWakeupMinutes: null,
         usesAlarm: false,
         plannedNapsPerWeek: 0,
-        averageNapMinutes: null
+        averageNapMinutes: null,
       },
       breathingDisorders: {
         diagnosed: false,
@@ -240,7 +241,7 @@ export function QuestionnaireForm() {
         snores: false,
         stopsBreathing: false,
         mouthBreathes: false,
-        wakesWithDryMouth: false
+        wakesWithDryMouth: false,
       },
       restlessLegs: {
         diagnosed: false,
@@ -248,7 +249,7 @@ export function QuestionnaireForm() {
         troubleLyingStill: false,
         urgeToMoveLegs: false,
         movementRelieves: false,
-        daytimeDiscomfort: false
+        daytimeDiscomfort: false,
       },
       parasomnia: {
         nightBehaviors: [],
@@ -258,12 +259,12 @@ export function QuestionnaireForm() {
         diagnosedParasomnia: false,
         parasomniaType: '',
         receivedTreatment: false,
-        treatmentType: ''
+        treatmentType: '',
       },
       nightmares: {
         hasNightmares: false,
         nightmaresPerWeek: null,
-        associatedWithTrauma: false
+        associatedWithTrauma: false,
       },
       chronotype: {
         preference: 'flexible',
@@ -272,20 +273,20 @@ export function QuestionnaireForm() {
         shiftDaysPerWeek: null,
         pastShiftWorkYears: null,
         frequentTimeZoneTravel: false,
-        workSchoolTime: ''
+        workSchoolTime: '',
       },
       sleepHygiene: {
         supplements: [],
         prescriptionMeds: [],
         stimulants: '',
         stimulantTime: '',
-        smokesNicotine: false
+        smokesNicotine: false,
       },
       bedroom: {
         relaxing: 5,
         comfortable: 5,
         dark: 5,
-        quiet: 5
+        quiet: 5,
       },
       lifestyle: {
         caffeinePerDay: 0,
@@ -293,48 +294,65 @@ export function QuestionnaireForm() {
         alcoholPerWeek: { wine: 0, cocktails: 0 },
         exerciseDaysPerWeek: 0,
         exerciseDuration: null,
-        exerciseEndTime: ''
+        exerciseEndTime: '',
       },
       mentalHealth: {
         worriesAffectSleep: false,
         anxietyInBed: false,
         timeInBedTrying: false,
-        cancelsAfterPoorSleep: 'never'
+        cancelsAfterPoorSleep: 'never',
       },
       demographics: {
+        yearOfBirth: null,
+        sex: null,
+        zipcode: '',
         weight: null,
         height: null,
-        age: null,
-        zipcode: ''
-      }
-    }
-  })
+      },
+    },
+  });
 
   function handleNext() {
     if (currentSectionIndex < sections.length - 1) {
-      setCurrentSectionIndex(currentSectionIndex + 1)
-      window.scrollTo(0, 0)
+      setCurrentSectionIndex(currentSectionIndex + 1);
+      window.scrollTo(0, 0);
     }
   }
 
   function handlePrevious() {
     if (currentSectionIndex > 0) {
-      setCurrentSectionIndex(currentSectionIndex - 1)
-      window.scrollTo(0, 0)
+      setCurrentSectionIndex(currentSectionIndex - 1);
+      window.scrollTo(0, 0);
     }
   }
 
   async function onSubmit(data: QuestionnaireFormData) {
-    // Here we would normally send to API
-    // For now, just go to report - data is available for report
-    void data // Using data
-    handleNext()
+    try {
+      // Save to database
+      const response = await fetch('/api/responses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to save questionnaire response');
+        // Still proceed to report even if save fails
+      }
+    } catch (error) {
+      console.error('Error saving questionnaire response:', error);
+      // Still proceed to report even if save fails
+    }
+
+    handleNext();
   }
 
   // Function to handle PDF generation
   const handleGeneratePDF = async () => {
-    const formData = form.getValues()
-    
+    const formData = form.getValues();
+
     try {
       const response = await fetch('/api/generate-pdf', {
         method: 'POST',
@@ -345,139 +363,139 @@ export function QuestionnaireForm() {
           data: formData,
           userName: 'Test User',
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to generate PDF')
+        throw new Error('Failed to generate PDF');
       }
 
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `sleep-report-${Date.now()}.pdf`
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sleep-report-${Date.now()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (error) {
-      console.error('Error generating PDF:', error)
-      alert('Failed to generate PDF. Please try again.')
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
     }
-  }
+  };
 
   // Function to pre-fill form
   const handlePreFill = () => {
-    form.reset(MOCK_DATA as QuestionnaireFormData)
+    form.reset(MOCK_DATA as QuestionnaireFormData);
     // Jump to the report section to test quickly
-    setCurrentSectionIndex(sections.length - 1)
-  }
+    setCurrentSectionIndex(sections.length - 1);
+  };
 
   const renderSection = () => {
     switch (currentSection) {
       case 'intro':
-        return <IntroSection />
+        return <IntroSection />;
       case 'daytime':
-        return <DaytimeSection form={form} />
+        return <DaytimeSection form={form} />;
       case 'scheduled-sleep':
-        return <ScheduledSleepSection form={form} />
+        return <ScheduledSleepSection form={form} />;
       case 'unscheduled-sleep':
-        return <UnscheduledSleepSection form={form} />
+        return <UnscheduledSleepSection form={form} />;
       case 'breathing-disorders':
-        return <BreathingDisordersSection form={form} />
+        return <BreathingDisordersSection form={form} />;
       case 'restless-legs':
-        return <RestlessLegsSection form={form} />
+        return <RestlessLegsSection form={form} />;
       case 'parasomnia':
-        return <ParasomniaSection form={form} />
+        return <ParasomniaSection form={form} />;
       case 'nightmares':
-        return <NightmaresSection form={form} />
+        return <NightmaresSection form={form} />;
       case 'chronotype':
-        return <ChronotypeSection form={form} />
+        return <ChronotypeSection form={form} />;
       case 'sleep-hygiene':
-        return <SleepHygieneSection form={form} />
+        return <SleepHygieneSection form={form} />;
       case 'bedroom':
-        return <BedroomSection form={form} />
+        return <BedroomSection form={form} />;
       case 'lifestyle':
-        return <LifestyleSection form={form} />
+        return <LifestyleSection form={form} />;
       case 'mental-health':
-        return <MentalHealthSection form={form} />
+        return <MentalHealthSection form={form} />;
       case 'demographics':
-        return <DemographicsSection form={form} />
+        return <DemographicsSection form={form} />;
       case 'report':
-        return <ReportSection data={form.getValues()} />
+        return <ReportSection data={form.getValues()} />;
       default:
-        return null
+        return null;
     }
-  }
+  };
 
-  const isFirstSection = currentSectionIndex === 0
-  const isLastSection = currentSection === 'report'
-  const isSecondToLast = currentSectionIndex === sections.length - 2
+  const isFirstSection = currentSectionIndex === 0;
+  const isLastSection = currentSection === 'report';
+  const isSecondToLast = currentSectionIndex === sections.length - 2;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-8">
-      <div className="container mx-auto max-w-4xl px-4">
+    <div className='min-h-screen bg-gradient-to-b from-blue-50 to-white py-8'>
+      <div className='container mx-auto max-w-4xl px-4'>
         {/* Dev Tools - Only show in development */}
         {process.env.NODE_ENV === 'development' && (
-          <div className="mb-4 flex gap-2 justify-end">
+          <div className='mb-4 flex justify-end gap-2'>
             <Button
-              type="button"
-              variant="outline"
-              size="sm"
+              type='button'
+              variant='outline'
+              size='sm'
               onClick={handlePreFill}
-              className="bg-yellow-50 border-yellow-300 hover:bg-yellow-100"
+              className='border-yellow-300 bg-yellow-50 hover:bg-yellow-100'
             >
-              <TestTube className="w-4 h-4 mr-2" />
+              <TestTube className='mr-2 h-4 w-4' />
               Pre-fill & Jump to Report (Dev)
             </Button>
           </div>
         )}
 
         {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="mb-2 flex justify-between text-sm text-gray-600">
-            <span>Section {currentSectionIndex + 1} of {sections.length}</span>
+        <div className='mb-8'>
+          <div className='mb-2 flex justify-between text-sm text-gray-600'>
+            <span>
+              Section {currentSectionIndex + 1} of {sections.length}
+            </span>
             <span>{Math.round(progress)}% Complete</span>
           </div>
-          <Progress value={progress} className="h-2" />
+          <Progress value={progress} className='h-2' />
         </div>
 
         {/* Main Form Card */}
-        <Card className="shadow-xl">
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-            <CardTitle className="text-2xl">
-              {sectionTitles[currentSection]}
-            </CardTitle>
+        <Card className='shadow-xl'>
+          <CardHeader className='bg-gradient-to-r from-blue-600 to-indigo-600 text-white'>
+            <CardTitle className='text-2xl'>{sectionTitles[currentSection]}</CardTitle>
             {currentSection !== 'intro' && currentSection !== 'report' && (
-              <CardDescription className="text-blue-100">
+              <CardDescription className='text-blue-100'>
                 Please answer all questions to the best of your ability
               </CardDescription>
             )}
           </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent className='pt-6'>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-6'>
                 {renderSection()}
 
                 {/* PDF Download Button - Only show on report section */}
                 {currentSection === 'report' && (
-                  <div className="flex justify-center mt-6">
+                  <div className='mt-6 flex justify-center'>
                     <Button
-                      type="button"
+                      type='button'
                       onClick={handleGeneratePDF}
-                      className="bg-green-600 hover:bg-green-700"
+                      className='bg-green-600 hover:bg-green-700'
                     >
-                      <Download className="w-4 h-4 mr-2" />
+                      <Download className='mr-2 h-4 w-4' />
                       Download PDF Report
                     </Button>
                   </div>
                 )}
 
                 {/* Navigation Buttons */}
-                <div className="flex justify-between pt-6 border-t">
+                <div className='flex justify-between border-t pt-6'>
                   <Button
-                    type="button"
-                    variant="outline"
+                    type='button'
+                    variant='outline'
                     onClick={handlePrevious}
                     disabled={isFirstSection}
                     className={cn(isFirstSection && 'invisible')}
@@ -486,15 +504,11 @@ export function QuestionnaireForm() {
                   </Button>
 
                   {isSecondToLast ? (
-                    <Button type="submit" className="ml-auto">
+                    <Button type='submit' className='ml-auto'>
                       Generate Report
                     </Button>
                   ) : !isLastSection ? (
-                    <Button 
-                      type="button" 
-                      onClick={handleNext}
-                      className="ml-auto"
-                    >
+                    <Button type='button' onClick={handleNext} className='ml-auto'>
                       Next Section
                     </Button>
                   ) : null}
@@ -505,5 +519,5 @@ export function QuestionnaireForm() {
         </Card>
       </div>
     </div>
-  )
+  );
 }
