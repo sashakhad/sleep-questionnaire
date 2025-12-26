@@ -4,16 +4,16 @@ title: Deployment compilation errors
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766777687854
-tldr: The user reported deployment failures due to several linting errors. I
-  successfully fixed all the identified linting issues, but a new Prisma-related
-  build error emerged during the final verification step.
-overview: The user was experiencing deployment failures due to various linting
-  issues. I addressed these by adding  for a function used in
-   to resolve a missing dependency warning, inserting curly braces
-  around  statements to comply with ESLint rules, and removing an unused
-  variable. After applying these fixes, the linter passed successfully. However,
-  during the subsequent production build verification, a new error surfaced
-  concerning  and an incompatible  function,
-  indicating a separate issue with the Prisma configuration or version
-  compatibility. The original linting problems were resolved as requested.
+tldr: The user reported deployment failures due to linting errors. I fixed the
+   dependency, added missing curly braces, and removed an unused
+  variable. While verifying the build, a new Prisma configuration error was
+  found, which was a version mismatch.
+overview: The user encountered deployment failures due to several linting
+  issues. I addressed these by correcting a missing  dependency in
+   using , enforcing curly braces for
+   statements in , and removing an unused environment variable in
+  . All initial linting errors were successfully resolved. During
+  the subsequent build verification, a new, unrelated error surfaced concerning
+  , specifically a  type incompatibility,
+  which was traced to a version mismatch between Prisma and its adapter.
 bullets: []
