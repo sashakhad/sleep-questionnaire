@@ -4,18 +4,20 @@ title: Prisma datasource URL configuration
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766777709121
-tldr: The user encountered a Prisma error related to the  property in the
-   block no longer being supported. The fix involved updating the
-  Prisma configuration to align with Prisma 7 changes, including creating a
-   file and modifying the  instantiation.
-overview: The user reported a Prisma error indicating that the  property in
-  the  block of  is deprecated in Prisma 7. Despite
-  the  showing Prisma 6.11.1, the error message clearly pointed to
-  Prisma 7 configuration changes. The assistant addressed this by implementing
-  the Prisma 7-compatible solution. This involved removing the  from
-  , creating a  file to manage the database
-  connection for migrations using  and , and updating
-  the  instantiation in  to use this new
-  adapter-based approach. This ensures the application correctly connects to the
-  database according to the latest Prisma configuration guidelines.
+tldr: The user encountered a Prisma error indicating that the  property in
+  the  block is no longer supported. The fix involved migrating the
+  database URL configuration to  and updating the
+   instantiation to use the  and
+  libraries.
+overview: "The user reported a Prisma error indicating that the  property
+  in the  block of  is no longer supported, a change
+  introduced in Prisma 7. Despite the  showing Prisma version
+  6.11.1, the assistant proceeded with the Prisma 7 fix due to the explicit
+  error message. The solution involved several steps: first, the  property
+  was removed from the  block in . Second, a new
+  file, , was created to define the database connection for
+  migrations using  and . Third, the
+  instantiation in  was modified to use the new adapter-based
+  connection. Finally, the necessary dependencies, , ,
+  and , were installed to support the new configuration."
 bullets: []
