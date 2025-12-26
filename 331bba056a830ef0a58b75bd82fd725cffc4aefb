@@ -4,22 +4,22 @@ title: Vercel .env file programmatic upload
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766777301303
-tldr: The user wanted to programmatically upload their .env file to Vercel and
-  then control specific development features (prefill and jump to report) in
-  deployed environments using an environment variable. The assistant helped set
-  up the  tool and modified the codebase to use a new
-   variable for feature control.
-overview: The user's primary intent was to streamline their Vercel deployment
-  workflow by programmatically managing environment variables and controlling
-  development-specific features. Initially, the focus was on uploading the
-   file. The assistant guided the user to use the  tool,
-  overcoming several hurdles like incorrect arguments, confirmation prompts, and
-  linking the Vercel project. Once the environment variables were pushed, the
-  conversation shifted to enabling "prefill and jump to report" features for
-  client testing in deployed environments. The assistant identified that these
-  features were tied to , which wouldn't work on Vercel. The solution
-  involved introducing a new  environment variable
-  and modifying the  file to check this variable,
-  allowing for flexible control of dev features across different Vercel
-  environments.
+tldr: The user wanted to programmatically upload  variables to Vercel and
+  then control the visibility of development features for client testing using
+  environment variables. The assistant helped link the Vercel project, push the
+  initial  file, and then implemented a new environment variable
+   to manage dev feature visibility across different
+  Vercel environments.
+overview: The user's primary goal was to programmatically manage environment
+  variables on Vercel. Initially, they sought a way to upload their  file,
+  for which the  tool was chosen. This involved linking the
+  local project to Vercel first. Subsequently, the user wanted to enable
+  specific "dev state" features (prefill, jump to report) for client testing on
+  a deployed environment, controlled by an environment variable. The existing
+  implementation relied on , which was unsuitable for deployed
+  environments. The assistant addressed this by introducing a new
+   environment variable. The code was modified to
+  check this new variable, and it was then configured to be  for the
+  preview environment (for client testing) and  for production, ensuring
+  programmatic control and distinct client testing environments.
 bullets: []
