@@ -4,15 +4,15 @@ title: Prisma schema bug
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766796510287
-tldr: The user's dev server was crashing with Turbopack errors, which they
-  initially misidentified as a Prisma schema issue. The assistant diagnosed the
-  problem as a corrupted  cache and fixed it by deleting the directory
-  and restarting the server.
-overview: The user reported a crashing development server, mistakenly
-  attributing the problem to a  line in their Prisma schema. The
-  assistant, after reviewing the provided code snippet and terminal logs,
-  identified the root cause as a corrupted  cache directory and Turbopack
-  errors, not a Prisma configuration issue. The solution involved deleting the
-   directory and then restarting the Next.js development server to
-  resolve the build and runtime issues.
+tldr: The user was experiencing Turbopack errors and a crashing dev server,
+  initially misattributing the problem to their Prisma schema. The assistant
+  diagnosed the issue as a corrupted  directory and resolved it by
+  deleting the directory and restarting the dev server.
+overview: The user was facing a critical issue where their development server
+  was crashing, displaying Turbopack errors and indicating missing Next.js
+  packages. Although the user initially highlighted a line in their Prisma
+  schema, the assistant quickly determined that the Prisma configuration was not
+  the problem. Instead, the assistant diagnosed the issue as a corrupted
+  cache directory. To resolve this, the assistant deleted the  directory
+  and then restarted the Next.js development server.
 bullets: []
