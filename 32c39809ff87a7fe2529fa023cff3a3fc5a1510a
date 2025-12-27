@@ -6,18 +6,17 @@ mode: agent
 updatedAt: 1766798955825
 tldr: The user had multiple duplicate Vercel projects and wanted to clean them
   up. I helped delete the duplicates and then set up a development environment
-  using a  branch, configuring branch-specific environment variables,
-  and ensuring  was not in production.
+  by creating a  branch, configuring branch-specific environment
+  variables, and ensuring  was not in production.
 overview: The user started by asking to clean up their Vercel dashboard, which
-  had five projects for the same app. I identified and deleted four duplicate
-  projects, leaving only the main  project. Following this,
-  the user requested help setting up a development environment with a separate
-  domain and environment variables. I created a  branch and pushed it
-  to their repository, explaining how to configure branch-specific domains and
-  environment variables in the Vercel dashboard. We then confirmed that the
-  necessary environment variables were already set for the preview environment.
-  A key correction was made to remove  from the
-  production environment, which was then redeployed. The conversation concluded
-  with the user asking for the link to their newly configured development
-  environment.
+  had 5 projects for the same app. I identified the duplicates and deleted 4 of
+  them using the Vercel CLI, leaving only the main
+  project. Following this, the user requested to set up a development
+  environment. I created a  branch and pushed it to their GitHub
+  repository, explaining how to configure a separate domain and branch-specific
+  environment variables in Vercel. We then reviewed the existing environment
+  variables, and upon the user's request, I removed
+  from the production environment and redeployed production to ensure it was
+  only active in preview environments. The conversation concluded with the user
+  asking for the link to their newly configured development environment.
 bullets: []
