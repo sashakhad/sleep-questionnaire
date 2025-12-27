@@ -4,21 +4,19 @@ title: Multiple sleep questionnaire projects
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766798955825
-tldr: The user had multiple duplicate Vercel projects for their
-  sleep-questionnaire app. The assistant helped delete the duplicates and then
-  set up a development environment by creating a new  branch and
-  configuring environment variables, including correcting a production setting
-  for dev tools.
-overview: The user started by asking why they had five duplicate Vercel projects
-  for their "sleep-questionnaire" app. The assistant diagnosed this as a common
-  issue from multiple imports and proceeded to delete the four duplicate
-  projects, leaving only the primary one. Following this, the user requested
-  help setting up a development environment with a separate domain. The
-  assistant recommended creating a  branch and configuring
-  branch-specific environment variables. The  branch was created and
-  pushed. During the process of checking and potentially pushing environment
-  variables, it was discovered that  was incorrectly
-  enabled for production, which the assistant promptly corrected by removing it
-  and redeploying the production environment. The conversation concluded with
-  the user asking how to view the newly configured development environment.
+tldr: The user had multiple duplicate Vercel projects and wanted to clean them
+  up. I helped delete the duplicates and then set up a development environment
+  by creating a  branch, configuring branch-specific environment
+  variables, and ensuring  was not in production.
+overview: The user started by asking to clean up their Vercel dashboard, which
+  had 5 projects for the same app. I identified the duplicates and deleted 4 of
+  them using the Vercel CLI, leaving only the main
+  project. Following this, the user requested to set up a development
+  environment. I created a  branch and pushed it to their GitHub
+  repository, explaining how to configure a separate domain and branch-specific
+  environment variables in Vercel. We then reviewed the existing environment
+  variables, and upon the user's request, I removed
+  from the production environment and redeployed production to ensure it was
+  only active in preview environments. The conversation concluded with the user
+  asking for the link to their newly configured development environment.
 bullets: []
