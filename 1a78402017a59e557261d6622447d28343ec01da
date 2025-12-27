@@ -4,25 +4,20 @@ title: Pull request issues and Vercel deploys
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766796497682
-tldr: The user requested fixing numerous issues in a pull request, including
-  security vulnerabilities, bugs, and failing Vercel deploys. The process
-  involved systematically addressing code issues, updating Next.js to fix a
-  critical CVE, and debugging CI/CD problems, ultimately identifying missing
-  Vercel environment variables as the final blocker.
-overview: "The user initiated a request to resolve a wide array of issues within
-  a pull request, encompassing critical security flaws, various functional bugs,
-  and persistent Vercel deployment failures. The process involved a systematic
-  approach to code remediation: fixing lint errors, implementing a robust
-  HMAC-based session management system compatible with Vercel's Edge Runtime,
-  validating API parameters, enhancing PDF generation accuracy, and improving
-  form field handling. A significant challenge arose when Vercel deployments
-  continued to fail, leading to the discovery and resolution of a critical
-  Next.js security vulnerability (CVE-2025-66478) by updating to version 16.1.1.
-  This update, in turn, necessitated further adjustments to the Prisma
-  configuration due to breaking changes in Prisma 7 and a complete overhaul of
-  the ESLint setup as the  command was deprecated. While all
-  code-related issues were successfully addressed and GitHub Actions builds
-  passed, the ultimate Vercel deployment failures were traced back to
-  unconfigured environment variables on the Vercel platform, requiring direct
-  user intervention."
+tldr: The user asked to fix multiple issues in a pull request, including
+  security vulnerabilities, bugs, and broken Vercel deploys. The process
+  involved systematically addressing code issues, updating dependencies, and
+  resolving configuration conflicts to get the application building and
+  deploying successfully.
+overview: The user initiated a request to fix numerous issues in a pull request,
+  including broken Vercel deploys. The process involved systematically
+  addressing lint errors, critical security vulnerabilities related to
+  authentication, and various bugs in PDF generation, data handling, and UI. Key
+  decisions included migrating to HMAC-based sessions with Web Crypto for Edge
+  Runtime compatibility, implementing robust input validation, and updating
+  dependencies. A significant pivot occurred when a Next.js update to fix a CVE
+  introduced breaking changes in Prisma and ESLint, requiring further
+  configuration adjustments. The conversation concluded with an ongoing effort
+  to resolve ESLint configuration issues in Jest files after the dependency
+  updates.
 bullets: []
