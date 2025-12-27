@@ -4,21 +4,20 @@ title: Multiple sleep questionnaire projects
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766798669928
-tldr: The user had multiple duplicate Vercel projects for their
-  sleep-questionnaire app. I helped them delete the duplicates and then set up a
-  development environment using a new  branch with instructions for
-  configuring a separate domain and environment variables in Vercel.
-overview: The user started by pointing out that they had five Vercel projects
-  for a single "sleep-questionnaire" app, which was causing confusion. I
-  identified that four of these were duplicates created by importing the same
-  GitHub repository multiple times. I then proceeded to delete these four
-  duplicate projects using the Vercel CLI, handling the confirmation prompts.
-  Once the Vercel dashboard was clean, the user asked how to set up a
-  development environment with a separate domain and environment variables. I
-  recommended creating a  branch and leveraging Vercel's
-  branch-specific settings. I created and pushed the  branch for them
-  and provided clear instructions on how to configure a custom domain and
-  environment variables specifically for this  branch within the Vercel
-  dashboard, ensuring a clean separation between development and production
-  environments.
+tldr: The user had multiple duplicate Vercel projects and wanted to clean them
+  up. I helped delete the duplicates and then guided them on setting up a
+  development environment with a separate branch, domain, and environment
+  variables.
+overview: The user started by asking for help cleaning up their Vercel
+  dashboard, which showed five projects for the same application. I identified
+  four duplicate projects and proceeded to delete them using the Vercel CLI,
+  ensuring only the main  project remained. After the
+  cleanup, the user requested assistance in setting up a development environment
+  with a separate domain and environment variables. I recommended creating a
+   branch and leveraging Vercel's preview deployment features. I then
+  created and pushed the  branch to their GitHub repository and
+  provided clear instructions on how to configure a custom domain for this
+  branch and set up branch-specific environment variables within the Vercel
+  dashboard. This approach allows for an isolated development environment
+  without creating additional Vercel projects.
 bullets: []
