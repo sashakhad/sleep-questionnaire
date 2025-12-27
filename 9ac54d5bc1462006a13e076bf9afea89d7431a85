@@ -1,0 +1,11 @@
+version: 1
+conversationId: 4b7d395b-04e6-47e7-818b-def77735b797
+title: All ports termination
+model: composer-1
+mode: agent
+updatedAt: 1766797581996
+tldr: The user requested to kill all active ports. The conversation was a
+  single, direct command.
+overview: The user's intent was to terminate all active network ports. The
+  conversation was a single, direct command from the user.
+bullets: []
