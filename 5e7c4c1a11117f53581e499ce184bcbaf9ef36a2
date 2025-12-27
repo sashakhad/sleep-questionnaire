@@ -1,0 +1,14 @@
+version: 1
+conversationId: 764f05ab-e701-43ee-9c7b-a7ae9ed11f80
+title: null
+model: composer-1
+mode: agent
+updatedAt: 1766797966314
+tldr: The user is asking for guidance on how to get someone to test a prefilling
+  feature online, specifically mentioning the need to check Vercel
+  configuration.
+overview: The user's intent is to understand the process for having an online
+  tester evaluate a prefilling component. They believe this might involve
+  examining the current Vercel configuration. The conversation is a direct query
+  for information on setting up such a testing scenario.
+bullets: []
