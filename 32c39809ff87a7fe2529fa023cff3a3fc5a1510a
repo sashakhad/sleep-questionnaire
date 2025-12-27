@@ -5,18 +5,21 @@ model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766798988047
 tldr: The user had multiple duplicate Vercel projects and wanted to clean them
-  up. I helped delete the duplicates and then set up a development environment
-  by creating a develop branch, configuring environment variables, and deploying
-  the develop branch to a preview URL.
-overview: The user started by asking for help cleaning up their Vercel
-  dashboard, which had five projects for a single app. I identified and deleted
-  four duplicate projects using the Vercel CLI, leaving only the main
-  sleep-questionnaire project. Following this, the user requested assistance in
-  setting up a development environment. I created a develop branch, pushed it to
-  the repository, and guided the user on configuring branch-specific domains and
-  environment variables in Vercel. A key adjustment was made to ensure
-  NEXT_PUBLIC_SHOW_DEV_TOOLS was correctly scoped to only the preview
-  environment, which involved removing it from production and redeploying.
-  Finally, I deployed the develop branch and provided the user with the stable
-  preview URL for their new development environment.
+  up and set up a development environment. I helped delete the duplicate
+  projects, created a  branch, configured environment variables, and
+  deployed the  branch to create a preview environment.
+overview: The user started by asking about multiple duplicate Vercel projects
+  for their  app. I identified the issue, which was likely
+  due to importing the same GitHub repository multiple times, and then, at the
+  user's request, deleted the four duplicate projects using the Vercel CLI,
+  leaving only the main  project. Following this, the user
+  wanted to set up a development environment with a separate domain. I
+  recommended creating a  branch and configuring Vercel's preview
+  deployments with branch-specific environment variables. I created and pushed
+  the  branch. We then reviewed the environment variables, and I
+  corrected the  variable to ensure it was not
+  active in production, redeploying production afterward. Finally, I provided
+  the predictable Vercel URL for the  branch and, upon realizing it
+  hadn't been deployed yet, triggered a deployment to make the development
+  environment accessible.
 bullets: []
