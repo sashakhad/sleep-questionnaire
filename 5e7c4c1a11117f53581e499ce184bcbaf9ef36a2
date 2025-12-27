@@ -1,14 +1,17 @@
 version: 1
 conversationId: 764f05ab-e701-43ee-9c7b-a7ae9ed11f80
-title: null
+title: Prefilling testing and Vercel config
 model: composer-1
 mode: agent
 updatedAt: 1766797966314
-tldr: The user is asking for guidance on how to get someone to test a prefilling
-  feature online, specifically mentioning the need to check Vercel
-  configuration.
-overview: The user's intent is to understand the process for having an online
-  tester evaluate a prefilling component. They believe this might involve
-  examining the current Vercel configuration. The conversation is a direct query
-  for information on setting up such a testing scenario.
+tldr: The user wants to enable online testing for a prefilling feature and
+  suspects the Vercel configuration might need adjustments. The assistant began
+  by investigating the prefilling implementation and the current Vercel/Next.js
+  setup.
+overview: The user initiated a conversation to figure out how to allow someone
+  to test a "prefilling" feature online. They specifically mentioned that the
+  Vercel configuration might need to be checked. The assistant's initial
+  approach was to investigate the existing prefilling code and review the Vercel
+  and Next.js configuration files to understand the current setup before
+  proceeding with any changes or recommendations for online testing.
 bullets: []
