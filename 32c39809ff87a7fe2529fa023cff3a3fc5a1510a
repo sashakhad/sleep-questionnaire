@@ -4,18 +4,18 @@ title: Multiple sleep questionnaire projects
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766798483523
-tldr: The user had multiple duplicate Vercel projects for their sleep
-  questionnaire app and asked for help cleaning them up. The assistant
-  successfully deleted the four duplicate projects, leaving only the main one.
-overview: The user was confused by having five Vercel projects for a single
-   application, all linked to the same GitHub repository.
-  They provided screenshots of their Vercel dashboard and asked for an
-  explanation and a solution. The assistant identified that four of these
-  projects were duplicates, likely created by importing the repository multiple
-  times. The user then requested the assistant to perform the cleanup. The
-  assistant used the Vercel CLI to remove each of the four duplicate projects.
-  Initially, an attempt to use the  flag for automatic confirmation failed,
-  so the assistant adapted by piping "y" to the  command for
-  each deletion. All duplicate projects were successfully removed, leaving only
-  the intended  project.
+tldr: The user had multiple duplicate Vercel projects for their
+  sleep-questionnaire app. I helped them clean it up by deleting the 4 extra
+  projects, leaving only the main one.
+overview: The user identified that their Vercel dashboard showed five projects
+  for a single application, "sleep-questionnaire," which was causing confusion.
+  I explained that this typically occurs when the same GitHub repository is
+  imported multiple times into Vercel, creating new projects with random
+  suffixes. The goal was to retain only the primary
+  project and remove the four duplicates. I used the Vercel CLI to delete the
+  duplicate projects. After an initial attempt to delete all at once with a
+  flag failed, I proceeded to delete each of the four duplicate projects
+  individually by piping "y" as confirmation to the  command.
+  All duplicates were successfully removed, leaving the user with a clean Vercel
+  dashboard showing only the intended project.
 bullets: []
