@@ -4,14 +4,17 @@ title: Multiple sleep questionnaire projects
 model: claude-4.5-opus-high-thinking
 mode: agent
 updatedAt: 1766798483523
-tldr: The user had multiple duplicate Vercel projects for their sleep
-  questionnaire app. The assistant identified the duplicates and then deleted
-  them using the Vercel CLI, leaving only the main project.
-overview: The user was confused by having five Vercel projects for a single
-  "sleep-questionnaire" application, all pointing to the same GitHub repository.
-  The assistant explained that this often happens when a repository is imported
-  multiple times into Vercel, creating new projects with random suffixes. The
-  assistant identified the main project and four duplicates. To resolve this,
-  the assistant used the Vercel CLI to remove the four unnecessary duplicate
-  projects, leaving only the primary "sleep-questionnaire" project.
+tldr: The user had multiple duplicate Vercel projects for the same
+  sleep-questionnaire app. The assistant identified the duplicates and provided
+  instructions on how to delete them, either manually through the Vercel
+  dashboard or via the Vercel CLI, to keep only the main project.
+overview: 'The user presented screenshots of their Vercel dashboard, showing
+  five separate projects for a single "sleep-questionnaire" application. The
+  assistant diagnosed this as a common issue arising from importing the same
+  GitHub repository multiple times. The assistant then provided a clear
+  solution: identify the main project and delete the four duplicate projects.
+  Instructions were given for both manual deletion via the Vercel dashboard
+  settings and using the Vercel CLI. The user then requested the assistant to
+  perform the deletion, which is an action the assistant cannot directly
+  execute.'
 bullets: []
