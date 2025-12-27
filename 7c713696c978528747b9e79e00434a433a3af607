@@ -1,0 +1,15 @@
+version: 1
+conversationId: 77b3aa09-c168-4ab1-9d46-662fb5aaef6e
+title: Prisma schema bug
+model: claude-4.5-opus-high-thinking
+mode: agent
+updatedAt: 1766796510287
+tldr: The user is pretty annoyed because the  in their
+   file still isn't fixed, even though they thought it
+  would be. They're pointing out that the previous fix didn't stick.
+overview: The user is following up on an issue with their
+  file, specifically regarding the  on lines 10-11. They are
+  expressing frustration because a previously expected fix for this problem was
+  not applied, and the issue persists. Their message indicates a prior
+  interaction where a resolution was anticipated.
+bullets: []
