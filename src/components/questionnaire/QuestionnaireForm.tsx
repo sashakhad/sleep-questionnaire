@@ -197,7 +197,8 @@ const sectionTitles: Record<QuestionnaireSection, string> = {
 export function QuestionnaireForm() {
   const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
   const currentSection = sections[currentSectionIndex]!;
-  const progress = ((currentSectionIndex + 1) / sections.length) * 100;
+  // Progress: 0% on intro, 100% on report (last section)
+  const progress = (currentSectionIndex / (sections.length - 1)) * 100;
 
   const form = useForm<QuestionnaireFormData>({
     resolver: zodResolver(questionnaireSchema),
