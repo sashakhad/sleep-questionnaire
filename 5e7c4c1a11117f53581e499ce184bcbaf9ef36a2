@@ -4,18 +4,15 @@ title: Prefilling testing and Vercel config
 model: composer-1
 mode: agent
 updatedAt: 1766797966314
-tldr: The user wanted to enable a prefilling feature for online testing on
-  Vercel. The assistant identified that setting the
-  environment variable to  in Vercel project settings would make the
-  prefill button visible on deployed environments.
-overview: The user wanted to allow external testers to use a prefilling feature
-  online. The assistant investigated the codebase and found that the prefilling
-  functionality, specifically a "Pre-fill & Jump to Report (Dev)" button, is
-  conditionally rendered based on the  or the
-   environment variable. The solution involves
-  setting  to  in the Vercel project's
-  environment variables for the desired environments (Production, Preview,
-  Development). This makes the prefill button visible on the deployed
-  application, enabling online testing. The assistant also offered to document
-  this solution.
+tldr: The user wants to enable online testing for a prefilling feature and
+  believes it might involve Vercel configuration. The assistant is currently
+  investigating the prefilling implementation and Vercel-related settings to
+  facilitate this.
+overview: The user initiated a request to allow external testers to access and
+  test a prefilling feature online. They specifically mentioned checking Vercel
+  configuration, indicating a potential deployment or configuration task. The
+  assistant is currently in the process of understanding the existing prefilling
+  implementation within the  component and reviewing relevant
+  Vercel, Next.js, and environment variable configurations to determine the best
+  approach for enabling online testing.
 bullets: []
