@@ -36,7 +36,7 @@ export function RestlessLegsSection({ form }: RestlessLegsSectionProps) {
       <div className='text-lg font-medium'>Restless Legs Syndrome (RLS) and Movement Disorders</div>
 
       <Alert className='alert-info'>
-        <Info className='h-4 w-4 text-primary' />
+        <Info className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
           Restless legs syndrome is a relatively common disorder that increases discomfort in bed
           and interferes with your ability to fall asleep. RLS can be associated with insufficient
@@ -49,7 +49,7 @@ export function RestlessLegsSection({ form }: RestlessLegsSectionProps) {
       <CheckboxField
         control={form.control}
         name='restlessLegs.diagnosed'
-        label='Have you been diagnosed with restless legs syndrome (RLS) or periodic limb movement disorder?'
+        label='I have been diagnosed with restless legs syndrome (RLS) or periodic limb movement disorder'
       />
 
       {/* If diagnosed, show treatment options */}
@@ -106,25 +106,25 @@ export function RestlessLegsSection({ form }: RestlessLegsSectionProps) {
         <CheckboxField
           control={form.control}
           name='restlessLegs.troubleLyingStill'
-          label='Do you have trouble lying still while trying to fall asleep at night?'
+          label='I have trouble lying still while trying to fall asleep at night'
         />
 
         <CheckboxField
           control={form.control}
           name='restlessLegs.urgeToMoveLegs'
-          label='Do you have an urge to move your legs while lying in bed at night?'
+          label='I have an urge to move my legs while lying in bed at night'
         />
 
         <CheckboxField
           control={form.control}
           name='restlessLegs.movementRelieves'
-          label='Does movement relieve the uncomfortable feelings in your legs?'
+          label='Movement relieves the uncomfortable feelings in my legs'
         />
 
         <CheckboxField
           control={form.control}
           name='restlessLegs.daytimeDiscomfort'
-          label='Do you have leg discomfort during the day?'
+          label='I have leg discomfort during the day'
         />
       </div>
 

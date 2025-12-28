@@ -27,7 +27,6 @@ const wakeupReasons = [
 export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) {
   const nightWakeups = form.watch('unscheduledSleep.nightWakeups');
   const earlyWakeupDays = form.watch('unscheduledSleep.earlyWakeupDays');
-  const plannedNapsPerWeek = form.watch('unscheduledSleep.plannedNapsPerWeek');
 
   return (
     <div className='space-y-6'>
@@ -186,32 +185,9 @@ export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) 
       <CheckboxField
         control={form.control}
         name='unscheduledSleep.usesAlarm'
-        label='Do you use an alarm clock to wake up in the morning?'
+        label='I use an alarm clock to wake up in the morning'
         description='On weekends/free days'
       />
-
-      {/* Planned naps */}
-      <NumberField
-        control={form.control}
-        name='unscheduledSleep.plannedNapsPerWeek'
-        label='How many planned naps do you take on weekends?'
-        placeholder='Number of naps'
-        min={0}
-        max={14}
-      />
-
-      {/* Average nap duration - only show if they take more than 2 naps */}
-      {plannedNapsPerWeek > 2 && (
-        <NumberField
-          control={form.control}
-          name='unscheduledSleep.averageNapMinutes'
-          label='How long is your average nap?'
-          placeholder='Minutes'
-          description='Average duration in minutes'
-          min={0}
-          max={180}
-        />
-      )}
     </div>
   );
 }

@@ -62,7 +62,7 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
       <div className='text-lg font-medium'>Mental Health and Sleep</div>
 
       <Alert className='alert-info'>
-        <Brain className='h-4 w-4 text-primary' />
+        <Brain className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
           Mental health and sleep have a bidirectional relationship. Anxiety and worry can prevent
           sleep, while poor sleep can worsen mental health symptoms. Understanding this connection
@@ -74,14 +74,14 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
       <CheckboxField
         control={form.control}
         name='mentalHealth.worriesAffectSleep'
-        label='Do worries about the next day often contribute to difficulty falling asleep or extend your nighttime awakenings?'
+        label='Worries about the next day often contribute to my difficulty falling asleep or extend my nighttime awakenings'
       />
 
       {/* Anxiety in bed */}
       <CheckboxField
         control={form.control}
         name='mentalHealth.anxietyInBed'
-        label='Do you have anxiety or persistent rumination while in bed at night?'
+        label='I have anxiety or persistent rumination while in bed at night'
         description='Racing thoughts, worry loops, or inability to quiet your mind'
       />
 
@@ -89,7 +89,7 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
       <CheckboxField
         control={form.control}
         name='mentalHealth.timeInBedTrying'
-        label='Do you spend time in bed trying to sleep?'
+        label='I spend time in bed trying to sleep'
         description='Lying awake for extended periods hoping sleep will come'
       />
 
@@ -108,7 +108,7 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
       {/* Medical History Section */}
       <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
         <div className='flex items-center space-x-2'>
-          <Stethoscope className='h-5 w-5 text-primary' />
+          <Stethoscope className='text-primary h-5 w-5' />
           <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
             Medical History
           </h3>

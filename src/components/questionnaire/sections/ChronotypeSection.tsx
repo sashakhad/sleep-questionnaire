@@ -29,7 +29,7 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
       <div className='text-lg font-medium'>Sleep Preferences and Schedule</div>
 
       <Alert className='alert-info'>
-        <Clock className='h-4 w-4 text-primary' />
+        <Clock className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
           Your natural sleep preferences (chronotype) can significantly impact your sleep quality
           when they don&apos;t align with your work or school schedule.
@@ -52,7 +52,7 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
       <CheckboxField
         control={form.control}
         name='chronotype.shiftWork'
-        label='Does your job require you to do shift work?'
+        label='My job requires me to do shift work'
       />
 
       {/* Shift work details */}
@@ -100,7 +100,7 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
       <CheckboxField
         control={form.control}
         name='chronotype.frequentTimeZoneTravel'
-        label='Do you travel across time zones more than 1 time a month?'
+        label='I travel across time zones more than 1 time a month'
         description='Frequent jet lag can disrupt your circadian rhythm'
       />
 

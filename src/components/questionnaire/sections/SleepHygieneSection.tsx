@@ -183,7 +183,7 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
       <CheckboxField
         control={form.control}
         name="sleepHygiene.smokesNicotine"
-        label="Do you smoke cigarettes or use nicotine patches?"
+        label="I smoke cigarettes or use nicotine patches"
         description="Nicotine can significantly impact sleep quality"
       />
 

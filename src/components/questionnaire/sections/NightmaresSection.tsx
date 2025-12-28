@@ -32,7 +32,7 @@ export function NightmaresSection({ form }: NightmaresSectionProps) {
       <CheckboxField
         control={form.control}
         name="nightmares.hasNightmares"
-        label="Do you have nightmares?"
+        label="I have nightmares"
       />
 
       {/* Nightmare frequency - only show if they have nightmares */}
@@ -51,7 +51,7 @@ export function NightmaresSection({ form }: NightmaresSectionProps) {
           <CheckboxField
             control={form.control}
             name="nightmares.associatedWithTrauma"
-            label="Are your nightmares associated with exposure to trauma or a history of post traumatic stress disorder (PTSD)?"
+            label="My nightmares are associated with exposure to trauma or a history of post traumatic stress disorder (PTSD)"
           />
         </>
       )}

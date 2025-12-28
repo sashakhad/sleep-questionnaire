@@ -30,7 +30,7 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
       <div className='text-lg font-medium'>Sleep Behaviors and Parasomnias</div>
 
       <Alert className='alert-info'>
-        <Info className='h-4 w-4 text-primary' />
+        <Info className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
           Parasomnias are unusual behaviors during sleep that can affect your safety and sleep
           quality. These include sleepwalking, sleep talking, night terrors, and other behaviors.
@@ -80,14 +80,14 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
           <CheckboxField
             control={form.control}
             name='parasomnia.remembersEvents'
-            label='Do you have a clear memory of these events?'
+            label='I have a clear memory of these events'
             description="Most people with parasomnias don't remember the events"
           />
 
           <CheckboxField
             control={form.control}
             name='parasomnia.actsOutDreams'
-            label='Do you act out your dreams?'
+            label='I act out my dreams'
             description='This may indicate REM Behavioral Disorder'
           />
         </>
@@ -112,7 +112,7 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
       <CheckboxField
         control={form.control}
         name='parasomnia.bedwetting'
-        label='Do you wet the bed more than 1 night per month?'
+        label='I wet the bed more than 1 night per month'
         description='If yes, we suggest discussing this with your primary care doctor or an endocrinologist'
       />
 
@@ -120,7 +120,7 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
       <CheckboxField
         control={form.control}
         name='parasomnia.diagnosedParasomnia'
-        label='Have you been diagnosed with a parasomnia?'
+        label='I have been diagnosed with a parasomnia'
       />
 
       {/* If diagnosed, get details */}
@@ -146,7 +146,7 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
           <CheckboxField
             control={form.control}
             name='parasomnia.receivedTreatment'
-            label='Have you received treatment for your parasomnia?'
+            label='I have received treatment for my parasomnia'
           />
 
           {receivedTreatment && (

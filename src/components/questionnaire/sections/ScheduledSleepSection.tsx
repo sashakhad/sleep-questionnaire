@@ -27,7 +27,6 @@ const wakeupReasons = [
 export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
   const nightWakeups = form.watch('scheduledSleep.nightWakeups');
   const earlyWakeupDays = form.watch('scheduledSleep.earlyWakeupDays');
-  const plannedNapsPerWeek = form.watch('scheduledSleep.plannedNapsPerWeek');
 
   return (
     <div className='space-y-6'>
@@ -54,7 +53,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
       <CheckboxField
         control={form.control}
         name='scheduledSleep.lightsOutVaries'
-        label='Does your lights out time vary more than 3 hours?'
+        label='My lights out time varies more than 3 hours'
         description='This may indicate irregular sleep patterns'
       />
 
@@ -189,31 +188,8 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
       <CheckboxField
         control={form.control}
         name='scheduledSleep.usesAlarm'
-        label='Do you use an alarm clock to wake up in the morning?'
+        label='I use an alarm clock to wake up in the morning'
       />
-
-      {/* Planned naps */}
-      <NumberField
-        control={form.control}
-        name='scheduledSleep.plannedNapsPerWeek'
-        label='How many planned naps do you take a week?'
-        placeholder='Number of naps'
-        min={0}
-        max={14}
-      />
-
-      {/* Average nap duration - only show if they take more than 2 naps */}
-      {plannedNapsPerWeek > 2 && (
-        <NumberField
-          control={form.control}
-          name='scheduledSleep.averageNapMinutes'
-          label='How long is your average nap?'
-          placeholder='Minutes'
-          description='Average duration in minutes'
-          min={0}
-          max={180}
-        />
-      )}
     </div>
   );
 }

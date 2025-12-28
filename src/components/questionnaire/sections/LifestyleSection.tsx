@@ -32,7 +32,7 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
       <div className='text-lg font-medium'>Lifestyle Factors Affecting Sleep</div>
 
       <Alert className='alert-info'>
-        <Activity className='h-4 w-4 text-primary' />
+        <Activity className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
           Your daily habits including caffeine consumption, alcohol use, and exercise patterns can
           significantly impact your sleep quality and timing.

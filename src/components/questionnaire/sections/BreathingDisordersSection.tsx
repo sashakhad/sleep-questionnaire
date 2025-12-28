@@ -26,7 +26,7 @@ export function BreathingDisordersSection({ form }: BreathingDisordersSectionPro
       <div className='text-lg font-medium'>Sleep Related Breathing Disorders</div>
 
       <Alert className='alert-info'>
-        <AlertCircle className='h-4 w-4 text-primary' />
+        <AlertCircle className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
           Diagnosis and treatment of sleep related breathing disorders is exceedingly important as
           they contribute to significant health problems.
@@ -37,7 +37,7 @@ export function BreathingDisordersSection({ form }: BreathingDisordersSectionPro
       <CheckboxField
         control={form.control}
         name='breathingDisorders.diagnosed'
-        label='Have you been diagnosed with a sleep related breathing disorder?'
+        label='I have been diagnosed with a sleep related breathing disorder'
         description='Such as obstructive sleep apnea, primary snoring, or central sleep apnea'
       />
 
@@ -99,14 +99,14 @@ export function BreathingDisordersSection({ form }: BreathingDisordersSectionPro
       <CheckboxField
         control={form.control}
         name='breathingDisorders.snores'
-        label='Have you been told that you snore?'
+        label='I have been told that I snore'
       />
 
       {/* Stop breathing */}
       <CheckboxField
         control={form.control}
         name='breathingDisorders.stopsBreathing'
-        label='Have you been told that you stop breathing, snort or gasp for air during sleep?'
+        label='I have been told that I stop breathing, snort or gasp for air during sleep'
         description='This is a serious symptom that should be evaluated'
       />
 
@@ -114,7 +114,7 @@ export function BreathingDisordersSection({ form }: BreathingDisordersSectionPro
       <CheckboxField
         control={form.control}
         name='breathingDisorders.mouthBreathes'
-        label='Do you mouth breathe?'
+        label='I mouth breathe'
       />
 
       {/* Dry mouth - only show if they mouth breathe */}
@@ -122,7 +122,7 @@ export function BreathingDisordersSection({ form }: BreathingDisordersSectionPro
         <CheckboxField
           control={form.control}
           name='breathingDisorders.wakesWithDryMouth'
-          label='Do you frequently wake up with a dry mouth?'
+          label='I frequently wake up with a dry mouth'
         />
       )}
 
