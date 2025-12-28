@@ -11,24 +11,30 @@ const timeString = z
 export const daytimeSchema = z.object({
   plannedNaps: z.object({
     daysPerWeek: z.number().min(0).max(7),
+    napsPerWeek: z.number().min(0).max(21), // max 21 for narcolepsy patients who take multiple planned naps
     duration: z.enum(['0-10', '15-30', '30-90', '>90']).nullable(),
   }),
   fallAsleepDuring: z.array(z.string()),
-  tirednessInterferes: z.boolean(),
-  tirednessSeverity: z.number().min(1).max(10).nullable(), // 1=nuisance, 10=safety concern
+  sleepinessInterferes: z.boolean(), // renamed from tirednessInterferes
+  sleepinessSeverity: z.number().min(1).max(10).nullable(), // renamed from tirednessSeverity
   tiredButCantSleep: z.enum(['everyday', '5+days', '3-5days', '1-3days', '<1day']).nullable(),
   dreamsWhileFallingAsleep: z.boolean(),
   weaknessWhenExcited: z.array(z.string()),
   sleepParalysis: z.boolean(),
   diagnosedNarcolepsy: z.boolean(),
-  // Pain and chronic fatigue screening
+  // Sleep quality section (renamed from Pain and Energy Levels)
   painAffectsSleep: z.boolean(),
   painSeverity: z.number().min(1).max(10).nullable(),
-  muscleJointPain: z.boolean(),
+  jointMusclePain: z.boolean(), // renamed from muscleJointPain - first person declarative
   nonRestorativeSleep: z.boolean(),
+  // New rating scales
+  sleepinessRating: z.number().min(1).max(10).nullable(), // ability to fall asleep during the day
+  tirednessRating: z.number().min(1).max(10).nullable(), // mild sleepiness, headache, heavy eyes
+  fatigueRating: z.number().min(1).max(10).nullable(), // flu-like symptoms, poor motivation, aches
 });
 
 // Sleep pattern schema (reusable for scheduled and unscheduled)
+// Note: Napping questions have been consolidated into the Daytime section
 const sleepPatternSchema = z.object({
   lightsOutTime: timeString,
   minutesToFallAsleep: z.number().min(0),
@@ -40,8 +46,6 @@ const sleepPatternSchema = z.object({
   earlyWakeupDays: z.number().min(0).max(7),
   earlyWakeupMinutes: z.number().min(0).nullable(),
   usesAlarm: z.boolean(),
-  plannedNapsPerWeek: z.number().min(0).max(7),
-  averageNapMinutes: z.number().min(0).nullable(),
 });
 
 // Section 2a: Scheduled sleep with extra field
@@ -155,8 +159,16 @@ export const demographicsSchema = z.object({
   height: z.number().min(0).nullable(),
 });
 
+// Intro/consent schema
+export const introSchema = z.object({
+  acceptedDisclaimer: z.boolean().refine(val => val === true, {
+    message: 'You must accept the disclaimer to continue',
+  }),
+});
+
 // Complete questionnaire schema
 export const questionnaireSchema = z.object({
+  intro: introSchema,
   daytime: daytimeSchema,
   scheduledSleep: scheduledSleepSchema,
   unscheduledSleep: unscheduledSleepSchema,

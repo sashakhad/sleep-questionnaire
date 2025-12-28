@@ -1,28 +1,39 @@
 // Types for the Sleep Questionnaire
 
 export interface QuestionnaireData {
-  // Section 1: Daytime feelings
+  // Intro/consent
+  intro: {
+    acceptedDisclaimer: boolean;
+  };
+
+  // Section 1: Daytime functioning
   daytime: {
     plannedNaps: {
       daysPerWeek: number;
+      napsPerWeek: number; // max 21 for narcolepsy patients
       duration: '0-10' | '15-30' | '30-90' | '>90' | null;
     };
     fallAsleepDuring: string[];
-    tirednessInterferes: boolean;
-    tirednessSeverity: number | null; // 1-10 scale: 1=nuisance, 10=safety concern
+    sleepinessInterferes: boolean; // renamed from tirednessInterferes
+    sleepinessSeverity: number | null; // 1-10 scale: 1=nuisance, 10=safety concern
     tiredButCantSleep: 'everyday' | '5+days' | '3-5days' | '1-3days' | '<1day' | null;
     dreamsWhileFallingAsleep: boolean;
     weaknessWhenExcited: string[];
     sleepParalysis: boolean;
     diagnosedNarcolepsy: boolean;
-    // Pain and chronic fatigue screening
+    // Sleep quality section (renamed from Pain and Energy Levels)
     painAffectsSleep: boolean;
     painSeverity: number | null; // 1-10 scale
-    muscleJointPain: boolean;
+    jointMusclePain: boolean; // renamed for first-person declarative
     nonRestorativeSleep: boolean;
+    // New rating scales
+    sleepinessRating: number | null; // ability to fall asleep during the day
+    tirednessRating: number | null; // mild sleepiness, headache, heavy eyes
+    fatigueRating: number | null; // flu-like symptoms, poor motivation, aches
   };
 
   // Section 2a: Scheduled/work/school days sleep
+  // Note: Napping questions consolidated into Daytime section
   scheduledSleep: {
     lightsOutTime: string;
     lightsOutVaries: boolean;
@@ -35,11 +46,10 @@ export interface QuestionnaireData {
     earlyWakeupDays: number;
     earlyWakeupMinutes: number | null;
     usesAlarm: boolean;
-    plannedNapsPerWeek: number;
-    averageNapMinutes: number | null;
   };
 
   // Section 2b: Unscheduled/weekend days sleep
+  // Note: Napping questions consolidated into Daytime section
   unscheduledSleep: {
     lightsOutTime: string;
     minutesToFallAsleep: number;
@@ -51,8 +61,6 @@ export interface QuestionnaireData {
     earlyWakeupDays: number;
     earlyWakeupMinutes: number | null;
     usesAlarm: boolean;
-    plannedNapsPerWeek: number;
-    averageNapMinutes: number | null;
   };
 
   // Section 3: Sleep breathing disorders
