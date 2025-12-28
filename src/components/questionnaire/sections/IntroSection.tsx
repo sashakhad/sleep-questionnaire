@@ -1,7 +1,21 @@
-import { AlertCircle, Lock, FileText, Clock, Moon, Sun, Sparkles } from 'lucide-react';
+import { UseFormReturn } from 'react-hook-form';
+import { AlertCircle, Lock, FileText, Clock, Moon, Sun, Heart } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  FormField,
+  FormItem,
+  FormControl,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { QuestionnaireFormData } from '@/validations/questionnaire';
 
-export function IntroSection() {
+interface IntroSectionProps {
+  form: UseFormReturn<QuestionnaireFormData>;
+}
+
+export function IntroSection({ form }: IntroSectionProps) {
   return (
     <div className='space-y-8'>
       {/* Welcome Hero */}
@@ -13,8 +27,8 @@ export function IntroSection() {
           Welcome to Your Sleep Assessment
         </h1>
         <p className='text-muted-foreground mx-auto max-w-xl text-lg'>
-          This comprehensive questionnaire will help us understand your sleep patterns and provide
-          you with personalized recommendations to improve your sleep health.
+          Improving sleep health includes identifying sleep disorders and optimizing your sleep
+          habits to improve your well-being, longevity, and general happiness and health.
         </p>
       </div>
 
@@ -34,9 +48,9 @@ export function IntroSection() {
           <div className='bg-primary/10 text-primary group-hover:bg-primary/15 mb-3 flex h-10 w-10 items-center justify-center rounded-lg transition-colors'>
             <Sun className='h-5 w-5' />
           </div>
-          <h3 className='text-foreground mb-1 font-semibold'>Daytime & Nighttime</h3>
+          <h3 className='text-foreground mb-1 font-semibold'>Nighttime & Daytime</h3>
           <p className='text-muted-foreground text-sm'>
-            Questions about your daily energy and nightly sleep patterns
+            Questions about your sleep patterns, daily energy, attention, and happiness
           </p>
         </div>
 
@@ -44,15 +58,15 @@ export function IntroSection() {
           <div className='bg-primary/10 text-primary group-hover:bg-primary/15 mb-3 flex h-10 w-10 items-center justify-center rounded-lg transition-colors'>
             <FileText className='h-5 w-5' />
           </div>
-          <h3 className='text-foreground mb-1 font-semibold'>Personalized Report</h3>
+          <h3 className='text-foreground mb-1 font-semibold'>Free & Anonymous Report</h3>
           <p className='text-muted-foreground text-sm'>
-            Receive a detailed sleep health report with actionable insights
+            Receive a free and anonymous detailed report with personalized insights
           </p>
         </div>
 
         <div className='group border-border/50 bg-card/50 hover:border-primary/20 hover:bg-card rounded-xl border p-5 transition-all'>
           <div className='bg-primary/10 text-primary group-hover:bg-primary/15 mb-3 flex h-10 w-10 items-center justify-center rounded-lg transition-colors'>
-            <Sparkles className='h-5 w-5' />
+            <Heart className='h-5 w-5' />
           </div>
           <h3 className='text-foreground mb-1 font-semibold'>Expert Guidance</h3>
           <p className='text-muted-foreground text-sm'>
@@ -82,11 +96,41 @@ export function IntroSection() {
             <strong className='text-foreground'>Before You Begin</strong>
             <br />
             <span className='text-muted-foreground'>
-              Most questions apply to the last week. If you were on vacation or sick, please think
-              about your most recent typical work/school week.
+              Remember to think about the average over the last typical week. If you were on
+              vacation or sick, please think about your most recent typical work/school week.
             </span>
           </AlertDescription>
         </Alert>
+      </div>
+
+      {/* Disclaimer */}
+      <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
+        <h3 className='text-foreground font-semibold'>Important Disclaimer</h3>
+        <p className='text-muted-foreground text-sm leading-relaxed'>
+          This questionnaire does not provide a sleep diagnosis and is not a substitute for medical
+          evaluation. It may miss certain sleep or medical problems. You are encouraged to share
+          your results with your primary care clinician to discuss any concerns and possible next
+          steps to improve your sleep health. Please discuss all symptoms or questions with your
+          primary care clinician.
+        </p>
+
+        <FormField
+          control={form.control}
+          name='intro.acceptedDisclaimer'
+          render={({ field }) => (
+            <FormItem className='flex flex-row items-start space-y-0 space-x-3 rounded-lg border border-amber-200/50 bg-amber-50/30 p-4'>
+              <FormControl>
+                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+              </FormControl>
+              <div className='space-y-1 leading-none'>
+                <FormLabel className='text-foreground cursor-pointer font-medium'>
+                  I have read and understand the service that we provide
+                </FormLabel>
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
       </div>
 
       {/* Call to Action */}
@@ -95,8 +139,9 @@ export function IntroSection() {
           Ready to understand your sleep better?
         </p>
         <p className='text-muted-foreground mt-1 text-xs'>
-          Click <span className='text-primary font-medium'>&quot;Continue&quot;</span> below to
-          begin your assessment
+          Accept the disclaimer above, then click{' '}
+          <span className='text-primary font-medium'>&quot;Continue&quot;</span> to begin your
+          assessment
         </p>
       </div>
     </div>
