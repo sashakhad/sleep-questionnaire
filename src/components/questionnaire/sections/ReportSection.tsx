@@ -139,7 +139,7 @@ function getInsomniaSeverity(data: QuestionnaireFormData, metrics: SleepMetrics)
   const hasSMI = metrics.scheduledWASO > 40 || metrics.unscheduledWASO > 40;
   const hasEMA =
     data.scheduledSleep.earlyWakeupMinutes && data.scheduledSleep.earlyWakeupMinutes > 20;
-  const hasDaytimeImpairment = data.daytime.tirednessInterferes;
+  const hasDaytimeImpairment = data.daytime.sleepinessInterferes;
 
   if (!hasSOI && !hasSMI && !hasEMA) {
     return 'none';
@@ -199,13 +199,13 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
     data.lifestyle.caffeinePerDay > 4 ||
     (data.lifestyle.lastCaffeineTime &&
       parseInt(data.lifestyle.lastCaffeineTime.split(':')[0] ?? '0') >= 14);
-  const hasSevereTiredness = (data.daytime.tirednessSeverity ?? 0) > 8;
+  const hasSevereTiredness = (data.daytime.sleepinessSeverity ?? 0) > 8;
 
   // Insufficient Sleep Syndrome detection
   // Criteria: < 7 hours sleep + daytime sleepiness/tiredness + not explained by other disorders
   const avgWeeklySleep = (metrics.scheduledTST * 5 + metrics.unscheduledTST * 2) / 7;
   const hasDaytimeSleepiness =
-    data.daytime.tirednessInterferes || hasEDS || data.daytime.fallAsleepDuring.length >= 3;
+    data.daytime.sleepinessInterferes || hasEDS || data.daytime.fallAsleepDuring.length >= 3;
   const hasNarcolepsy =
     data.daytime.diagnosedNarcolepsy ||
     (data.daytime.weaknessWhenExcited.length > 0 && data.daytime.sleepParalysis);
@@ -213,11 +213,11 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
     avgWeeklySleep < 7 && hasDaytimeSleepiness && !hasNarcolepsy && !hasOSA;
 
   // Chronic Fatigue / Fibromyalgia screening
-  // Criteria: non-restorative sleep + muscle/joint pain + tiredness interferes
+  // Criteria: non-restorative sleep + muscle/joint pain + sleepiness interferes
   const hasChronicFatigueSymptoms =
     data.daytime.nonRestorativeSleep &&
-    data.daytime.muscleJointPain &&
-    data.daytime.tirednessInterferes;
+    data.daytime.jointMusclePain &&
+    data.daytime.sleepinessInterferes;
   const hasPainAffectingSleep =
     data.daytime.painAffectsSleep && (data.daytime.painSeverity ?? 0) >= 5;
 
@@ -262,7 +262,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
           <AlertCircle className='h-5 w-5 text-red-600' />
           <AlertDescription className='text-red-900'>
             <strong className='mb-2 block text-lg'>Urgent Safety Warning</strong>
-            Your reported tiredness severity ({data.daytime.tirednessSeverity}/10) indicates a
+            Your reported sleepiness severity ({data.daytime.sleepinessSeverity}/10) indicates a
             significant safety concern. You should seek immediate help from a healthcare
             professional. Until you have done so, please consider avoiding potentially dangerous
             activities such as:

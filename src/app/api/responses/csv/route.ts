@@ -22,10 +22,11 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
   return {
     // Daytime section
     daytime_naps_days_per_week: data.daytime.plannedNaps.daysPerWeek,
+    daytime_naps_per_week: data.daytime.plannedNaps.napsPerWeek,
     daytime_naps_duration: data.daytime.plannedNaps.duration,
     daytime_fall_asleep_during: data.daytime.fallAsleepDuring,
-    daytime_tiredness_interferes: data.daytime.tirednessInterferes,
-    daytime_tiredness_severity: data.daytime.tirednessSeverity,
+    daytime_sleepiness_interferes: data.daytime.sleepinessInterferes,
+    daytime_sleepiness_severity: data.daytime.sleepinessSeverity,
     daytime_tired_but_cant_sleep: data.daytime.tiredButCantSleep,
     daytime_dreams_while_falling_asleep: data.daytime.dreamsWhileFallingAsleep,
     daytime_weakness_when_excited: data.daytime.weaknessWhenExcited,
@@ -33,8 +34,11 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
     daytime_diagnosed_narcolepsy: data.daytime.diagnosedNarcolepsy,
     daytime_pain_affects_sleep: data.daytime.painAffectsSleep,
     daytime_pain_severity: data.daytime.painSeverity,
-    daytime_muscle_joint_pain: data.daytime.muscleJointPain,
+    daytime_joint_muscle_pain: data.daytime.jointMusclePain,
     daytime_non_restorative_sleep: data.daytime.nonRestorativeSleep,
+    daytime_sleepiness_rating: data.daytime.sleepinessRating,
+    daytime_tiredness_rating: data.daytime.tirednessRating,
+    daytime_fatigue_rating: data.daytime.fatigueRating,
 
     // Scheduled sleep section
     scheduled_lights_out_time: data.scheduledSleep.lightsOutTime,
@@ -48,8 +52,6 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
     scheduled_early_wakeup_days: data.scheduledSleep.earlyWakeupDays,
     scheduled_early_wakeup_minutes: data.scheduledSleep.earlyWakeupMinutes,
     scheduled_uses_alarm: data.scheduledSleep.usesAlarm,
-    scheduled_planned_naps_per_week: data.scheduledSleep.plannedNapsPerWeek,
-    scheduled_average_nap_minutes: data.scheduledSleep.averageNapMinutes,
 
     // Unscheduled sleep section
     unscheduled_lights_out_time: data.unscheduledSleep.lightsOutTime,
@@ -62,8 +64,6 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
     unscheduled_early_wakeup_days: data.unscheduledSleep.earlyWakeupDays,
     unscheduled_early_wakeup_minutes: data.unscheduledSleep.earlyWakeupMinutes,
     unscheduled_uses_alarm: data.unscheduledSleep.usesAlarm,
-    unscheduled_planned_naps_per_week: data.unscheduledSleep.plannedNapsPerWeek,
-    unscheduled_average_nap_minutes: data.unscheduledSleep.averageNapMinutes,
 
     // Breathing disorders section
     breathing_diagnosed: data.breathingDisorders.diagnosed,

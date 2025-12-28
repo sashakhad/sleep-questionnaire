@@ -274,7 +274,7 @@ function getInsomniaSeverity(
   metrics: ReturnType<typeof calculateSleepMetrics>
 ) {
   if (metrics.scheduledSOL > 30 || metrics.scheduledWASO > 40) {
-    if (data.daytime.tirednessInterferes) {
+    if (data.daytime.sleepinessInterferes) {
       return 'moderate to severe';
     }
     return 'mild';
@@ -329,12 +329,12 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
     (data.lifestyle.lastCaffeineTime &&
       parseInt(data.lifestyle.lastCaffeineTime.split(':')[0] ?? '0') >= 14);
   const hasAnxiety = data.mentalHealth.worriesAffectSleep || data.mentalHealth.anxietyInBed;
-  const hasSevereTiredness = (data.daytime.tirednessSeverity ?? 0) > 8;
+  const hasSevereTiredness = (data.daytime.sleepinessSeverity ?? 0) > 8;
 
   // Insufficient Sleep Syndrome detection
   const avgWeeklySleep = (metrics.scheduledTST * 5 + metrics.unscheduledTST * 2) / 7;
   const hasDaytimeSleepiness =
-    data.daytime.tirednessInterferes || hasEDS || data.daytime.fallAsleepDuring.length >= 3;
+    data.daytime.sleepinessInterferes || hasEDS || data.daytime.fallAsleepDuring.length >= 3;
   const hasNarcolepsy =
     data.daytime.diagnosedNarcolepsy ||
     (data.daytime.weaknessWhenExcited.length > 0 && data.daytime.sleepParalysis);
@@ -344,8 +344,8 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
   // Chronic Fatigue / Fibromyalgia screening
   const hasChronicFatigueSymptoms =
     data.daytime.nonRestorativeSleep &&
-    data.daytime.muscleJointPain &&
-    data.daytime.tirednessInterferes;
+    data.daytime.jointMusclePain &&
+    data.daytime.sleepinessInterferes;
 
   return (
     <Document>
@@ -370,7 +370,7 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
             <Text style={styles.warningText}>
               <Text style={{ fontWeight: 'bold' }}>URGENT SAFETY WARNING</Text>
               {'\n\n'}
-              Your reported tiredness severity ({data.daytime.tirednessSeverity}/10) indicates a
+              Your reported sleepiness severity ({data.daytime.sleepinessSeverity}/10) indicates a
               significant safety concern. You should seek immediate help from a healthcare
               professional. Until you have done so, please avoid potentially dangerous activities
               such as driving, biking, or jobs involving high-risk activities (construction, heavy
@@ -413,9 +413,9 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
 
           <Text style={styles.paragraph}>
             During the day, you have{' '}
-            {hasEDS ? 'significant' : data.daytime.tirednessInterferes ? 'moderate' : 'minimal'}{' '}
-            daytime sleepiness, and your daytime tiredness is{' '}
-            {data.daytime.tirednessInterferes
+            {hasEDS ? 'significant' : data.daytime.sleepinessInterferes ? 'moderate' : 'minimal'}{' '}
+            daytime sleepiness, and your daytime sleepiness is{' '}
+            {data.daytime.sleepinessInterferes
               ? 'a problem that interferes with daily activities'
               : 'not a significant problem'}
             . Based on your responses, your sleep hygiene{' '}

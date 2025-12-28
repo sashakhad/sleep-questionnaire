@@ -14,11 +14,14 @@ import { Download, TestTube } from 'lucide-react';
 
 // Mock data for pre-filling in development
 const MOCK_DATA: Partial<QuestionnaireFormData> = {
+  intro: {
+    acceptedDisclaimer: true,
+  },
   daytime: {
-    plannedNaps: { daysPerWeek: 2, duration: '15-30' },
-    fallAsleepDuring: ['meetings', 'quiet-activity'],
-    tirednessInterferes: true,
-    tirednessSeverity: 5,
+    plannedNaps: { daysPerWeek: 2, napsPerWeek: 3, duration: '15-30' },
+    fallAsleepDuring: ['lectures', 'evening'],
+    sleepinessInterferes: true,
+    sleepinessSeverity: 5,
     tiredButCantSleep: '3-5days',
     dreamsWhileFallingAsleep: false,
     weaknessWhenExcited: [],
@@ -26,8 +29,11 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     diagnosedNarcolepsy: false,
     painAffectsSleep: false,
     painSeverity: null,
-    muscleJointPain: false,
+    jointMusclePain: false,
     nonRestorativeSleep: true,
+    sleepinessRating: 4,
+    tirednessRating: 5,
+    fatigueRating: 3,
   },
   scheduledSleep: {
     lightsOutTime: '23:00',
@@ -41,8 +47,6 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     earlyWakeupDays: 1,
     earlyWakeupMinutes: 15,
     usesAlarm: true,
-    plannedNapsPerWeek: 0,
-    averageNapMinutes: 0,
   },
   unscheduledSleep: {
     lightsOutTime: '00:30',
@@ -55,8 +59,6 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     earlyWakeupDays: 0,
     earlyWakeupMinutes: 0,
     usesAlarm: false,
-    plannedNapsPerWeek: 1,
-    averageNapMinutes: 30,
   },
   breathingDisorders: {
     diagnosed: false,
@@ -178,7 +180,7 @@ const sections: QuestionnaireSection[] = [
 
 const sectionTitles: Record<QuestionnaireSection, string> = {
   intro: 'Welcome',
-  daytime: 'Daytime Feelings',
+  daytime: 'Daytime Functioning',
   'scheduled-sleep': 'Sleep on Work/School Days',
   'unscheduled-sleep': 'Sleep on Weekends/Free Days',
   'breathing-disorders': 'Sleep Breathing',
@@ -204,11 +206,14 @@ export function QuestionnaireForm() {
     resolver: zodResolver(questionnaireSchema),
     mode: 'onChange',
     defaultValues: {
+      intro: {
+        acceptedDisclaimer: false,
+      },
       daytime: {
-        plannedNaps: { daysPerWeek: 0, duration: null },
+        plannedNaps: { daysPerWeek: 0, napsPerWeek: 0, duration: null },
         fallAsleepDuring: [],
-        tirednessInterferes: false,
-        tirednessSeverity: null,
+        sleepinessInterferes: false,
+        sleepinessSeverity: null,
         tiredButCantSleep: null,
         dreamsWhileFallingAsleep: false,
         weaknessWhenExcited: [],
@@ -216,8 +221,11 @@ export function QuestionnaireForm() {
         diagnosedNarcolepsy: false,
         painAffectsSleep: false,
         painSeverity: null,
-        muscleJointPain: false,
+        jointMusclePain: false,
         nonRestorativeSleep: false,
+        sleepinessRating: null,
+        tirednessRating: null,
+        fatigueRating: null,
       },
       scheduledSleep: {
         lightsOutTime: '',
@@ -231,8 +239,6 @@ export function QuestionnaireForm() {
         earlyWakeupDays: 0,
         earlyWakeupMinutes: null,
         usesAlarm: false,
-        plannedNapsPerWeek: 0,
-        averageNapMinutes: null,
       },
       unscheduledSleep: {
         lightsOutTime: '',
@@ -245,8 +251,6 @@ export function QuestionnaireForm() {
         earlyWakeupDays: 0,
         earlyWakeupMinutes: null,
         usesAlarm: false,
-        plannedNapsPerWeek: 0,
-        averageNapMinutes: null,
       },
       breathingDisorders: {
         diagnosed: false,
@@ -412,7 +416,7 @@ export function QuestionnaireForm() {
   const renderSection = () => {
     switch (currentSection) {
       case 'intro':
-        return <IntroSection />;
+        return <IntroSection form={form} />;
       case 'daytime':
         return <DaytimeSection form={form} />;
       case 'scheduled-sleep':
