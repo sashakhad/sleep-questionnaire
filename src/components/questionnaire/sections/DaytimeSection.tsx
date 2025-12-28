@@ -15,7 +15,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertTriangle, Sun } from 'lucide-react';
+import { AlertTriangle, Sun, AlertCircle } from 'lucide-react';
 
 interface DaytimeSectionProps {
   form: UseFormReturn<QuestionnaireFormData>;
@@ -37,6 +37,14 @@ const weaknessOptions = [
 ];
 
 export function DaytimeSection({ form }: DaytimeSectionProps) {
+  // Watch values for conditional rendering
+  const fallAsleepDuring = form.watch('daytime.fallAsleepDuring');
+  const sleepinessInterferes = form.watch('daytime.sleepinessInterferes');
+
+  // Show narcolepsy/hypersomnia questions only if fall asleep during activities AND sleepiness interferes
+  const showNarcolepsyQuestions =
+    (fallAsleepDuring?.length ?? 0) > 0 && sleepinessInterferes === true;
+
   return (
     <div className='space-y-8'>
       <div className='flex items-center gap-3'>
@@ -44,12 +52,20 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
           <Sun className='h-5 w-5' />
         </div>
         <div>
-          <p className='text-foreground text-lg font-semibold'>Daytime Experience</p>
+          <p className='text-foreground text-lg font-semibold'>Daytime Functioning</p>
           <p className='text-muted-foreground text-sm'>
             Please tell us about how you feel during the day
           </p>
         </div>
       </div>
+
+      {/* Reminder about typical week */}
+      <Alert className='border-amber-500/20 bg-amber-50/50'>
+        <AlertCircle className='h-4 w-4 text-amber-600' />
+        <AlertDescription className='text-muted-foreground'>
+          Remember to think about the average over the last typical week.
+        </AlertDescription>
+      </Alert>
 
       {/* Planned naps */}
       <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
@@ -67,17 +83,29 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
         />
 
         {form.watch('daytime.plannedNaps.daysPerWeek') > 0 && (
-          <SelectField
-            control={form.control}
-            name='daytime.plannedNaps.duration'
-            label='How long are your naps typically?'
-            options={[
-              { value: '0-10', label: '0-10 minutes' },
-              { value: '15-30', label: '15-30 minutes' },
-              { value: '30-90', label: '30-90 minutes' },
-              { value: '>90', label: 'Longer than 90 minutes' },
-            ]}
-          />
+          <>
+            <NumberField
+              control={form.control}
+              name='daytime.plannedNaps.napsPerWeek'
+              label='I take how many planned naps per week total?'
+              min={0}
+              max={21}
+              placeholder='0-21'
+              description='Some people with narcolepsy take multiple planned naps per day'
+            />
+
+            <SelectField
+              control={form.control}
+              name='daytime.plannedNaps.duration'
+              label='How long are my naps typically?'
+              options={[
+                { value: '0-10', label: '0-10 minutes' },
+                { value: '15-30', label: '15-30 minutes' },
+                { value: '30-90', label: '30-90 minutes' },
+                { value: '>90', label: 'Longer than 90 minutes' },
+              ]}
+            />
+          </>
         )}
       </div>
 
@@ -89,7 +117,7 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel className='text-base font-medium'>
-                During a typical week, how often do you fall asleep while:
+                During a typical week do you fall asleep...
               </FormLabel>
               <p className='text-muted-foreground text-sm'>Check all that apply</p>
               <div className='mt-3 space-y-2'>
@@ -122,19 +150,19 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
         />
       </div>
 
-      {/* Tiredness interferes */}
+      {/* Sleepiness interferes */}
       <CheckboxField
         control={form.control}
-        name='daytime.tirednessInterferes'
-        label='My tiredness interferes with my daily activities'
+        name='daytime.sleepinessInterferes'
+        label='My sleepiness interferes with my daily activities'
       />
 
-      {/* Tiredness severity scale - only show if tiredness interferes */}
-      {form.watch('daytime.tirednessInterferes') && (
+      {/* Sleepiness severity scale - only show if sleepiness interferes */}
+      {sleepinessInterferes && (
         <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
           <FormField
             control={form.control}
-            name='daytime.tirednessSeverity'
+            name='daytime.sleepinessSeverity'
             render={({ field }) => (
               <FormItem>
                 <FormLabel className='text-base font-medium'>
@@ -171,7 +199,7 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
           />
 
           {/* Critical safety warning for severity > 8 */}
-          {(form.watch('daytime.tirednessSeverity') ?? 0) > 8 && (
+          {(form.watch('daytime.sleepinessSeverity') ?? 0) > 8 && (
             <Alert className='border-red-200/80 bg-red-50/80'>
               <AlertTriangle className='h-5 w-5 text-red-600' />
               <AlertDescription className='text-red-900'>
@@ -192,70 +220,22 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
       )}
 
       {/* Tired but can't sleep - only show if severity is 6 or less */}
-      {form.watch('daytime.tirednessInterferes') &&
-        (form.watch('daytime.tirednessSeverity') ?? 5) <= 6 && (
-          <RadioGroupField
-            control={form.control}
-            name='daytime.tiredButCantSleep'
-            label='I feel tired but cannot fall asleep:'
-            options={[
-              { value: 'everyday', label: 'Everyday' },
-              { value: '5+days', label: 'At least 5 days a week' },
-              { value: '3-5days', label: 'Between 3 and 5 days a week' },
-              { value: '1-3days', label: '1-3 days a week' },
-              { value: '<1day', label: 'Less than 1 day a week' },
-            ]}
-          />
-        )}
-
-      {/* Dreams while falling asleep */}
-      <CheckboxField
-        control={form.control}
-        name='daytime.dreamsWhileFallingAsleep'
-        label='I regularly have dreams while falling asleep or during daytime naps'
-        description='This may be related to narcolepsy or sleep deprivation'
-      />
-
-      {/* Weakness when excited */}
-      <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
-        <FormField
+      {sleepinessInterferes && (form.watch('daytime.sleepinessSeverity') ?? 5) <= 6 && (
+        <RadioGroupField
           control={form.control}
-          name='daytime.weaknessWhenExcited'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className='text-base font-medium'>When I laugh or feel excited:</FormLabel>
-              <p className='text-muted-foreground text-sm'>Check all that apply</p>
-              <div className='mt-3 space-y-2'>
-                {weaknessOptions.map(option => (
-                  <FormItem
-                    key={option.value}
-                    className='hover:bg-muted/50 has-[[data-state=checked]]:border-primary/20 has-[[data-state=checked]]:bg-primary/5 flex flex-row items-center space-y-0 space-x-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors'
-                  >
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value?.includes(option.value)}
-                        onCheckedChange={checked => {
-                          return checked
-                            ? field.onChange([...field.value, option.value])
-                            : field.onChange(
-                                field.value?.filter((value: string) => value !== option.value)
-                              );
-                        }}
-                      />
-                    </FormControl>
-                    <FormLabel className='text-foreground/90 cursor-pointer font-normal'>
-                      {option.label}
-                    </FormLabel>
-                  </FormItem>
-                ))}
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
+          name='daytime.tiredButCantSleep'
+          label='I feel tired but cannot fall asleep:'
+          options={[
+            { value: 'everyday', label: 'Everyday' },
+            { value: '5+days', label: 'At least 5 days a week' },
+            { value: '3-5days', label: 'Between 3 and 5 days a week' },
+            { value: '1-3days', label: '1-3 days a week' },
+            { value: '<1day', label: 'Less than 1 day a week' },
+          ]}
         />
-      </div>
+      )}
 
-      {/* Sleep paralysis */}
+      {/* Sleep paralysis - always visible per requirements */}
       <CheckboxField
         control={form.control}
         name='daytime.sleepParalysis'
@@ -263,18 +243,72 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
         description='This may be related to narcolepsy or sleep disorders'
       />
 
-      {/* Diagnosed narcolepsy */}
-      <CheckboxField
-        control={form.control}
-        name='daytime.diagnosedNarcolepsy'
-        label='Have you been diagnosed with narcolepsy or hypersomnia?'
-        description='E.g., idiopathic, post viral, post concussion'
-      />
+      {/* Narcolepsy/Hypersomnia questions - only show if fall asleep during activities AND sleepiness interferes */}
+      {showNarcolepsyQuestions && (
+        <>
+          {/* Dreams while falling asleep */}
+          <CheckboxField
+            control={form.control}
+            name='daytime.dreamsWhileFallingAsleep'
+            label='I regularly have dreams while falling asleep or during daytime naps'
+            description='This may be related to narcolepsy or sleep deprivation'
+          />
 
-      {/* Pain and Chronic Fatigue Screening */}
+          {/* Weakness when excited */}
+          <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
+            <FormField
+              control={form.control}
+              name='daytime.weaknessWhenExcited'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className='text-base font-medium'>
+                    When I laugh or feel excited:
+                  </FormLabel>
+                  <p className='text-muted-foreground text-sm'>Check all that apply</p>
+                  <div className='mt-3 space-y-2'>
+                    {weaknessOptions.map(option => (
+                      <FormItem
+                        key={option.value}
+                        className='hover:bg-muted/50 has-[[data-state=checked]]:border-primary/20 has-[[data-state=checked]]:bg-primary/5 flex flex-row items-center space-y-0 space-x-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors'
+                      >
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value?.includes(option.value)}
+                            onCheckedChange={checked => {
+                              return checked
+                                ? field.onChange([...field.value, option.value])
+                                : field.onChange(
+                                    field.value?.filter((value: string) => value !== option.value)
+                                  );
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel className='text-foreground/90 cursor-pointer font-normal'>
+                          {option.label}
+                        </FormLabel>
+                      </FormItem>
+                    ))}
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Diagnosed narcolepsy - first person declarative */}
+          <CheckboxField
+            control={form.control}
+            name='daytime.diagnosedNarcolepsy'
+            label='I have been diagnosed with narcolepsy or hypersomnia'
+            description='E.g., idiopathic, post viral, post concussion'
+          />
+        </>
+      )}
+
+      {/* Sleep Quality Section (formerly Pain and Energy Levels) */}
       <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
         <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
-          Pain and Energy Levels
+          Sleep Quality
         </h3>
 
         <CheckboxField
@@ -297,7 +331,7 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
             render={({ field }) => (
               <FormItem className='bg-muted/30 rounded-lg p-4'>
                 <FormLabel className='font-medium'>
-                  How severe is your pain on a scale of 1-10?
+                  How severe is my pain on a scale of 1-10?
                 </FormLabel>
                 <FormDescription className='text-muted-foreground'>
                   1 = minimal, 10 = worst pain imaginable
@@ -332,23 +366,147 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
 
         <CheckboxField
           control={form.control}
-          name='daytime.muscleJointPain'
-          label='I experience muscle or joint pain that contributes to my fatigue'
+          name='daytime.jointMusclePain'
+          label='I experience joint and muscle pain during the day'
           description='This may be associated with fibromyalgia or other conditions'
+        />
+      </div>
+
+      {/* New Rating Scales */}
+      <div className='border-border bg-card/50 space-y-6 rounded-xl border p-5'>
+        <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
+          Rate Your Daytime Experience
+        </h3>
+
+        {/* Sleepiness Rating */}
+        <FormField
+          control={form.control}
+          name='daytime.sleepinessRating'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className='font-medium'>
+                I rate my sleepiness (ability to fall asleep during the day)
+              </FormLabel>
+              <FormDescription className='text-muted-foreground'>
+                1 = never sleep during day, 10 = difficulty staying awake during the day
+              </FormDescription>
+              <div className='pt-6 pb-2'>
+                <div className='text-muted-foreground mb-4 flex justify-between text-xs font-medium'>
+                  <span>1 - Never sleep</span>
+                  <span>5 - Sometimes</span>
+                  <span>10 - Can&apos;t stay awake</span>
+                </div>
+                <FormControl>
+                  <Slider
+                    min={1}
+                    max={10}
+                    step={1}
+                    value={field.value ? [field.value] : [1]}
+                    onValueChange={value => field.onChange(value[0])}
+                    className='w-full'
+                  />
+                </FormControl>
+                <div className='mt-4 text-center'>
+                  <span className='bg-primary/10 text-primary inline-flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold'>
+                    {field.value ?? 1}
+                  </span>
+                </div>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Tiredness Rating */}
+        <FormField
+          control={form.control}
+          name='daytime.tirednessRating'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className='font-medium'>
+                I rate my tiredness (mild sleepiness, mild headache, heavy eyes)
+              </FormLabel>
+              <FormDescription className='text-muted-foreground'>
+                1 = never, 10 = most of the day
+              </FormDescription>
+              <div className='pt-6 pb-2'>
+                <div className='text-muted-foreground mb-4 flex justify-between text-xs font-medium'>
+                  <span>1 - Never</span>
+                  <span>5 - Sometimes</span>
+                  <span>10 - Most of day</span>
+                </div>
+                <FormControl>
+                  <Slider
+                    min={1}
+                    max={10}
+                    step={1}
+                    value={field.value ? [field.value] : [1]}
+                    onValueChange={value => field.onChange(value[0])}
+                    className='w-full'
+                  />
+                </FormControl>
+                <div className='mt-4 text-center'>
+                  <span className='bg-primary/10 text-primary inline-flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold'>
+                    {field.value ?? 1}
+                  </span>
+                </div>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Fatigue Rating */}
+        <FormField
+          control={form.control}
+          name='daytime.fatigueRating'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className='font-medium'>
+                I rate my fatigue (flu-like symptoms, poor motivation, aches and pains)
+              </FormLabel>
+              <FormDescription className='text-muted-foreground'>
+                1 = never, 10 = most of the day
+              </FormDescription>
+              <div className='pt-6 pb-2'>
+                <div className='text-muted-foreground mb-4 flex justify-between text-xs font-medium'>
+                  <span>1 - Never</span>
+                  <span>5 - Sometimes</span>
+                  <span>10 - Most of day</span>
+                </div>
+                <FormControl>
+                  <Slider
+                    min={1}
+                    max={10}
+                    step={1}
+                    value={field.value ? [field.value] : [1]}
+                    onValueChange={value => field.onChange(value[0])}
+                    className='w-full'
+                  />
+                </FormControl>
+                <div className='mt-4 text-center'>
+                  <span className='bg-primary/10 text-primary inline-flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold'>
+                    {field.value ?? 1}
+                  </span>
+                </div>
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
         />
       </div>
 
       {/* Chronic Fatigue Screening Warning */}
       {form.watch('daytime.nonRestorativeSleep') &&
-        form.watch('daytime.muscleJointPain') &&
-        form.watch('daytime.tirednessInterferes') && (
+        form.watch('daytime.jointMusclePain') &&
+        sleepinessInterferes && (
           <Alert className='border-amber-200/80 bg-amber-50/80'>
             <AlertTriangle className='h-4 w-4 text-amber-600' />
             <AlertDescription className='text-amber-900/90'>
               <strong className='text-amber-800'>Potential Chronic Fatigue Symptoms</strong>
               <br />
               You have endorsed symptoms of non-restorative sleep, muscle/joint pain, and daytime
-              tiredness. These are all symptoms that can be associated with fibromyalgia, chronic
+              sleepiness. These are all symptoms that can be associated with fibromyalgia, chronic
               fatigue syndrome, post-viral illness (e.g., long COVID), or Lyme disease. We suggest
               discussing these symptoms with your primary care doctor who may refer you to a
               rheumatologist or other specialist.
