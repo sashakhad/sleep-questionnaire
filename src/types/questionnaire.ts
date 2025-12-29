@@ -13,7 +13,6 @@ export interface QuestionnaireData {
     zipcode: string; // Required (min 5 chars)
     weight: number | null;
     height: number | null;
-    responseCode: string; // Unique code to link to report/data
   };
 
   // Section 1: Daytime functioning

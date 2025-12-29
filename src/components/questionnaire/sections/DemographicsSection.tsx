@@ -22,7 +22,6 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
   const weight = form.watch('demographics.weight');
   const height = form.watch('demographics.height');
   const yearOfBirth = form.watch('demographics.yearOfBirth');
-  const responseCode = form.watch('demographics.responseCode');
 
   // Calculate age from year of birth (only if it's a reasonable 4-digit year)
   const currentYear = new Date().getFullYear();
@@ -52,21 +51,6 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
           measurements can influence sleep patterns and the likelihood of certain sleep disorders.
         </AlertDescription>
       </Alert>
-
-      {/* Response Code Display */}
-      {responseCode && (
-        <div className='border-primary/30 bg-primary/5 rounded-xl border p-5'>
-          <h3 className='text-foreground mb-2 text-sm font-semibold'>Your Response Code</h3>
-          <div className='bg-card border-border flex items-center justify-center rounded-lg border py-3'>
-            <span className='text-primary font-mono text-2xl font-bold tracking-wider'>
-              {responseCode}
-            </span>
-          </div>
-          <p className='text-muted-foreground mt-2 text-xs'>
-            Save this code to link to your report and data if you request it later.
-          </p>
-        </div>
-      )}
 
       {/* Year of Birth */}
       <NumberField

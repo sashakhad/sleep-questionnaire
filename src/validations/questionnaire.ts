@@ -159,7 +159,6 @@ export const demographicsSchema = z.object({
   zipcode: z.string().min(5, { message: 'Please enter a valid zipcode' }),
   weight: z.number().min(0).nullable(),
   height: z.number().min(0).nullable(),
-  responseCode: z.string(), // Unique code to link to report/data
 });
 
 // Sleep Disorder Diagnoses (moved to end section)

@@ -12,16 +12,6 @@ import { type QuestionnaireSection } from '@/types/questionnaire';
 import { cn } from '@/lib/utils';
 import { Download, TestTube } from 'lucide-react';
 
-// Helper to generate a response code
-function generateResponseCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Avoid confusing characters
-  let code = '';
-  for (let i = 0; i < 8; i++) {
-    code += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return code;
-}
-
 // Mock data for pre-filling in development
 const MOCK_DATA: Partial<QuestionnaireFormData> = {
   intro: {
@@ -33,7 +23,6 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     zipcode: '10001',
     weight: 70,
     height: 175,
-    responseCode: generateResponseCode(),
   },
   daytime: {
     plannedNaps: { daysPerWeek: 2, napsPerWeek: 3, duration: '30' },
@@ -230,7 +219,6 @@ export function QuestionnaireForm() {
         zipcode: '', // Required - min 5 chars
         weight: null,
         height: null,
-        responseCode: generateResponseCode(),
       },
       daytime: {
         plannedNaps: { daysPerWeek: 0, napsPerWeek: 0, duration: null },
