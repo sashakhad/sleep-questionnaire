@@ -21,8 +21,8 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     yearOfBirth: 1990,
     sex: 'male',
     zipcode: '10001',
-    weight: 70,
-    height: 175,
+    weight: 165, // pounds
+    height: 70, // inches (5'10")
   },
   daytime: {
     plannedNaps: { daysPerWeek: 2, napsPerWeek: 3, duration: '30' },
