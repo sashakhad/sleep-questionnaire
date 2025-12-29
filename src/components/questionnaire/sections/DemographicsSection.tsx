@@ -24,13 +24,19 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
   const yearOfBirth = form.watch('demographics.yearOfBirth');
   const responseCode = form.watch('demographics.responseCode');
 
-  // Calculate age from year of birth
+  // Calculate age from year of birth (only if it's a reasonable 4-digit year)
   const currentYear = new Date().getFullYear();
-  const age = yearOfBirth ? currentYear - yearOfBirth : null;
+  const isValidYear = yearOfBirth && yearOfBirth >= 1900 && yearOfBirth <= currentYear;
+  const age = isValidYear ? currentYear - yearOfBirth : null;
 
-  // Calculate BMI if we have both weight and height
-  let bmi = null;
-  if (weight && height && weight > 0 && height > 0) {
+  // Calculate BMI only when both values are in reasonable ranges
+  // This prevents showing nonsense BMI while user is still typing
+  // Minimum reasonable values: height >= 36 inches (3 feet), weight >= 50 lbs
+  const isReasonableHeight = height && height >= 36 && height <= 96;
+  const isReasonableWeight = weight && weight >= 50 && weight <= 500;
+  
+  let bmi: number | null = null;
+  if (isReasonableWeight && isReasonableHeight) {
     // Convert height from inches to meters, weight from lbs to kg
     const heightInMeters = height * 0.0254;
     const weightInKg = weight * 0.453592;
