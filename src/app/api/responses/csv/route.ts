@@ -26,7 +26,6 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
     demographics_zipcode: data.demographics.zipcode,
     demographics_weight: data.demographics.weight,
     demographics_height: data.demographics.height,
-    demographics_response_code: data.demographics.responseCode,
 
     // Daytime section
     daytime_naps_days_per_week: data.daytime.plannedNaps.daysPerWeek,
