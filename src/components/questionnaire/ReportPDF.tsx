@@ -221,6 +221,13 @@ function timeToMinutes(
   return hours * 60 + minutes;
 }
 
+// Helper to parse minute increment string to number
+function parseMinuteIncrement(value: string | null): number {
+  if (!value) {return 0;}
+  if (value === '>120') {return 130;} // Use 130 for "more than 120"
+  return parseInt(value, 10) || 0;
+}
+
 // Helper function to calculate sleep metrics
 function calculateSleepMetrics(data: QuestionnaireFormData) {
   // Scheduled/work days calculations - use minutes for accuracy
@@ -231,8 +238,8 @@ function calculateSleepMetrics(data: QuestionnaireFormData) {
     scheduledTimeInBedMinutes += 1440; // 24 hours in minutes
   }
 
-  const scheduledSOL = data.scheduledSleep.minutesToFallAsleep || 0;
-  const scheduledWASO = data.scheduledSleep.minutesAwakeAtNight || 0;
+  const scheduledSOL = parseMinuteIncrement(data.scheduledSleep.minutesToFallAsleep);
+  const scheduledWASO = parseMinuteIncrement(data.scheduledSleep.minutesAwakeAtNight);
   const scheduledTSTMinutes = scheduledTimeInBedMinutes - scheduledSOL - scheduledWASO;
   const scheduledTST = scheduledTSTMinutes / 60; // Convert to hours
   const scheduledSE =
@@ -246,8 +253,8 @@ function calculateSleepMetrics(data: QuestionnaireFormData) {
     unscheduledTimeInBedMinutes += 1440; // 24 hours in minutes
   }
 
-  const unscheduledSOL = data.unscheduledSleep.minutesToFallAsleep || 0;
-  const unscheduledWASO = data.unscheduledSleep.minutesAwakeAtNight || 0;
+  const unscheduledSOL = parseMinuteIncrement(data.unscheduledSleep.minutesToFallAsleep);
+  const unscheduledWASO = parseMinuteIncrement(data.unscheduledSleep.minutesAwakeAtNight);
   const unscheduledTSTMinutes = unscheduledTimeInBedMinutes - unscheduledSOL - unscheduledWASO;
   const unscheduledTST = unscheduledTSTMinutes / 60; // Convert to hours
   const unscheduledSE =
@@ -310,10 +317,9 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
 
   // Identify major issues
   const hasInsomnia = insomniaSeverity !== 'none';
-  const hasEDSFromNaps =
-    data.daytime.plannedNaps.daysPerWeek >= 3 &&
-    data.daytime.plannedNaps.duration &&
-    ['30-90', '>90'].includes(data.daytime.plannedNaps.duration);
+  // Check for long naps (>= 60 minutes based on new 10-minute increments)
+  const napDurationNum = parseMinuteIncrement(data.daytime.plannedNaps.duration);
+  const hasEDSFromNaps = data.daytime.plannedNaps.daysPerWeek >= 3 && napDurationNum >= 60;
   const hasEDS = hasEDSFromActivities || hasEDSFromNaps;
   const hasOSA =
     data.breathingDisorders.stopsBreathing ||
@@ -492,9 +498,7 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
           </View>
           <View style={styles.bulletPoint}>
             <Text>
-              • Alcohol consumption:{' '}
-              {data.lifestyle.alcoholPerWeek.wine + data.lifestyle.alcoholPerWeek.cocktails}{' '}
-              drinks/week
+              • Alcohol consumption: {data.lifestyle.alcoholPerWeek} drinks/week
             </Text>
           </View>
           <View style={styles.bulletPoint}>

@@ -35,7 +35,7 @@ const prescriptionMedOptions = [
   { value: 'z_drugs', label: 'Z-drugs (Ambien/zolpidem, Lunesta/eszopiclone, Sonata/zaleplon)' },
   { value: 'orexin', label: 'Orexin blockers (Quviviq, Dayvigo, Belsomra)' },
   { value: 'antidepressants', label: 'Sedating antidepressants (Trazodone, Mirtazapine, Doxepin, Amitriptyline)' },
-  { value: 'melatonin_agonist', label: 'Melatonin agonists (Rozerem/ramelteon)' },
+  { value: 'melatonin_agonist', label: 'Melatonin agonists (Rozerem/Ramelteon)' },
   { value: 'antipsychotic', label: 'Antipsychotic (Seroquel, Zyprexa, Risperdal)' },
 ]
 
@@ -143,12 +143,12 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
             <FormLabel>Are you prescribed stimulants?</FormLabel>
             <FormControl>
               <Input
-                placeholder="e.g., Adderall, Ritalin, Vyvanse..."
+                placeholder="e.g., Adderall, Ritalin, Vyvanse, Provigil/Nuvigil, Wakix, methylphenidate..."
                 {...field}
               />
             </FormControl>
             <FormDescription>
-              If yes, please specify the medication name
+              If yes, please specify the medication name. Common stimulants include: Adderall, Ritalin, Vyvanse, Provigil/Nuvigil, Wakix, amphetamines, methylphenidate
             </FormDescription>
             <FormMessage />
           </FormItem>

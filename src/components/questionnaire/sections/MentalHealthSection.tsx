@@ -20,11 +20,12 @@ interface MentalHealthSectionProps {
 
 // Medical conditions that can affect sleep
 const medicalConditions = [
-  { value: 'hypertension', label: 'High blood pressure' },
+  { value: 'hypertension', label: 'High blood pressure (Hypertension)' },
+  { value: 'stroke', label: 'Stroke (current or history)' },
   { value: 'heart_disease', label: 'Heart disease' },
   { value: 'diabetes', label: 'Diabetes' },
   { value: 'thyroid', label: 'Thyroid disorder' },
-  { value: 'gerd', label: 'GERD / Acid reflux' },
+  { value: 'gerd', label: 'GERD / Acid reflux / Reflux symptoms' },
   { value: 'asthma', label: 'Asthma / COPD' },
   { value: 'chronic_pain', label: 'Chronic pain condition' },
   { value: 'arthritis', label: 'Arthritis' },

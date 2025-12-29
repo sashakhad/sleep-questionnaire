@@ -2,6 +2,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { NumberField } from '../form-fields/NumberField';
 import { CheckboxField } from '../form-fields/CheckboxField';
+import { SelectField } from '../form-fields/SelectField';
 import { Input } from '@/components/ui/input';
 import {
   FormField,
@@ -24,9 +25,25 @@ const wakeupReasons = [
   { value: 'unknown', label: "Don't know" },
 ];
 
+// 10-minute increment options ending with >120
+const minuteIncrementOptions = [
+  { value: '10', label: '10 minutes' },
+  { value: '20', label: '20 minutes' },
+  { value: '30', label: '30 minutes' },
+  { value: '40', label: '40 minutes' },
+  { value: '50', label: '50 minutes' },
+  { value: '60', label: '60 minutes' },
+  { value: '70', label: '70 minutes' },
+  { value: '80', label: '80 minutes' },
+  { value: '90', label: '90 minutes' },
+  { value: '100', label: '100 minutes' },
+  { value: '110', label: '110 minutes' },
+  { value: '120', label: '120 minutes' },
+  { value: '>120', label: 'More than 120 minutes' },
+];
+
 export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) {
   const nightWakeups = form.watch('unscheduledSleep.nightWakeups');
-  const earlyWakeupDays = form.watch('unscheduledSleep.earlyWakeupDays');
 
   return (
     <div className='space-y-6'>
@@ -54,15 +71,13 @@ export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) 
         )}
       />
 
-      {/* Time to fall asleep */}
-      <NumberField
+      {/* Time to fall asleep - now as select with 10-minute increments */}
+      <SelectField
         control={form.control}
         name='unscheduledSleep.minutesToFallAsleep'
         label='After you turn out the lights, about how long does it take you to fall asleep?'
-        placeholder='Minutes'
-        description='Enter the number of minutes'
-        min={0}
-        max={180}
+        placeholder='Select time'
+        options={minuteIncrementOptions}
       />
 
       {/* Night wakeups */}
@@ -116,15 +131,14 @@ export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) 
         </div>
       )}
 
-      {/* Minutes awake at night */}
-      <NumberField
+      {/* Minutes awake at night - now as select with 10-minute increments */}
+      <SelectField
         control={form.control}
         name='unscheduledSleep.minutesAwakeAtNight'
         label='About how many minutes total are you awake during the night?'
-        placeholder='Minutes'
+        placeholder='Select time'
         description='Total time awake after initially falling asleep'
-        min={0}
-        max={480}
+        options={minuteIncrementOptions}
       />
 
       {/* Wake up time */}
@@ -157,29 +171,6 @@ export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) 
           </FormItem>
         )}
       />
-
-      {/* Early wakeup days */}
-      <NumberField
-        control={form.control}
-        name='unscheduledSleep.earlyWakeupDays'
-        label='How many days a week do you wake up earlier than planned?'
-        placeholder='Days per week'
-        min={0}
-        max={7}
-      />
-
-      {/* Early wakeup minutes - only show if they wake up early more than 2 days */}
-      {earlyWakeupDays > 2 && (
-        <NumberField
-          control={form.control}
-          name='unscheduledSleep.earlyWakeupMinutes'
-          label='How many minutes earlier do you typically wake up?'
-          placeholder='Minutes'
-          description='Average number of minutes earlier than planned'
-          min={0}
-          max={180}
-        />
-      )}
 
       {/* Alarm clock */}
       <CheckboxField

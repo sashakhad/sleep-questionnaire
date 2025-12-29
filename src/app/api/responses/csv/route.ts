@@ -20,6 +20,14 @@ function escapeCsvValue(value: unknown): string {
 // Flatten the questionnaire data for CSV export
 function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, unknown> {
   return {
+    // Demographics section
+    demographics_year_of_birth: data.demographics.yearOfBirth,
+    demographics_sex: data.demographics.sex,
+    demographics_zipcode: data.demographics.zipcode,
+    demographics_weight: data.demographics.weight,
+    demographics_height: data.demographics.height,
+    demographics_response_code: data.demographics.responseCode,
+
     // Daytime section
     daytime_naps_days_per_week: data.daytime.plannedNaps.daysPerWeek,
     daytime_naps_per_week: data.daytime.plannedNaps.napsPerWeek,
@@ -28,7 +36,6 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
     daytime_sleepiness_interferes: data.daytime.sleepinessInterferes,
     daytime_sleepiness_severity: data.daytime.sleepinessSeverity,
     daytime_tired_but_cant_sleep: data.daytime.tiredButCantSleep,
-    daytime_dreams_while_falling_asleep: data.daytime.dreamsWhileFallingAsleep,
     daytime_weakness_when_excited: data.daytime.weaknessWhenExcited,
     daytime_sleep_paralysis: data.daytime.sleepParalysis,
     daytime_diagnosed_narcolepsy: data.daytime.diagnosedNarcolepsy,
@@ -43,6 +50,7 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
     // Scheduled sleep section
     scheduled_lights_out_time: data.scheduledSleep.lightsOutTime,
     scheduled_lights_out_varies: data.scheduledSleep.lightsOutVaries,
+    scheduled_pre_bed_activity: data.scheduledSleep.preBedActivity,
     scheduled_minutes_to_fall_asleep: data.scheduledSleep.minutesToFallAsleep,
     scheduled_night_wakeups: data.scheduledSleep.nightWakeups,
     scheduled_wakeup_reasons: data.scheduledSleep.wakeupReasons,
@@ -61,26 +69,20 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
     unscheduled_minutes_awake_at_night: data.unscheduledSleep.minutesAwakeAtNight,
     unscheduled_wakeup_time: data.unscheduledSleep.wakeupTime,
     unscheduled_get_out_of_bed_time: data.unscheduledSleep.getOutOfBedTime,
-    unscheduled_early_wakeup_days: data.unscheduledSleep.earlyWakeupDays,
-    unscheduled_early_wakeup_minutes: data.unscheduledSleep.earlyWakeupMinutes,
     unscheduled_uses_alarm: data.unscheduledSleep.usesAlarm,
 
-    // Breathing disorders section
-    breathing_diagnosed: data.breathingDisorders.diagnosed,
-    breathing_severity: data.breathingDisorders.severity,
-    breathing_treatment: data.breathingDisorders.treatment,
+    // Breathing disorders section (symptoms only)
     breathing_snores: data.breathingDisorders.snores,
     breathing_stops_breathing: data.breathingDisorders.stopsBreathing,
     breathing_mouth_breathes: data.breathingDisorders.mouthBreathes,
     breathing_wakes_dry_mouth: data.breathingDisorders.wakesWithDryMouth,
 
-    // Restless legs section
-    rls_diagnosed: data.restlessLegs.diagnosed,
-    rls_treatment: data.restlessLegs.treatment,
+    // Restless legs section (symptoms only)
     rls_trouble_lying_still: data.restlessLegs.troubleLyingStill,
     rls_urge_to_move_legs: data.restlessLegs.urgeToMoveLegs,
     rls_movement_relieves: data.restlessLegs.movementRelieves,
     rls_daytime_discomfort: data.restlessLegs.daytimeDiscomfort,
+    rls_leg_cramps: data.restlessLegs.legCramps,
 
     // Parasomnia section
     parasomnia_night_behaviors: data.parasomnia.nightBehaviors,
@@ -99,6 +101,7 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
 
     // Chronotype section
     chronotype_preference: data.chronotype.preference,
+    chronotype_preference_strength: data.chronotype.preferenceStrength,
     chronotype_shift_work: data.chronotype.shiftWork,
     chronotype_shift_type: data.chronotype.shiftType,
     chronotype_shift_days_per_week: data.chronotype.shiftDaysPerWeek,
@@ -122,8 +125,7 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
     // Lifestyle section
     lifestyle_caffeine_per_day: data.lifestyle.caffeinePerDay,
     lifestyle_last_caffeine_time: data.lifestyle.lastCaffeineTime,
-    lifestyle_alcohol_wine_per_week: data.lifestyle.alcoholPerWeek.wine,
-    lifestyle_alcohol_cocktails_per_week: data.lifestyle.alcoholPerWeek.cocktails,
+    lifestyle_alcohol_per_week: data.lifestyle.alcoholPerWeek,
     lifestyle_exercise_days_per_week: data.lifestyle.exerciseDaysPerWeek,
     lifestyle_exercise_duration: data.lifestyle.exerciseDuration,
     lifestyle_exercise_end_time: data.lifestyle.exerciseEndTime,
@@ -136,6 +138,15 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
     mental_diagnosed_medical_conditions: data.mentalHealth.diagnosedMedicalConditions,
     mental_diagnosed_mental_health_conditions: data.mentalHealth.diagnosedMentalHealthConditions,
     mental_currently_receiving_treatment: data.mentalHealth.currentlyReceivingTreatment,
+
+    // Sleep disorder diagnoses section
+    sleep_disorder_diagnosed_osa: data.sleepDisorderDiagnoses.diagnosedOSA,
+    sleep_disorder_osa_severity: data.sleepDisorderDiagnoses.osaSeverity,
+    sleep_disorder_osa_treated: data.sleepDisorderDiagnoses.osaTreated,
+    sleep_disorder_osa_treatment_type: data.sleepDisorderDiagnoses.osaTreatmentType,
+    sleep_disorder_diagnosed_rls: data.sleepDisorderDiagnoses.diagnosedRLS,
+    sleep_disorder_rls_treated: data.sleepDisorderDiagnoses.rlsTreated,
+    sleep_disorder_rls_treatment: data.sleepDisorderDiagnoses.rlsTreatment,
   };
 }
 

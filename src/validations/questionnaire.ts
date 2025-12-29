@@ -7,18 +7,21 @@ const timeString = z
     message: 'Time must be in HH:MM format',
   });
 
+// 10-minute increment options for duration fields
+const minuteIncrements = z.enum(['10', '20', '30', '40', '50', '60', '70', '80', '90', '100', '110', '120', '>120']).nullable();
+
 // Section 1: Daytime feelings schema
 export const daytimeSchema = z.object({
   plannedNaps: z.object({
     daysPerWeek: z.number().min(0).max(7),
     napsPerWeek: z.number().min(0).max(21), // max 21 for narcolepsy patients who take multiple planned naps
-    duration: z.enum(['0-10', '15-30', '30-90', '>90']).nullable(),
+    duration: minuteIncrements, // Changed to 10-minute increments
   }),
   fallAsleepDuring: z.array(z.string()),
   sleepinessInterferes: z.boolean(), // renamed from tirednessInterferes
   sleepinessSeverity: z.number().min(1).max(10).nullable(), // renamed from tirednessSeverity
   tiredButCantSleep: z.enum(['everyday', '5+days', '3-5days', '1-3days', '<1day']).nullable(),
-  dreamsWhileFallingAsleep: z.boolean(),
+  // Removed dreamsWhileFallingAsleep - cut narcolepsy dreams question
   weaknessWhenExcited: z.array(z.string()),
   sleepParalysis: z.boolean(),
   diagnosedNarcolepsy: z.boolean(),
@@ -33,14 +36,15 @@ export const daytimeSchema = z.object({
   fatigueRating: z.number().min(1).max(10).nullable(), // flu-like symptoms, poor motivation, aches
 });
 
-// Sleep pattern schema (reusable for scheduled and unscheduled)
-// Note: Napping questions have been consolidated into the Daytime section
-const sleepPatternSchema = z.object({
+// Section 2a: Scheduled sleep (work/school nights - Sunday-Thursday)
+export const scheduledSleepSchema = z.object({
   lightsOutTime: timeString,
-  minutesToFallAsleep: z.number().min(0),
+  lightsOutVaries: z.boolean(), // varies more than 2 hours
+  preBedActivity: z.array(z.string()), // what you do in bed >15min before lights out
+  minutesToFallAsleep: minuteIncrements, // 10-minute increments
   nightWakeups: z.number().min(0),
   wakeupReasons: z.array(z.string()),
-  minutesAwakeAtNight: z.number().min(0),
+  minutesAwakeAtNight: minuteIncrements, // 10-minute increments
   wakeupTime: timeString,
   getOutOfBedTime: timeString,
   earlyWakeupDays: z.number().min(0).max(7),
@@ -48,33 +52,33 @@ const sleepPatternSchema = z.object({
   usesAlarm: z.boolean(),
 });
 
-// Section 2a: Scheduled sleep with extra field
-export const scheduledSleepSchema = sleepPatternSchema.extend({
-  lightsOutVaries: z.boolean(),
+// Section 2b: Unscheduled sleep (weekends) - removed early wakeup question
+export const unscheduledSleepSchema = z.object({
+  lightsOutTime: timeString,
+  minutesToFallAsleep: minuteIncrements, // 10-minute increments
+  nightWakeups: z.number().min(0),
+  wakeupReasons: z.array(z.string()),
+  minutesAwakeAtNight: minuteIncrements, // 10-minute increments
+  wakeupTime: timeString,
+  getOutOfBedTime: timeString,
+  usesAlarm: z.boolean(),
 });
 
-// Section 2b: Unscheduled sleep
-export const unscheduledSleepSchema = sleepPatternSchema;
-
-// Section 3: Breathing disorders
+// Section 3: Breathing disorder symptoms (diagnosis moved to end)
 export const breathingDisordersSchema = z.object({
-  diagnosed: z.boolean(),
-  severity: z.enum(['mild', 'moderate', 'severe']).nullable(),
-  treatment: z.array(z.string()),
   snores: z.boolean(),
   stopsBreathing: z.boolean(),
   mouthBreathes: z.boolean(),
   wakesWithDryMouth: z.boolean(),
 });
 
-// Section 4: Restless legs
+// Section 4: Restless legs symptoms (diagnosis moved to end)
 export const restlessLegsSchema = z.object({
-  diagnosed: z.boolean(),
-  treatment: z.array(z.string()),
   troubleLyingStill: z.boolean(),
   urgeToMoveLegs: z.boolean(),
   movementRelieves: z.boolean(),
   daytimeDiscomfort: z.boolean(),
+  legCramps: z.boolean(), // Added leg cramps
 });
 
 // Section 5: Parasomnia
@@ -99,6 +103,7 @@ export const nightmaresSchema = z.object({
 // Section 7: Chronotype
 export const chronotypeSchema = z.object({
   preference: z.enum(['early', 'late', 'flexible']),
+  preferenceStrength: z.enum(['slight', 'moderate', 'strong']).nullable(), // Extent of circadian preference
   shiftWork: z.boolean(),
   shiftType: z.string(),
   shiftDaysPerWeek: z.number().min(0).max(7).nullable(),
@@ -128,10 +133,7 @@ export const bedroomSchema = z.object({
 export const lifestyleSchema = z.object({
   caffeinePerDay: z.number().min(0),
   lastCaffeineTime: timeString,
-  alcoholPerWeek: z.object({
-    wine: z.number().min(0),
-    cocktails: z.number().min(0),
-  }),
+  alcoholPerWeek: z.number().min(0), // Combined beer/wine/cocktails
   exerciseDaysPerWeek: z.number().min(0).max(7),
   exerciseDuration: z.number().min(0).nullable(),
   exerciseEndTime: timeString,
@@ -150,13 +152,27 @@ export const mentalHealthSchema = z.object({
   currentlyReceivingTreatment: z.boolean(),
 });
 
-// Demographics
+// Demographics (collected early after intro)
 export const demographicsSchema = z.object({
   yearOfBirth: z.number().min(1900).max(new Date().getFullYear()).nullable(),
-  sex: z.enum(['male', 'female', 'other', 'prefer-not-to-say']).nullable(),
+  sex: z.enum(['male', 'female', 'transgender', 'other', 'prefer-not-to-say']).nullable(),
   zipcode: z.string(),
   weight: z.number().min(0).nullable(),
   height: z.number().min(0).nullable(),
+  responseCode: z.string(), // Unique code to link to report/data
+});
+
+// Sleep Disorder Diagnoses (moved to end section)
+export const sleepDisorderDiagnosesSchema = z.object({
+  // Sleep Apnea
+  diagnosedOSA: z.boolean(),
+  osaSeverity: z.enum(['mild', 'moderate', 'severe']).nullable(),
+  osaTreated: z.boolean(),
+  osaTreatmentType: z.array(z.string()), // CPAP, dental device, other
+  // RLS
+  diagnosedRLS: z.boolean(),
+  rlsTreated: z.boolean(),
+  rlsTreatment: z.array(z.string()),
 });
 
 // Intro/consent schema
@@ -169,6 +185,7 @@ export const introSchema = z.object({
 // Complete questionnaire schema
 export const questionnaireSchema = z.object({
   intro: introSchema,
+  demographics: demographicsSchema, // Moved after intro
   daytime: daytimeSchema,
   scheduledSleep: scheduledSleepSchema,
   unscheduledSleep: unscheduledSleepSchema,
@@ -181,7 +198,7 @@ export const questionnaireSchema = z.object({
   bedroom: bedroomSchema,
   lifestyle: lifestyleSchema,
   mentalHealth: mentalHealthSchema,
-  demographics: demographicsSchema,
+  sleepDisorderDiagnoses: sleepDisorderDiagnosesSchema, // New section at end
 });
 
 export type QuestionnaireFormData = z.infer<typeof questionnaireSchema>;

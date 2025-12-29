@@ -99,10 +99,19 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
               name='daytime.plannedNaps.duration'
               label='How long are my naps typically?'
               options={[
-                { value: '0-10', label: '0-10 minutes' },
-                { value: '15-30', label: '15-30 minutes' },
-                { value: '30-90', label: '30-90 minutes' },
-                { value: '>90', label: 'Longer than 90 minutes' },
+                { value: '10', label: '10 minutes' },
+                { value: '20', label: '20 minutes' },
+                { value: '30', label: '30 minutes' },
+                { value: '40', label: '40 minutes' },
+                { value: '50', label: '50 minutes' },
+                { value: '60', label: '60 minutes' },
+                { value: '70', label: '70 minutes' },
+                { value: '80', label: '80 minutes' },
+                { value: '90', label: '90 minutes' },
+                { value: '100', label: '100 minutes' },
+                { value: '110', label: '110 minutes' },
+                { value: '120', label: '120 minutes' },
+                { value: '>120', label: 'More than 120 minutes' },
               ]}
             />
           </>
@@ -246,14 +255,6 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
       {/* Narcolepsy/Hypersomnia questions - only show if fall asleep during activities AND sleepiness interferes */}
       {showNarcolepsyQuestions && (
         <>
-          {/* Dreams while falling asleep */}
-          <CheckboxField
-            control={form.control}
-            name='daytime.dreamsWhileFallingAsleep'
-            label='I regularly have dreams while falling asleep or during daytime naps'
-            description='This may be related to narcolepsy or sleep deprivation'
-          />
-
           {/* Weakness when excited */}
           <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
             <FormField

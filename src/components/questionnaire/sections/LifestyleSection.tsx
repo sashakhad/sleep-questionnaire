@@ -20,11 +20,9 @@ interface LifestyleSectionProps {
 export function LifestyleSection({ form }: LifestyleSectionProps) {
   const caffeinePerDay = form.watch('lifestyle.caffeinePerDay');
   const lastCaffeineTime = form.watch('lifestyle.lastCaffeineTime');
-  const alcoholWine = form.watch('lifestyle.alcoholPerWeek.wine');
-  const alcoholCocktails = form.watch('lifestyle.alcoholPerWeek.cocktails');
+  const alcoholPerWeek = form.watch('lifestyle.alcoholPerWeek');
   const exerciseDaysPerWeek = form.watch('lifestyle.exerciseDaysPerWeek');
 
-  const totalAlcohol = alcoholWine + alcoholCocktails;
   const lateCaffeine = lastCaffeineTime && parseInt(lastCaffeineTime.split(':')[0] ?? '0') >= 14; // After 2 PM
 
   return (
@@ -51,20 +49,22 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
         <NumberField
           control={form.control}
           name='lifestyle.caffeinePerDay'
-          label='How many cups of caffeinated beverages do you drink per day?'
-          placeholder='Number of cups'
+          label='How many servings of caffeinated food or beverages do you consume per day?'
+          placeholder='Number of servings'
           description='Include coffee, tea, iced tea, sodas, energy drinks, and chocolate'
           min={0}
           max={20}
         />
 
-        {caffeinePerDay > 0 && (
+        {caffeinePerDay >= 1 && (
           <FormField
             control={form.control}
             name='lifestyle.lastCaffeineTime'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>What time do you have your final caffeinated beverage?</FormLabel>
+                <FormLabel>
+                  What time do you have your final caffeinated food or beverage?
+                </FormLabel>
                 <FormControl>
                   <Input type='time' {...field} className='max-w-xs' />
                 </FormControl>
@@ -89,18 +89,10 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
 
         <NumberField
           control={form.control}
-          name='lifestyle.alcoholPerWeek.wine'
-          label='Glasses of wine per week'
-          placeholder='Number of glasses'
-          min={0}
-          max={50}
-        />
-
-        <NumberField
-          control={form.control}
-          name='lifestyle.alcoholPerWeek.cocktails'
-          label='Cocktails/beer per week'
+          name='lifestyle.alcoholPerWeek'
+          label='How many alcoholic drinks do you have per week?'
           placeholder='Number of drinks'
+          description='Include beer, wine, cocktails, and all other alcoholic beverages'
           min={0}
           max={50}
         />
@@ -182,7 +174,7 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
       )}
 
       {/* Alcohol warnings */}
-      {totalAlcohol > 14 && (
+      {alcoholPerWeek > 14 && (
         <Alert className='alert-danger'>
           <Wine className='h-4 w-4 text-red-600' />
           <AlertDescription className='text-red-900'>
@@ -196,7 +188,7 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
         </Alert>
       )}
 
-      {totalAlcohol > 7 && totalAlcohol <= 14 && (
+      {alcoholPerWeek > 7 && alcoholPerWeek <= 14 && (
         <Alert>
           <Wine className='h-4 w-4' />
           <AlertDescription>

@@ -67,6 +67,13 @@ interface SleepMetrics {
   midSleepUnscheduled: string;
 }
 
+// Helper to parse minute increment string to number
+function parseMinuteIncrement(value: string | null): number {
+  if (!value) {return 0;}
+  if (value === '>120') {return 130;} // Use 130 for "more than 120"
+  return parseInt(value, 10) || 0;
+}
+
 function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics {
   // Helper to convert time string to minutes from midnight
   const timeToMinutes = (time: string): number => {
@@ -84,6 +91,12 @@ function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics {
     return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
   };
 
+  // Parse minute increments from string values
+  const scheduledSOL = parseMinuteIncrement(data.scheduledSleep.minutesToFallAsleep);
+  const scheduledWASO = parseMinuteIncrement(data.scheduledSleep.minutesAwakeAtNight);
+  const unscheduledSOL = parseMinuteIncrement(data.unscheduledSleep.minutesToFallAsleep);
+  const unscheduledWASO = parseMinuteIncrement(data.unscheduledSleep.minutesAwakeAtNight);
+
   // Calculate for scheduled days
   const scheduledBedtime = timeToMinutes(data.scheduledSleep.lightsOutTime);
   const scheduledWaketime = timeToMinutes(data.scheduledSleep.wakeupTime);
@@ -92,15 +105,11 @@ function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics {
     scheduledTimeInBed += 1440;
   } // Handle crossing midnight
 
-  const scheduledTST =
-    scheduledTimeInBed -
-    data.scheduledSleep.minutesToFallAsleep -
-    data.scheduledSleep.minutesAwakeAtNight;
-  const scheduledSE = (scheduledTST / scheduledTimeInBed) * 100;
+  const scheduledTST = scheduledTimeInBed - scheduledSOL - scheduledWASO;
+  const scheduledSE = scheduledTimeInBed > 0 ? (scheduledTST / scheduledTimeInBed) * 100 : 0;
 
-  // Calculate mid-sleep time for scheduled days
-  const scheduledMidSleep =
-    scheduledBedtime + data.scheduledSleep.minutesToFallAsleep + scheduledTST / 2;
+  // Calculate mid-sleep time for scheduled days (TST/2 + fall asleep time)
+  const scheduledMidSleep = scheduledBedtime + scheduledSOL + scheduledTST / 2;
 
   // Calculate for unscheduled days
   const unscheduledBedtime = timeToMinutes(data.unscheduledSleep.lightsOutTime);
@@ -110,25 +119,21 @@ function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics {
     unscheduledTimeInBed += 1440;
   }
 
-  const unscheduledTST =
-    unscheduledTimeInBed -
-    data.unscheduledSleep.minutesToFallAsleep -
-    data.unscheduledSleep.minutesAwakeAtNight;
-  const unscheduledSE = (unscheduledTST / unscheduledTimeInBed) * 100;
+  const unscheduledTST = unscheduledTimeInBed - unscheduledSOL - unscheduledWASO;
+  const unscheduledSE = unscheduledTimeInBed > 0 ? (unscheduledTST / unscheduledTimeInBed) * 100 : 0;
 
   // Calculate mid-sleep time for unscheduled days
-  const unscheduledMidSleep =
-    unscheduledBedtime + data.unscheduledSleep.minutesToFallAsleep + unscheduledTST / 2;
+  const unscheduledMidSleep = unscheduledBedtime + unscheduledSOL + unscheduledTST / 2;
 
   return {
     scheduledTST: scheduledTST / 60, // Convert to hours
     unscheduledTST: unscheduledTST / 60,
     scheduledSE,
     unscheduledSE,
-    scheduledSOL: data.scheduledSleep.minutesToFallAsleep,
-    unscheduledSOL: data.unscheduledSleep.minutesToFallAsleep,
-    scheduledWASO: data.scheduledSleep.minutesAwakeAtNight,
-    unscheduledWASO: data.unscheduledSleep.minutesAwakeAtNight,
+    scheduledSOL,
+    unscheduledSOL,
+    scheduledWASO,
+    unscheduledWASO,
     midSleepScheduled: minutesToTime(scheduledMidSleep % 1440),
     midSleepUnscheduled: minutesToTime(unscheduledMidSleep % 1440),
   };
@@ -158,22 +163,40 @@ function getInsomniaSeverity(data: QuestionnaireFormData, metrics: SleepMetrics)
   return 'mild';
 }
 
-function getChronotype(metrics: SleepMetrics, preference: string): string {
-  const midSleepHour = parseInt(metrics.midSleepScheduled.split(':')[0] ?? '0');
+function getChronotype(metrics: SleepMetrics, preference: string): { type: string; chronotypeLabel: string } {
+  const midSleepHour = parseInt(metrics.midSleepUnscheduled.split(':')[0] ?? '0');
+  const midSleepMinute = parseInt(metrics.midSleepUnscheduled.split(':')[1] ?? '0');
+  const midSleepTotalMinutes = midSleepHour * 60 + midSleepMinute;
+  
+  // Mid-sleep time analysis: When <12am (midnight) probable lark, when >5:00am probable owl
+  // Midnight = 0 minutes, 5am = 300 minutes
+  // But we need to handle times after midnight differently
+  // Adjust for times that cross midnight (e.g., 2am is hour 2, should be considered late)
+  const adjustedMidSleep = midSleepHour < 12 ? midSleepTotalMinutes + 1440 : midSleepTotalMinutes;
+  
+  let chronotypeLabel = 'Neutral';
+  if (adjustedMidSleep <= 1440) { // Before midnight (24:00 = 1440)
+    chronotypeLabel = 'Probable Lark (Morning Person)';
+  } else if (adjustedMidSleep >= 1740) { // After 5am (29:00 = 1740, i.e., 5:00 + 1440)
+    chronotypeLabel = 'Probable Owl (Night Person)';
+  } else {
+    chronotypeLabel = 'Intermediate';
+  }
 
-  if (preference === 'late' || midSleepHour >= 4) {
-    return 'delayed';
+  let type = 'normal';
+  if (preference === 'late' || adjustedMidSleep >= 1680) { // After 4am
+    type = 'delayed';
+  } else if (preference === 'early' || adjustedMidSleep <= 1500) { // Before 1am
+    type = 'advanced';
   }
-  if (preference === 'early' || midSleepHour <= 1) {
-    return 'advanced';
-  }
-  return 'normal';
+  
+  return { type, chronotypeLabel };
 }
 
 export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
   const metrics = calculateSleepMetrics(data);
   const insomniaSeverity = getInsomniaSeverity(data, metrics);
-  const chronotype = getChronotype(metrics, data.chronotype.preference);
+  const { type: chronotype, chronotypeLabel } = getChronotype(metrics, data.chronotype.preference);
 
   // Calculate weighted EDS score
   const edsResult = calculateEDSScore(data.daytime.fallAsleepDuring);
@@ -181,19 +204,19 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
 
   // Identify major issues
   const hasInsomnia = insomniaSeverity !== 'none' && insomniaSeverity !== 'subclinical';
-  const hasEDSFromNaps =
-    data.daytime.plannedNaps.daysPerWeek >= 3 &&
-    data.daytime.plannedNaps.duration &&
-    ['30-90', '>90'].includes(data.daytime.plannedNaps.duration);
+  // Check for long naps (>= 60 minutes based on new 10-minute increments)
+  const napDurationNum = parseMinuteIncrement(data.daytime.plannedNaps.duration);
+  const hasEDSFromNaps = data.daytime.plannedNaps.daysPerWeek >= 3 && napDurationNum >= 60;
   const hasEDS = hasEDSFromActivities || hasEDSFromNaps;
   const hasOSA =
     data.breathingDisorders.stopsBreathing ||
     (data.breathingDisorders.snores && data.breathingDisorders.wakesWithDryMouth);
   const hasCOMISA = hasInsomnia && hasOSA; // Comorbid Insomnia and Sleep Apnea
   const hasRLS =
-    data.restlessLegs.troubleLyingStill &&
+    (data.restlessLegs.troubleLyingStill &&
     data.restlessLegs.urgeToMoveLegs &&
-    data.restlessLegs.movementRelieves;
+    data.restlessLegs.movementRelieves) ||
+    data.sleepDisorderDiagnoses.diagnosedRLS;
   const hasNightmares = data.nightmares.nightmaresPerWeek && data.nightmares.nightmaresPerWeek >= 3;
   const hasPoorHygiene =
     data.lifestyle.caffeinePerDay > 4 ||
@@ -332,6 +355,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                     {metrics.scheduledWASO} minutes
                   </span>
                 </div>
+                <div className='flex justify-between'>
+                  <span>Mid-Sleep Time:</span>
+                  <span className='font-medium'>{metrics.midSleepScheduled}</span>
+                </div>
               </div>
             </div>
 
@@ -379,11 +406,15 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                     {metrics.unscheduledWASO} minutes
                   </span>
                 </div>
+                <div className='flex justify-between'>
+                  <span>Mid-Sleep Time:</span>
+                  <span className='font-medium'>{metrics.midSleepUnscheduled}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className='bg-primary/5 mt-6 rounded-xl p-4'>
+          <div className='bg-primary/5 mt-6 space-y-3 rounded-xl p-4'>
             <p className='text-foreground/80 text-sm'>
               <strong className='text-foreground'>Sleep Pattern Analysis:</strong> You sleep an
               average of{' '}
@@ -402,6 +433,11 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                   social jet lag.
                 </span>
               )}
+            </p>
+            <p className='text-foreground/80 text-sm'>
+              <strong className='text-foreground'>Chronotype Assessment:</strong> Based on your
+              mid-sleep time ({metrics.midSleepUnscheduled} on free days), you are classified as:{' '}
+              <span className='text-primary font-semibold'>{chronotypeLabel}</span>
             </p>
           </div>
         </CardContent>
@@ -762,8 +798,9 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                 {data.lifestyle.caffeinePerDay > 2 && (
                   <li>Reduce caffeine to 1-2 cups per day, none after noon</li>
                 )}
-                {data.lifestyle.alcoholPerWeek.wine + data.lifestyle.alcoholPerWeek.cocktails >
-                  7 && <li>Limit alcohol, especially within 3 hours of bedtime</li>}
+                {data.lifestyle.alcoholPerWeek > 7 && (
+                  <li>Limit alcohol, especially within 3 hours of bedtime</li>
+                )}
                 {data.bedroom.dark < 7 && (
                   <li>Make your bedroom darker with blackout curtains or eye mask</li>
                 )}
@@ -794,7 +831,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
         </CardHeader>
         <CardContent className='pt-6'>
           <div className='space-y-3'>
-            {(hasOSA || data.breathingDisorders.diagnosed) && (
+            {(hasOSA || data.sleepDisorderDiagnoses.diagnosedOSA) && (
               <Alert className='alert-danger'>
                 <AlertCircle className='h-4 w-4 text-red-600' />
                 <AlertDescription className='text-red-900'>

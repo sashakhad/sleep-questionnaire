@@ -22,6 +22,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
   const weight = form.watch('demographics.weight');
   const height = form.watch('demographics.height');
   const yearOfBirth = form.watch('demographics.yearOfBirth');
+  const responseCode = form.watch('demographics.responseCode');
 
   // Calculate age from year of birth
   const currentYear = new Date().getFullYear();
@@ -48,6 +49,21 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
         </AlertDescription>
       </Alert>
 
+      {/* Response Code Display */}
+      {responseCode && (
+        <div className='border-primary/30 bg-primary/5 rounded-xl border p-5'>
+          <h3 className='text-foreground mb-2 text-sm font-semibold'>Your Response Code</h3>
+          <div className='bg-card border-border flex items-center justify-center rounded-lg border py-3'>
+            <span className='text-primary font-mono text-2xl font-bold tracking-wider'>
+              {responseCode}
+            </span>
+          </div>
+          <p className='text-muted-foreground mt-2 text-xs'>
+            Save this code to link to your report and data if you request it later.
+          </p>
+        </div>
+      )}
+
       {/* Year of Birth */}
       <NumberField
         control={form.control}
@@ -68,6 +84,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
         options={[
           { value: 'male', label: 'Male' },
           { value: 'female', label: 'Female' },
+          { value: 'transgender', label: 'Transgender' },
           { value: 'other', label: 'Other' },
           { value: 'prefer-not-to-say', label: 'Prefer not to say' },
         ]}

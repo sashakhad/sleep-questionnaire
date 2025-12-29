@@ -48,6 +48,22 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
         ]}
       />
 
+      {/* Preference strength - only show if early or late preference */}
+      {(preference === 'early' || preference === 'late') && (
+        <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
+          <RadioGroupField
+            control={form.control}
+            name='chronotype.preferenceStrength'
+            label={`How strong is your ${preference === 'early' ? 'morning' : 'night owl'} preference?`}
+            options={[
+              { value: 'slight', label: 'Slight - I have a mild preference' },
+              { value: 'moderate', label: 'Moderate - It affects my daily schedule' },
+              { value: 'strong', label: 'Strong - It significantly impacts my lifestyle' },
+            ]}
+          />
+        </div>
+      )}
+
       {/* Shift work */}
       <CheckboxField
         control={form.control}
@@ -55,7 +71,7 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
         label='My job requires me to do shift work'
       />
 
-      {/* Shift work details */}
+      {/* Shift work details - nested under shift work checkbox */}
       {shiftWork && (
         <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
           <FormField
@@ -83,7 +99,7 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
         </div>
       )}
 
-      {/* Past shift work */}
+      {/* Past shift work - only show if NOT currently doing shift work */}
       {!shiftWork && (
         <NumberField
           control={form.control}
