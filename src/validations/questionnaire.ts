@@ -152,11 +152,11 @@ export const mentalHealthSchema = z.object({
   currentlyReceivingTreatment: z.boolean(),
 });
 
-// Demographics (collected early after intro)
+// Demographics (collected early after intro) - required fields for linking
 export const demographicsSchema = z.object({
-  yearOfBirth: z.number().min(1900).max(new Date().getFullYear()).nullable(),
-  sex: z.enum(['male', 'female', 'transgender', 'other', 'prefer-not-to-say']).nullable(),
-  zipcode: z.string(),
+  yearOfBirth: z.number().min(1900).max(new Date().getFullYear(), { message: 'Please enter a valid year' }),
+  sex: z.enum(['male', 'female', 'transgender', 'other', 'prefer-not-to-say'], { message: 'Please select an option' }),
+  zipcode: z.string().min(5, { message: 'Please enter a valid zipcode' }),
   weight: z.number().min(0).nullable(),
   height: z.number().min(0).nullable(),
   responseCode: z.string(), // Unique code to link to report/data

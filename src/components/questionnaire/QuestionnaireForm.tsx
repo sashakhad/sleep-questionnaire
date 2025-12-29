@@ -225,9 +225,9 @@ export function QuestionnaireForm() {
         acceptedDisclaimer: false,
       },
       demographics: {
-        yearOfBirth: null,
-        sex: null,
-        zipcode: '',
+        yearOfBirth: undefined as unknown as number, // Required - will trigger validation
+        sex: undefined as unknown as 'male' | 'female' | 'transgender' | 'other' | 'prefer-not-to-say', // Required
+        zipcode: '', // Required - min 5 chars
         weight: null,
         height: null,
         responseCode: generateResponseCode(),
@@ -476,6 +476,24 @@ export function QuestionnaireForm() {
   const isLastSection = currentSection === 'report';
   const isSecondToLast = currentSectionIndex === sections.length - 2;
 
+  // Watch fields for section-specific validation
+  const acceptedDisclaimer = form.watch('intro.acceptedDisclaimer');
+  const yearOfBirth = form.watch('demographics.yearOfBirth');
+  const sex = form.watch('demographics.sex');
+  const zipcode = form.watch('demographics.zipcode');
+
+  // Determine if Continue should be disabled based on current section
+  const isContinueDisabled = (() => {
+    if (currentSection === 'intro') {
+      return !acceptedDisclaimer;
+    }
+    if (currentSection === 'demographics') {
+      // Require yearOfBirth, sex, and zipcode (min 5 chars)
+      return !yearOfBirth || !sex || !zipcode || zipcode.length < 5;
+    }
+    return false;
+  })();
+
   return (
     <div className='bg-gradient-sleep relative min-h-screen py-8 md:py-12'>
       {/* Subtle decorative background elements */}
@@ -557,7 +575,7 @@ export function QuestionnaireForm() {
                   type='button'
                   variant='ghost'
                   onClick={handlePrevious}
-                  className='absolute -top-2 left-0 gap-2 text-white/80 hover:bg-white/10 hover:text-white'
+                  className='-ml-2 mb-2 gap-2 text-white/80 hover:bg-white/10 hover:text-white'
                   size='sm'
                 >
                   <svg className='h-4 w-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
@@ -646,6 +664,7 @@ export function QuestionnaireForm() {
                       type='button'
                       onClick={handleNext}
                       size='lg'
+                      disabled={isContinueDisabled}
                       className='ml-auto gap-2 px-6 shadow-md'
                     >
                       Continue

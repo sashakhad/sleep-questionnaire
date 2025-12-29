@@ -6,11 +6,11 @@ export interface QuestionnaireData {
     acceptedDisclaimer: boolean;
   };
 
-  // Demographics (collected early)
+  // Demographics (collected early) - yearOfBirth, sex, zipcode are required
   demographics: {
-    yearOfBirth: number | null;
-    sex: 'male' | 'female' | 'transgender' | 'other' | 'prefer-not-to-say' | null;
-    zipcode: string;
+    yearOfBirth: number; // Required
+    sex: 'male' | 'female' | 'transgender' | 'other' | 'prefer-not-to-say'; // Required
+    zipcode: string; // Required (min 5 chars)
     weight: number | null;
     height: number | null;
     responseCode: string; // Unique code to link to report/data

@@ -12,12 +12,13 @@ export async function POST(request: NextRequest) {
     // Extract demographics for denormalization
     const demographics = validatedData.demographics;
 
-    // Save to database
+    // Save to database with response code
     const response = await prisma.questionnaireResponse.create({
       data: {
+        responseCode: demographics.responseCode,
         rawData: validatedData as unknown as object,
-        yearOfBirth: demographics.yearOfBirth ?? null,
-        sex: demographics.sex ?? null,
+        yearOfBirth: demographics.yearOfBirth,
+        sex: demographics.sex,
         zipcode: demographics.zipcode || null,
         weight: demographics.weight ?? null,
         height: demographics.height ?? null,

@@ -39,8 +39,6 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
 
   return (
     <div className='space-y-6'>
-      <div className='text-lg font-medium'>About You</div>
-
       <Alert className='alert-info'>
         <User className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
@@ -204,17 +202,6 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
         </Alert>
       )}
 
-      {/* Completion message */}
-      <Alert className='alert-success'>
-        <Info className='h-4 w-4 text-green-600' />
-        <AlertDescription className='text-green-900'>
-          <strong>Almost Done!</strong>
-          <br />
-          Thank you for providing this information. After you click &quot;Generate Report&quot;
-          below, we&apos;ll analyze your responses and create a personalized sleep health report
-          with specific recommendations based on your unique situation.
-        </AlertDescription>
-      </Alert>
     </div>
   );
 }

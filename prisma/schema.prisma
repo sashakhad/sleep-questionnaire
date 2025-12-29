@@ -10,15 +10,18 @@ datasource db {
 }
 
 model QuestionnaireResponse {
-  id          String   @id @default(cuid())
-  rawData     Json     // Full questionnaire data
+  id           String   @id @default(cuid())
+  responseCode String   @unique // User-facing code to retrieve their data
+  rawData      Json     // Full questionnaire data
   
   // Denormalized demographics for easy querying/CSV
-  yearOfBirth Int?
-  sex         String?
-  zipcode     String?
-  weight      Float?
-  height      Float?
+  yearOfBirth  Int?
+  sex          String?
+  zipcode      String?
+  weight       Float?
+  height       Float?
   
-  createdAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+
+  @@index([responseCode])
 }
