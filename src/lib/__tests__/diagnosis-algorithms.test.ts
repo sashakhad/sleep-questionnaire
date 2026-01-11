@@ -6,7 +6,6 @@
  */
 
 import {
-  THRESHOLDS,
   timeToMinutes,
   parseMinuteIncrement,
   calculateBMI,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet, Link } from '@react-pdf/renderer';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
-import { generateDiagnosisReport, parseMinuteIncrement } from '@/lib/diagnosis-algorithms';
+import { generateDiagnosisReport } from '@/lib/diagnosis-algorithms';
 
 const styles = StyleSheet.create({
   page: {
@@ -175,7 +175,9 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
 
   // Determine severity descriptions for language
   const getSeverityText = (severity: string) => {
-    if (severity === 'moderate-to-severe') return 'moderate to severe';
+    if (severity === 'moderate-to-severe') {
+      return 'moderate to severe';
+    }
     return severity;
   };
 

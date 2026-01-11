@@ -193,8 +193,12 @@ export function timeToMinutes(
  * Parse minute increment string to number
  */
 export function parseMinuteIncrement(value: string | null): number {
-  if (!value) return 0;
-  if (value === '>120') return 130; // Use 130 for "more than 120"
+  if (!value) {
+    return 0;
+  }
+  if (value === '>120') {
+    return 130; // Use 130 for "more than 120"
+  }
   return parseInt(value, 10) || 0;
 }
 
@@ -533,7 +537,9 @@ export function diagnoseRLS(data: QuestionnaireFormData): boolean {
  * Check if leg cramps are a concern (frequency-based when available)
  */
 export function hasLegCrampsConcern(data: QuestionnaireFormData): boolean {
-  if (!data.restlessLegs.legCramps) return false;
+  if (!data.restlessLegs.legCramps) {
+    return false;
+  }
 
   // If we have frequency data, use threshold
   const legCrampsFrequency = (data.restlessLegs as Record<string, unknown>).legCrampsPerWeek as number | undefined;
