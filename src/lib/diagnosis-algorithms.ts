@@ -205,7 +205,10 @@ export function parseMinuteIncrement(value: string | null): number {
 /**
  * Calculate BMI from height (inches) and weight (pounds)
  */
-export function calculateBMI(heightInches: number | null, weightPounds: number | null): number | null {
+export function calculateBMI(
+  heightInches: number | null,
+  weightPounds: number | null
+): number | null {
   if (!heightInches || !weightPounds || heightInches <= 0 || weightPounds <= 0) {
     return null;
   }
@@ -262,7 +265,9 @@ export function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics
   );
   const unscheduledTST = unscheduledTSTMinutes / 60;
   const unscheduledSE =
-    unscheduledTimeInBedMinutes > 0 ? (unscheduledTSTMinutes / unscheduledTimeInBedMinutes) * 100 : 0;
+    unscheduledTimeInBedMinutes > 0
+      ? (unscheduledTSTMinutes / unscheduledTimeInBedMinutes) * 100
+      : 0;
 
   // Weekly average: 5 scheduled days + 2 unscheduled days
   const weeklyAverageTST = (scheduledTST * 5 + unscheduledTST * 2) / 7;
@@ -376,7 +381,10 @@ export function hasInsufficientSleepSyndrome(
  * - SOL >45 min OR WASO >60 min OR poor sleep quality
  * - Plus TWO of: sleepiness interferes, non-restorative, tiredness 7+, fatigue 5+
  */
-export function diagnoseInsomnia(data: QuestionnaireFormData, metrics: SleepMetrics): InsomniaDiagnosis {
+export function diagnoseInsomnia(
+  data: QuestionnaireFormData,
+  metrics: SleepMetrics
+): InsomniaDiagnosis {
   const { scheduledSOL, scheduledWASO } = metrics;
   const tiredness = data.daytime.tirednessRating ?? 0;
   const fatigue = data.daytime.fatigueRating ?? 0;
@@ -388,7 +396,8 @@ export function diagnoseInsomnia(data: QuestionnaireFormData, metrics: SleepMetr
   const hasMaintenanceInsomnia = scheduledWASO >= THRESHOLDS.WASO_MILD_MIN;
 
   // Poor sleep quality indicator
-  const hasPoorSleepQuality = data.daytime.nonRestorativeSleep || metrics.scheduledSE < THRESHOLDS.SLEEP_EFFICIENCY_NORMAL;
+  const hasPoorSleepQuality =
+    data.daytime.nonRestorativeSleep || metrics.scheduledSE < THRESHOLDS.SLEEP_EFFICIENCY_NORMAL;
 
   // Check sleep disturbance criteria
   const hasMildSleepDisturbance =
@@ -515,7 +524,10 @@ export function diagnoseSleepApnea(data: QuestionnaireFormData): SleepApneaDiagn
  * Check for COMISA - when both insomnia AND sleep apnea symptoms present
  */
 export function hasCOMISA(insomnia: InsomniaDiagnosis, sleepApnea: SleepApneaDiagnosis): boolean {
-  return insomnia.hasInsomnia && (sleepApnea.hasProbableSleepApnea || sleepApnea.hasMildRespiratoryDisturbance);
+  return (
+    insomnia.hasInsomnia &&
+    (sleepApnea.hasProbableSleepApnea || sleepApnea.hasMildRespiratoryDisturbance)
+  );
 }
 
 // =============================================================================
@@ -542,7 +554,9 @@ export function hasLegCrampsConcern(data: QuestionnaireFormData): boolean {
   }
 
   // If we have frequency data, use threshold
-  const legCrampsFrequency = (data.restlessLegs as Record<string, unknown>).legCrampsPerWeek as number | undefined;
+  const legCrampsFrequency = (data.restlessLegs as Record<string, unknown>).legCrampsPerWeek as
+    | number
+    | undefined;
   if (typeof legCrampsFrequency === 'number') {
     return legCrampsFrequency >= THRESHOLDS.LEG_CRAMPS_CONCERN_THRESHOLD;
   }
@@ -604,7 +618,9 @@ export function screenChronicFatigue(
  * - Tiredness rating 7+
  * - Fatigue rating 5+
  */
-export function diagnosePainRelatedSleepDisturbance(data: QuestionnaireFormData): PainRelatedSleepDisturbance {
+export function diagnosePainRelatedSleepDisturbance(
+  data: QuestionnaireFormData
+): PainRelatedSleepDisturbance {
   const tiredness = data.daytime.tirednessRating ?? 0;
   const fatigue = data.daytime.fatigueRating ?? 0;
 
@@ -795,7 +811,8 @@ export function generateDiagnosisReport(data: QuestionnaireFormData): DiagnosisR
   const chronotype = determineChronotype(data, sleepMetrics);
 
   // Additional flags
-  const hasSevereTiredness = (data.daytime.sleepinessSeverity ?? 0) > THRESHOLDS.SLEEPINESS_SAFETY_CONCERN;
+  const hasSevereTiredness =
+    (data.daytime.sleepinessSeverity ?? 0) > THRESHOLDS.SLEEPINESS_SAFETY_CONCERN;
   const hasAnxiety = data.mentalHealth.worriesAffectSleep || data.mentalHealth.anxietyInBed;
 
   return {
