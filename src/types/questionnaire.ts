@@ -84,7 +84,8 @@ export interface QuestionnaireData {
     urgeToMoveLegs: boolean;
     movementRelieves: boolean;
     daytimeDiscomfort: boolean;
-    legCramps: boolean; // Added leg cramps
+    legCramps: boolean;
+    legCrampsPerWeek: number | null; // Frequency of leg cramps (nights per week)
   };
 
   // Section 5: Parasomnia
@@ -99,8 +100,14 @@ export interface QuestionnaireData {
     treatmentType: string;
   };
 
-  // Section 6: Nightmares
+  // Section 6: Dreams and Nightmares
   nightmares: {
+    // Dream recall
+    remembersDreams: boolean;
+    // Bad dreams (disturbing content but no waking with distress)
+    hasBadDreams: boolean;
+    badDreamsPerWeek: number | null;
+    // Nightmares (waking feeling scared/panicked/upset)
     hasNightmares: boolean;
     nightmaresPerWeek: number | null;
     associatedWithTrauma: boolean;
@@ -162,10 +169,12 @@ export interface QuestionnaireData {
     osaSeverity: 'mild' | 'moderate' | 'severe' | null;
     osaTreated: boolean;
     osaTreatmentType: string[]; // CPAP, dental device, other
+    osaTreatmentEffective: boolean | null; // Is treatment effective?
     // RLS
     diagnosedRLS: boolean;
     rlsTreated: boolean;
     rlsTreatment: string[];
+    rlsTreatmentEffective: boolean | null; // Is treatment effective?
   };
 }
 

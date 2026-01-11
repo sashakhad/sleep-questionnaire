@@ -78,7 +78,8 @@ export const restlessLegsSchema = z.object({
   urgeToMoveLegs: z.boolean(),
   movementRelieves: z.boolean(),
   daytimeDiscomfort: z.boolean(),
-  legCramps: z.boolean(), // Added leg cramps
+  legCramps: z.boolean(),
+  legCrampsPerWeek: z.number().min(0).max(7).nullable(), // Frequency of leg cramps
 });
 
 // Section 5: Parasomnia
@@ -93,8 +94,14 @@ export const parasomniaSchema = z.object({
   treatmentType: z.string(),
 });
 
-// Section 6: Nightmares
+// Section 6: Dreams and Nightmares
 export const nightmaresSchema = z.object({
+  // Dream recall
+  remembersDreams: z.boolean(),
+  // Bad dreams (disturbing content but no waking with distress)
+  hasBadDreams: z.boolean(),
+  badDreamsPerWeek: z.number().min(0).max(7).nullable(),
+  // Nightmares (waking feeling scared/panicked/upset)
   hasNightmares: z.boolean(),
   nightmaresPerWeek: z.number().min(0).max(7).nullable(),
   associatedWithTrauma: z.boolean(),
@@ -168,10 +175,12 @@ export const sleepDisorderDiagnosesSchema = z.object({
   osaSeverity: z.enum(['mild', 'moderate', 'severe']).nullable(),
   osaTreated: z.boolean(),
   osaTreatmentType: z.array(z.string()), // CPAP, dental device, other
+  osaTreatmentEffective: z.boolean().nullable(), // Is treatment effective?
   // RLS
   diagnosedRLS: z.boolean(),
   rlsTreated: z.boolean(),
   rlsTreatment: z.array(z.string()),
+  rlsTreatmentEffective: z.boolean().nullable(), // Is treatment effective?
 });
 
 // Intro/consent schema

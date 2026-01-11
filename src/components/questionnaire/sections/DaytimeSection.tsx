@@ -386,7 +386,7 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel className='font-medium'>
-                I rate my sleepiness (ability to fall asleep during the day)
+                I rate my sleepiness
               </FormLabel>
               <FormDescription className='text-muted-foreground'>
                 1 = never sleep during day, 10 = difficulty staying awake during the day

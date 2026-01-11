@@ -77,6 +77,7 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     movementRelieves: false,
     daytimeDiscomfort: false,
     legCramps: false,
+    legCrampsPerWeek: null,
   },
   parasomnia: {
     nightBehaviors: [],
@@ -89,6 +90,9 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     treatmentType: '',
   },
   nightmares: {
+    remembersDreams: true,
+    hasBadDreams: false,
+    badDreamsPerWeek: null,
     hasNightmares: true,
     nightmaresPerWeek: 1,
     associatedWithTrauma: false,
@@ -138,9 +142,11 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     osaSeverity: null,
     osaTreated: false,
     osaTreatmentType: [],
+    osaTreatmentEffective: null,
     diagnosedRLS: false,
     rlsTreated: false,
     rlsTreatment: [],
+    rlsTreatmentEffective: null,
   },
 };
 
@@ -285,6 +291,9 @@ export function QuestionnaireForm() {
         treatmentType: '',
       },
       nightmares: {
+        remembersDreams: false,
+        hasBadDreams: false,
+        badDreamsPerWeek: null,
         hasNightmares: false,
         nightmaresPerWeek: null,
         associatedWithTrauma: false,
@@ -334,9 +343,11 @@ export function QuestionnaireForm() {
         osaSeverity: null,
         osaTreated: false,
         osaTreatmentType: [],
+        osaTreatmentEffective: null,
         diagnosedRLS: false,
         rlsTreated: false,
         rlsTreatment: [],
+        rlsTreatmentEffective: null,
       },
     },
   });

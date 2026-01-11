@@ -18,6 +18,7 @@ interface SleepDisorderDiagnosesSectionProps {
   form: UseFormReturn<QuestionnaireFormData>;
 }
 
+
 const osaTreatmentOptions = [
   { value: 'cpap', label: 'CPAP' },
   { value: 'dental_device', label: 'Dental device' },
@@ -34,8 +35,10 @@ const rlsTreatmentOptions = [
 export function SleepDisorderDiagnosesSection({ form }: SleepDisorderDiagnosesSectionProps) {
   const diagnosedOSA = form.watch('sleepDisorderDiagnoses.diagnosedOSA');
   const osaTreated = form.watch('sleepDisorderDiagnoses.osaTreated');
+  const osaTreatmentEffective = form.watch('sleepDisorderDiagnoses.osaTreatmentEffective');
   const diagnosedRLS = form.watch('sleepDisorderDiagnoses.diagnosedRLS');
   const rlsTreated = form.watch('sleepDisorderDiagnoses.rlsTreated');
+  const rlsTreatmentEffective = form.watch('sleepDisorderDiagnoses.rlsTreatmentEffective');
 
   return (
     <div className='space-y-6'>
@@ -82,43 +85,63 @@ export function SleepDisorderDiagnosesSection({ form }: SleepDisorderDiagnosesSe
             />
 
             {osaTreated && (
-              <FormField
-                control={form.control}
-                name='sleepDisorderDiagnoses.osaTreatmentType'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className='text-base font-medium'>
-                      What type of treatment do you use?
-                    </FormLabel>
-                    <p className='text-muted-foreground text-sm'>Check all that apply</p>
-                    <div className='mt-3 space-y-2'>
-                      {osaTreatmentOptions.map(option => (
-                        <FormItem
-                          key={option.value}
-                          className='hover:bg-muted/50 has-[[data-state=checked]]:border-primary/20 has-[[data-state=checked]]:bg-primary/5 flex flex-row items-center space-y-0 space-x-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors'
-                        >
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value?.includes(option.value)}
-                              onCheckedChange={checked => {
-                                return checked
-                                  ? field.onChange([...field.value, option.value])
-                                  : field.onChange(
-                                      field.value?.filter((value: string) => value !== option.value)
-                                    );
-                              }}
-                            />
-                          </FormControl>
-                          <FormLabel className='text-foreground/90 cursor-pointer font-normal'>
-                            {option.label}
-                          </FormLabel>
-                        </FormItem>
-                      ))}
-                    </div>
-                    <FormMessage />
-                  </FormItem>
+              <>
+                <FormField
+                  control={form.control}
+                  name='sleepDisorderDiagnoses.osaTreatmentType'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-base font-medium'>
+                        What type of treatment do you use?
+                      </FormLabel>
+                      <p className='text-muted-foreground text-sm'>Check all that apply</p>
+                      <div className='mt-3 space-y-2'>
+                        {osaTreatmentOptions.map(option => (
+                          <FormItem
+                            key={option.value}
+                            className='hover:bg-muted/50 has-[[data-state=checked]]:border-primary/20 has-[[data-state=checked]]:bg-primary/5 flex flex-row items-center space-y-0 space-x-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors'
+                          >
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value?.includes(option.value)}
+                                onCheckedChange={checked => {
+                                  return checked
+                                    ? field.onChange([...field.value, option.value])
+                                    : field.onChange(
+                                        field.value?.filter((value: string) => value !== option.value)
+                                      );
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className='text-foreground/90 cursor-pointer font-normal'>
+                              {option.label}
+                            </FormLabel>
+                          </FormItem>
+                        ))}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <CheckboxField
+                  control={form.control}
+                  name='sleepDisorderDiagnoses.osaTreatmentEffective'
+                  label='My treatment is effective'
+                  description='Uncheck if your treatment is not fully effective'
+                />
+
+                {osaTreatmentEffective === false && (
+                  <Alert className='alert-warning'>
+                    <Info className='h-4 w-4 text-amber-600' />
+                    <AlertDescription className='text-amber-900'>
+                      You indicated that despite being treated for sleep apnea, you are still having
+                      symptoms. Please discuss this with your primary care provider. You may benefit
+                      from a consultation with a sleep specialist.
+                    </AlertDescription>
+                  </Alert>
                 )}
-              />
+              </>
             )}
           </div>
         )}
@@ -145,47 +168,67 @@ export function SleepDisorderDiagnosesSection({ form }: SleepDisorderDiagnosesSe
             />
 
             {rlsTreated && (
-              <FormField
-                control={form.control}
-                name='sleepDisorderDiagnoses.rlsTreatment'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className='text-base font-medium'>
-                      What treatment do you use?
-                    </FormLabel>
-                    <p className='text-muted-foreground text-sm'>Check all that apply</p>
-                    <div className='mt-3 space-y-2'>
-                      {rlsTreatmentOptions.map(option => (
-                        <FormItem
-                          key={option.value}
-                          className='hover:bg-muted/50 has-[[data-state=checked]]:border-primary/20 has-[[data-state=checked]]:bg-primary/5 flex flex-row items-center space-y-0 space-x-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors'
-                        >
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value?.includes(option.value)}
-                              onCheckedChange={checked => {
-                                return checked
-                                  ? field.onChange([...field.value, option.value])
-                                  : field.onChange(
-                                      field.value?.filter((value: string) => value !== option.value)
-                                    );
-                              }}
-                            />
-                          </FormControl>
-                          <FormLabel className='text-foreground/90 cursor-pointer font-normal'>
-                            {option.label}
-                          </FormLabel>
-                        </FormItem>
-                      ))}
-                    </div>
-                    <FormDescription className='text-muted-foreground mt-3'>
-                      Common treatments include ferrous gluconate or ferrous sulfate supplementation
-                      for individuals with ferritin levels below 75mcg/ml
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
+              <>
+                <FormField
+                  control={form.control}
+                  name='sleepDisorderDiagnoses.rlsTreatment'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className='text-base font-medium'>
+                        What treatment do you use?
+                      </FormLabel>
+                      <p className='text-muted-foreground text-sm'>Check all that apply</p>
+                      <div className='mt-3 space-y-2'>
+                        {rlsTreatmentOptions.map(option => (
+                          <FormItem
+                            key={option.value}
+                            className='hover:bg-muted/50 has-[[data-state=checked]]:border-primary/20 has-[[data-state=checked]]:bg-primary/5 flex flex-row items-center space-y-0 space-x-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors'
+                          >
+                            <FormControl>
+                              <Checkbox
+                                checked={field.value?.includes(option.value)}
+                                onCheckedChange={checked => {
+                                  return checked
+                                    ? field.onChange([...field.value, option.value])
+                                    : field.onChange(
+                                        field.value?.filter((value: string) => value !== option.value)
+                                      );
+                                }}
+                              />
+                            </FormControl>
+                            <FormLabel className='text-foreground/90 cursor-pointer font-normal'>
+                              {option.label}
+                            </FormLabel>
+                          </FormItem>
+                        ))}
+                      </div>
+                      <FormDescription className='text-muted-foreground mt-3'>
+                        Common treatments include ferrous gluconate or ferrous sulfate supplementation
+                        for individuals with ferritin levels below 75mcg/ml
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <CheckboxField
+                  control={form.control}
+                  name='sleepDisorderDiagnoses.rlsTreatmentEffective'
+                  label='My treatment is effective'
+                  description='Uncheck if your treatment is not fully effective'
+                />
+
+                {rlsTreatmentEffective === false && (
+                  <Alert className='alert-warning'>
+                    <Info className='h-4 w-4 text-amber-600' />
+                    <AlertDescription className='text-amber-900'>
+                      You indicated that despite being treated for restless legs syndrome, you are
+                      still having symptoms. Please discuss this with your primary care provider.
+                      You may benefit from a consultation with a sleep specialist.
+                    </AlertDescription>
+                  </Alert>
                 )}
-              />
+              </>
             )}
           </div>
         )}
