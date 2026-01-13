@@ -2,6 +2,7 @@ import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { CheckboxField } from '../form-fields/CheckboxField';
 import { RadioGroupField } from '../form-fields/RadioGroupField';
+import { YesNoRadioField } from '../form-fields/YesNoRadioField';
 import {
   FormField,
   FormItem,
@@ -17,7 +18,6 @@ import { Stethoscope, Info } from 'lucide-react';
 interface SleepDisorderDiagnosesSectionProps {
   form: UseFormReturn<QuestionnaireFormData>;
 }
-
 
 const osaTreatmentOptions = [
   { value: 'cpap', label: 'CPAP' },
@@ -58,11 +58,13 @@ export function SleepDisorderDiagnosesSection({ form }: SleepDisorderDiagnosesSe
           Obstructive Sleep Apnea (OSA)
         </h3>
 
-        <CheckboxField
+        <YesNoRadioField
           control={form.control}
           name='sleepDisorderDiagnoses.diagnosedOSA'
-          label='I have been diagnosed with obstructive sleep apnea'
+          label='Have you been diagnosed with obstructive sleep apnea?'
           description='Such as obstructive sleep apnea, primary snoring, or central sleep apnea'
+          yesLabel='Yes, I have been diagnosed'
+          noLabel='No, I have not been diagnosed'
         />
 
         {diagnosedOSA && (
@@ -108,7 +110,9 @@ export function SleepDisorderDiagnosesSection({ form }: SleepDisorderDiagnosesSe
                                   return checked
                                     ? field.onChange([...field.value, option.value])
                                     : field.onChange(
-                                        field.value?.filter((value: string) => value !== option.value)
+                                        field.value?.filter(
+                                          (value: string) => value !== option.value
+                                        )
                                       );
                                 }}
                               />
@@ -153,10 +157,12 @@ export function SleepDisorderDiagnosesSection({ form }: SleepDisorderDiagnosesSe
           Restless Legs Syndrome (RLS)
         </h3>
 
-        <CheckboxField
+        <YesNoRadioField
           control={form.control}
           name='sleepDisorderDiagnoses.diagnosedRLS'
-          label='I have been diagnosed with restless legs syndrome (RLS) or periodic limb movement disorder'
+          label='Have you been diagnosed with restless legs syndrome (RLS) or periodic limb movement disorder?'
+          yesLabel='Yes, I have been diagnosed'
+          noLabel='No, I have not been diagnosed'
         />
 
         {diagnosedRLS && (
@@ -191,7 +197,9 @@ export function SleepDisorderDiagnosesSection({ form }: SleepDisorderDiagnosesSe
                                   return checked
                                     ? field.onChange([...field.value, option.value])
                                     : field.onChange(
-                                        field.value?.filter((value: string) => value !== option.value)
+                                        field.value?.filter(
+                                          (value: string) => value !== option.value
+                                        )
                                       );
                                 }}
                               />
@@ -203,8 +211,8 @@ export function SleepDisorderDiagnosesSection({ form }: SleepDisorderDiagnosesSe
                         ))}
                       </div>
                       <FormDescription className='text-muted-foreground mt-3'>
-                        Common treatments include ferrous gluconate or ferrous sulfate supplementation
-                        for individuals with ferritin levels below 75mcg/ml
+                        Common treatments include ferrous gluconate or ferrous sulfate
+                        supplementation for individuals with ferritin levels below 75mcg/ml
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
