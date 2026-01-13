@@ -43,7 +43,7 @@ export function YesNoRadioField<TFieldValues extends FieldValues = FieldValues>(
           <FormControl>
             <RadioGroup
               onValueChange={value => field.onChange(value === 'true')}
-              value={field.value === true ? 'true' : field.value === false ? 'false' : undefined}
+              value={field.value === true ? 'true' : field.value === false ? 'false' : null}
               className='flex flex-col space-y-2'
             >
               <FormItem className='hover:bg-muted/50 has-[[data-state=checked]]:border-primary/30 has-[[data-state=checked]]:bg-primary/5 flex items-center space-y-0 space-x-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors'>
