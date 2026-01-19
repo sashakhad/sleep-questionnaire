@@ -88,10 +88,9 @@ export function RestlessLegsSection({ form }: RestlessLegsSectionProps) {
         <Alert className='alert-warning'>
           <AlertCircle className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
-            Your answers suggest that you may have restless legs syndrome. We strongly encourage you
-            to discuss treatment options with your sleep specialist or primary care doctor. RLS is
-            often exacerbated when someone is sleep deprived, using excessive caffeine, or
-            experiencing increased stress.
+            Your answers suggest that you may have restless legs syndrome. We will make additional
+            recommendations in your report and provide specific guidance and treatment
+            recommendations on our website.
           </AlertDescription>
         </Alert>
       )}
