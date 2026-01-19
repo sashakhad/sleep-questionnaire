@@ -21,17 +21,17 @@ interface SleepDisorderDiagnosesSectionProps {
 }
 
 const diagnosedDisorderOptions = [
-  { value: 'sleep_apnea', label: 'Sleep Apnea' },
   { value: 'narcolepsy', label: 'Narcolepsy' },
-  { value: 'insomnia', label: 'Insomnia' },
   { value: 'hypersomnia', label: 'Hypersomnia' },
-  { value: 'nightmare_disorder', label: 'Nightmare Disorder' },
-  { value: 'sleep_eating', label: 'Sleep Eating Disorder' },
-  { value: 'sleepwalking', label: 'Sleepwalking' },
+  { value: 'insomnia', label: 'Insomnia' },
+  { value: 'parasomnia', label: 'Parasomnia (sleepwalking or sleep terrors)' },
+  { value: 'nocturnal_enuresis', label: 'Nocturnal enuresis (bedwetting)' },
   { value: 'circadian_rhythm', label: 'Circadian Rhythm Disorder' },
-  { value: 'rls', label: 'Restless Leg Syndrome' },
-  { value: 'bruxism', label: 'Teeth grinding (Bruxism)' },
-  { value: 'psychiatric', label: 'A Psychiatric disorder' },
+  { value: 'rls', label: 'Restless Legs Syndrome and/or Periodic Limb Movement Disorder' },
+  { value: 'obstructive_sleep_apnea', label: 'Obstructive Sleep Apnea Syndrome' },
+  { value: 'central_sleep_apnea', label: 'Central Sleep Apnea Syndrome' },
+  { value: 'insufficient_sleep', label: 'Insufficient Sleep' },
+  { value: 'rem_behavior_disorder', label: 'REM Behavior Disorder' },
 ];
 
 const osaTreatmentOptions = [
@@ -57,7 +57,7 @@ export function SleepDisorderDiagnosesSection({ form }: SleepDisorderDiagnosesSe
   const rlsTreatmentEffective = form.watch('sleepDisorderDiagnoses.rlsTreatmentEffective');
 
   // Show detailed sections if they selected sleep apnea or RLS from the list
-  const hasSelectedSleepApnea = diagnosedDisorders.includes('sleep_apnea') || diagnosedOSA;
+  const hasSelectedSleepApnea = diagnosedDisorders.includes('obstructive_sleep_apnea') || diagnosedDisorders.includes('central_sleep_apnea') || diagnosedOSA;
   const hasSelectedRLS = diagnosedDisorders.includes('rls') || diagnosedRLS;
 
   return (
