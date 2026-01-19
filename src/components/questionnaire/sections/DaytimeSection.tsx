@@ -379,45 +379,6 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
           Rate Your Daytime Experience
         </h3>
 
-        {/* Sleepiness Rating */}
-        <FormField
-          control={form.control}
-          name='daytime.sleepinessRating'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className='font-medium'>
-                I rate my sleepiness
-              </FormLabel>
-              <FormDescription className='text-muted-foreground'>
-                1 = never sleep during day, 10 = difficulty staying awake during the day
-              </FormDescription>
-              <div className='pt-6 pb-2'>
-                <div className='text-muted-foreground mb-4 flex justify-between text-xs font-medium'>
-                  <span>1 - Never sleep</span>
-                  <span>5 - Sometimes</span>
-                  <span>10 - Can&apos;t stay awake</span>
-                </div>
-                <FormControl>
-                  <Slider
-                    min={1}
-                    max={10}
-                    step={1}
-                    value={field.value ? [field.value] : [1]}
-                    onValueChange={value => field.onChange(value[0])}
-                    className='w-full'
-                  />
-                </FormControl>
-                <div className='mt-4 text-center'>
-                  <span className='bg-primary/10 text-primary inline-flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold'>
-                    {field.value ?? 1}
-                  </span>
-                </div>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         {/* Tiredness Rating */}
         <FormField
           control={form.control}

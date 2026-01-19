@@ -35,7 +35,6 @@ export interface QuestionnaireData {
     jointMusclePain: boolean; // renamed for first-person declarative
     nonRestorativeSleep: boolean;
     // New rating scales
-    sleepinessRating: number | null; // ability to fall asleep during the day
     tirednessRating: number | null; // mild sleepiness, headache, heavy eyes
     fatigueRating: number | null; // flu-like symptoms, poor motivation, aches
   };

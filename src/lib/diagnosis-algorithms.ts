@@ -318,8 +318,7 @@ export function calculateEDSScore(data: QuestionnaireFormData): EDSResult {
   // Check for difficulty staying awake
   const hasDifficultyStayingAwake =
     data.daytime.sleepinessInterferes ||
-    data.daytime.fallAsleepDuring.length >= 2 ||
-    (data.daytime.sleepinessRating ?? 0) >= 5;
+    data.daytime.fallAsleepDuring.length >= 2;
 
   let severity: SeverityLevel = 'none';
   if (score >= 7) {
@@ -478,9 +477,8 @@ export function diagnoseSleepApnea(data: QuestionnaireFormData): SleepApneaDiagn
   const age = calculateAge(data.demographics.yearOfBirth);
   const bmi = calculateBMI(data.demographics.height, data.demographics.weight);
   const tiredness = data.daytime.tirednessRating ?? 0;
-  const sleepiness = data.daytime.sleepinessRating ?? 0;
   const fatigue = data.daytime.fatigueRating ?? 0;
-  const maxTirednessScore = Math.max(tiredness, sleepiness, fatigue);
+  const maxTirednessScore = Math.max(tiredness, fatigue);
 
   const riskFactors = [
     age > THRESHOLDS.APNEA_AGE_RISK,

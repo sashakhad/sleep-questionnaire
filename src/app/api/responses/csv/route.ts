@@ -43,7 +43,6 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
     daytime_pain_severity: data.daytime?.painSeverity ?? null,
     daytime_joint_muscle_pain: data.daytime?.jointMusclePain ?? null,
     daytime_non_restorative_sleep: data.daytime?.nonRestorativeSleep ?? null,
-    daytime_sleepiness_rating: data.daytime?.sleepinessRating ?? null,
     daytime_tiredness_rating: data.daytime?.tirednessRating ?? null,
     daytime_fatigue_rating: data.daytime?.fatigueRating ?? null,
 

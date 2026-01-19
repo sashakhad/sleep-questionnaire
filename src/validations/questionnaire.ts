@@ -31,7 +31,6 @@ export const daytimeSchema = z.object({
   jointMusclePain: z.boolean(), // renamed from muscleJointPain - first person declarative
   nonRestorativeSleep: z.boolean(),
   // New rating scales
-  sleepinessRating: z.number().min(1).max(10).nullable(), // ability to fall asleep during the day
   tirednessRating: z.number().min(1).max(10).nullable(), // mild sleepiness, headache, heavy eyes
   fatigueRating: z.number().min(1).max(10).nullable(), // flu-like symptoms, poor motivation, aches
 });

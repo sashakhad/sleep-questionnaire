@@ -62,7 +62,6 @@ function createBaseQuestionnaireData(
       painSeverity: null,
       jointMusclePain: false,
       nonRestorativeSleep: false,
-      sleepinessRating: null,
       tirednessRating: null,
       fatigueRating: null,
     },
@@ -384,20 +383,6 @@ describe('calculateEDSScore', () => {
     expect(result.score).toBe(6);
     expect(result.severity).toBe('moderate');
   });
-
-  it('should recognize difficulty staying awake from sleepiness rating', () => {
-    const data = createBaseQuestionnaireData({
-      daytime: {
-        fallAsleepDuring: [],
-        sleepinessInterferes: false,
-        sleepinessRating: 7,
-      },
-    });
-
-    const result = calculateEDSScore(data);
-
-    expect(result.hasDifficultyStayingAwake).toBe(true);
-  });
 });
 
 // =============================================================================
@@ -635,7 +620,6 @@ describe('diagnoseSleepApnea', () => {
       },
       daytime: {
         tirednessRating: 2, // Low (not > 3)
-        sleepinessRating: 2,
         fatigueRating: 2,
         nonRestorativeSleep: false,
       },
