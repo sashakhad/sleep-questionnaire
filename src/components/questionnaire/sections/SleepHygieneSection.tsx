@@ -96,6 +96,21 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
         )}
       />
 
+      {/* Other supplements */}
+      <FormField
+        control={form.control}
+        name="sleepHygiene.supplementsOther"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Other supplements or OTC medications for sleep</FormLabel>
+            <FormControl>
+              <Input placeholder="Enter any other supplements..." {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       {/* Prescription medications */}
       <FormField
         control={form.control}
@@ -129,6 +144,21 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
                 </FormItem>
               ))}
             </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Other prescription medications */}
+      <FormField
+        control={form.control}
+        name="sleepHygiene.prescriptionMedsOther"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Other prescription sleep medications</FormLabel>
+            <FormControl>
+              <Input placeholder="Enter any other prescriptions..." {...field} />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}

@@ -135,7 +135,9 @@ function createBaseQuestionnaireData(
     },
     sleepHygiene: {
       supplements: [],
+      supplementsOther: '',
       prescriptionMeds: [],
+      prescriptionMedsOther: '',
       stimulants: '',
       stimulantTime: '',
       smokesNicotine: false,

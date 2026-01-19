@@ -110,7 +110,9 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
   },
   sleepHygiene: {
     supplements: ['melatonin'],
+    supplementsOther: '',
     prescriptionMeds: [],
+    prescriptionMedsOther: '',
     stimulants: '',
     stimulantTime: '',
     smokesNicotine: false,
@@ -313,7 +315,9 @@ export function QuestionnaireForm() {
       },
       sleepHygiene: {
         supplements: [],
+        supplementsOther: '',
         prescriptionMeds: [],
+        prescriptionMedsOther: '',
         stimulants: '',
         stimulantTime: '',
         smokesNicotine: false,

@@ -129,7 +129,9 @@ export interface QuestionnaireData {
   // Section 8-15: Sleep hygiene and lifestyle
   sleepHygiene: {
     supplements: string[];
+    supplementsOther: string;
     prescriptionMeds: string[];
+    prescriptionMedsOther: string;
     stimulants: string;
     stimulantTime: string;
     smokesNicotine: boolean;
