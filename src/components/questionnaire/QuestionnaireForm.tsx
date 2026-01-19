@@ -175,7 +175,8 @@ import { ReportSection } from './sections/ReportSection';
 
 const sections: QuestionnaireSection[] = [
   'intro',
-  'demographics', // Moved to after intro
+  'demographics',
+  'sleep-disorder-diagnoses', // Moved to beginning per round 2 feedback
   'daytime',
   'scheduled-sleep',
   'unscheduled-sleep',
@@ -188,7 +189,6 @@ const sections: QuestionnaireSection[] = [
   'bedroom',
   'lifestyle',
   'mental-health',
-  'sleep-disorder-diagnoses', // New section at end for OSA/RLS diagnoses
   'report',
 ];
 
