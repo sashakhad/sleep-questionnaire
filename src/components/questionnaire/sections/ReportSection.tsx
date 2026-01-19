@@ -224,6 +224,16 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
       parseInt(data.lifestyle.lastCaffeineTime.split(':')[0] ?? '0') >= 14);
   const hasSevereTiredness = (data.daytime.sleepinessSeverity ?? 0) > 8;
 
+  // Safety warning flags
+  const hasParasomniaSafetyRisk =
+    data.parasomnia.hasInjuredOrLeftHome ||
+    (data.parasomnia.nightBehaviors.includes('walk') ||
+      data.parasomnia.nightBehaviors.includes('eating'));
+  const hasMedicationAlcoholRisk =
+    (data.sleepHygiene.prescriptionMeds.length > 0 && data.lifestyle.alcoholPerWeek > 7) ||
+    data.lifestyle.caffeinePerDay > 4 ||
+    data.lifestyle.alcoholPerWeek > 14;
+
   // Insufficient Sleep Syndrome detection
   // Criteria: < 7 hours sleep + daytime sleepiness/tiredness + not explained by other disorders
   // IMPORTANT: Maintenance insomnia (high WASO) takes precedence over insufficient sleep
@@ -766,6 +776,68 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Safety Warnings */}
+      {(hasEDS || hasParasomniaSafetyRisk || hasMedicationAlcoholRisk) && (
+        <Card className='shadow-sleep overflow-hidden border-0 border-l-4 border-l-red-500'>
+          <CardHeader className='bg-red-50'>
+            <CardTitle className='flex items-center space-x-2 text-red-700'>
+              <AlertCircle className='h-5 w-5' />
+              <span>Important Safety Warnings</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='pt-6'>
+            <div className='space-y-4'>
+              {/* Daytime Sleepiness Warning */}
+              {hasEDS && edsResult.severity !== 'mild' && (
+                <Alert className='alert-danger'>
+                  <AlertCircle className='h-4 w-4 text-red-600' />
+                  <AlertDescription className='text-red-900'>
+                    <strong>Daytime Sleepiness Warning</strong>
+                    <br />
+                    Your daytime sleepiness symptoms are significant and we suggest that you exercise
+                    significant caution that might include avoiding driving, biking or other high
+                    risk activities until you are treated. More specific recommendations are on our
+                    website.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Parasomnia Warning */}
+              {hasParasomniaSafetyRisk && (
+                <Alert className='alert-danger'>
+                  <AlertCircle className='h-4 w-4 text-red-600' />
+                  <AlertDescription className='text-red-900'>
+                    <strong>Parasomnia Warning</strong>
+                    <br />
+                    Your parasomnias (sleepwalking, sleep eating, or night terrors) place you at
+                    significant risk of injury. We strongly recommend that someone in your home
+                    monitor your behavior at night and only wake you if you try to leave your home
+                    or are at risk of other injury. Please see more information about safety
+                    precautions on our website.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Medication/Alcohol Warning */}
+              {hasMedicationAlcoholRisk && (
+                <Alert className='alert-warning'>
+                  <AlertCircle className='h-4 w-4 text-amber-600' />
+                  <AlertDescription className='text-amber-900'>
+                    <strong>Medication/Substance Warning</strong>
+                    <br />
+                    Your use of sedating medications, caffeine, and/or alcohol is significant and can
+                    lead to health risks and injury. We provide additional information on our
+                    website, but you should consult with your prescribing provider or other health
+                    professional before making changes as there can be side effects when you
+                    discontinue use.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* When to Seek Help */}
       <Card className='shadow-sleep overflow-hidden border-0'>
