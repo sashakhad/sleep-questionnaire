@@ -61,9 +61,9 @@ export function BreathingDisordersSection({ form }: BreathingDisordersSectionPro
         <Alert className='alert-warning'>
           <AlertCircle className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
-            Based on your responses, we recommend that you discuss treatment options with your sleep
-            specialist or primary care doctor. Sleep breathing disorders can significantly impact
-            your health.
+            Based on your responses, we will provide important information in the report which will
+            include discussion of treatment options with your sleep specialist or primary care
+            doctor. Sleep breathing disorders can significantly impact your health.
           </AlertDescription>
         </Alert>
       )}
