@@ -4,6 +4,7 @@ import { NumberField } from '../form-fields/NumberField';
 import { CheckboxField } from '../form-fields/CheckboxField';
 import { SelectField } from '../form-fields/SelectField';
 import { TimeField } from '../form-fields/TimeField';
+import { YesNoRadioField } from '../form-fields/YesNoRadioField';
 import {
   FormField,
   FormItem,
@@ -77,7 +78,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
       />
 
       {/* Lights out varies */}
-      <CheckboxField
+      <YesNoRadioField
         control={form.control}
         name='scheduledSleep.lightsOutVaries'
         label='Does your lights out time vary more than 2 hours?'

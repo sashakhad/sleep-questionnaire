@@ -286,11 +286,13 @@ export function QuestionnaireForm() {
         movementRelieves: false,
         daytimeDiscomfort: false,
         legCramps: false,
+        legCrampsPerWeek: null,
       },
       parasomnia: {
         nightBehaviors: [],
         remembersEvents: false,
         actsOutDreams: false,
+        hasInjuredOrLeftHome: false,
         bedwetting: false,
         diagnosedParasomnia: false,
         parasomniaType: '',
@@ -615,7 +617,19 @@ export function QuestionnaireForm() {
           </CardHeader>
           <CardContent className='px-6 py-8 md:px-8'>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+              <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
+                console.error('Form validation errors:', errors);
+                // Find first error and show alert
+                const firstError = Object.entries(errors)[0];
+                if (firstError) {
+                  const [section, sectionErrors] = firstError;
+                  const fieldErrors = Object.entries(sectionErrors as Record<string, unknown>);
+                  if (fieldErrors.length > 0) {
+                    const [field, error] = fieldErrors[0];
+                    alert(`Validation error in ${section}.${field}: ${(error as { message?: string })?.message || 'Invalid value'}`);
+                  }
+                }
+              })} className='space-y-8'>
                 {renderSection()}
 
                 {/* PDF Download Button - Only show on report section */}
