@@ -215,18 +215,8 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
             <br />
             It&apos;s likely that your anxiety related to sleep is interfering with your ability to
             surrender to sleep at night. This creates a vicious cycle where worry about sleep
-            prevents sleep, which increases worry. Consider these strategies:
-            <ul className='mt-2 list-inside list-disc space-y-1'>
-              <li>
-                Practice relaxation techniques before bed (deep breathing, progressive muscle
-                relaxation)
-              </li>
-              <li>
-                Keep a worry journal - write down concerns before bed to &quot;park&quot; them
-              </li>
-              <li>Limit time in bed when not sleeping (get up after 20 minutes if awake)</li>
-              <li>Consider Cognitive Behavioral Therapy for Insomnia (CBT-I)</li>
-            </ul>
+            prevents sleep, which increases worry. In your personalized report we will provide links
+            to our website for information on treatment options.
           </AlertDescription>
         </Alert>
       )}
@@ -240,8 +230,8 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
             <br />
             Your sleep difficulties are significantly impacting your daily functioning. This level
             of impairment suggests moderate to severe insomnia that warrants professional
-            evaluation. We strongly recommend consulting with a sleep specialist or mental health
-            professional who can provide targeted treatment.
+            evaluation. In your personalized report we will provide links to our website for
+            information on treatment options.
           </AlertDescription>
         </Alert>
       )}
