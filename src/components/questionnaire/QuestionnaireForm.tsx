@@ -139,6 +139,8 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     currentlyReceivingTreatment: false,
   },
   sleepDisorderDiagnoses: {
+    diagnosedDisorders: [],
+    otherDiagnosisDescription: '',
     diagnosedOSA: false,
     osaSeverity: null,
     osaTreated: false,
@@ -340,6 +342,8 @@ export function QuestionnaireForm() {
         currentlyReceivingTreatment: false,
       },
       sleepDisorderDiagnoses: {
+        diagnosedDisorders: [],
+        otherDiagnosisDescription: '',
         diagnosedOSA: false,
         osaSeverity: null,
         osaTreated: false,

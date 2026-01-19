@@ -164,6 +164,8 @@ function createBaseQuestionnaireData(
       currentlyReceivingTreatment: false,
     },
     sleepDisorderDiagnoses: {
+      diagnosedDisorders: [],
+      otherDiagnosisDescription: '',
       diagnosedOSA: false,
       osaSeverity: null,
       osaTreated: false,

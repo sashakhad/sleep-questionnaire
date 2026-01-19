@@ -165,13 +165,16 @@ export interface QuestionnaireData {
 
   // Sleep Disorder Diagnoses (moved to end)
   sleepDisorderDiagnoses: {
-    // Sleep Apnea
+    // General diagnoses checklist
+    diagnosedDisorders: string[]; // Multi-select of diagnosed disorders
+    otherDiagnosisDescription: string; // Other write-in field
+    // Sleep Apnea (detailed follow-up)
     diagnosedOSA: boolean;
     osaSeverity: 'mild' | 'moderate' | 'severe' | null;
     osaTreated: boolean;
     osaTreatmentType: string[]; // CPAP, dental device, other
     osaTreatmentEffective: boolean | null; // Is treatment effective?
-    // RLS
+    // RLS (detailed follow-up)
     diagnosedRLS: boolean;
     rlsTreated: boolean;
     rlsTreatment: string[];

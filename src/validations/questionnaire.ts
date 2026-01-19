@@ -171,13 +171,16 @@ export const demographicsSchema = z.object({
 
 // Sleep Disorder Diagnoses (moved to end section)
 export const sleepDisorderDiagnosesSchema = z.object({
-  // Sleep Apnea
+  // General diagnoses checklist
+  diagnosedDisorders: z.array(z.string()), // Multi-select of diagnosed disorders
+  otherDiagnosisDescription: z.string(), // Other write-in field
+  // Sleep Apnea (detailed follow-up)
   diagnosedOSA: z.boolean(),
   osaSeverity: z.enum(['mild', 'moderate', 'severe']).nullable(),
   osaTreated: z.boolean(),
   osaTreatmentType: z.array(z.string()), // CPAP, dental device, other
   osaTreatmentEffective: z.boolean().nullable(), // Is treatment effective?
-  // RLS
+  // RLS (detailed follow-up)
   diagnosedRLS: z.boolean(),
   rlsTreated: z.boolean(),
   rlsTreatment: z.array(z.string()),

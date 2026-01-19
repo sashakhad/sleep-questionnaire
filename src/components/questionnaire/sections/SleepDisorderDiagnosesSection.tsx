@@ -12,12 +12,27 @@ import {
   FormDescription,
 } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Stethoscope, Info } from 'lucide-react';
 
 interface SleepDisorderDiagnosesSectionProps {
   form: UseFormReturn<QuestionnaireFormData>;
 }
+
+const diagnosedDisorderOptions = [
+  { value: 'sleep_apnea', label: 'Sleep Apnea' },
+  { value: 'narcolepsy', label: 'Narcolepsy' },
+  { value: 'insomnia', label: 'Insomnia' },
+  { value: 'hypersomnia', label: 'Hypersomnia' },
+  { value: 'nightmare_disorder', label: 'Nightmare Disorder' },
+  { value: 'sleep_eating', label: 'Sleep Eating Disorder' },
+  { value: 'sleepwalking', label: 'Sleepwalking' },
+  { value: 'circadian_rhythm', label: 'Circadian Rhythm Disorder' },
+  { value: 'rls', label: 'Restless Leg Syndrome' },
+  { value: 'bruxism', label: 'Teeth grinding (Bruxism)' },
+  { value: 'psychiatric', label: 'A Psychiatric disorder' },
+];
 
 const osaTreatmentOptions = [
   { value: 'cpap', label: 'CPAP' },
@@ -33,12 +48,17 @@ const rlsTreatmentOptions = [
 ];
 
 export function SleepDisorderDiagnosesSection({ form }: SleepDisorderDiagnosesSectionProps) {
+  const diagnosedDisorders = form.watch('sleepDisorderDiagnoses.diagnosedDisorders') || [];
   const diagnosedOSA = form.watch('sleepDisorderDiagnoses.diagnosedOSA');
   const osaTreated = form.watch('sleepDisorderDiagnoses.osaTreated');
   const osaTreatmentEffective = form.watch('sleepDisorderDiagnoses.osaTreatmentEffective');
   const diagnosedRLS = form.watch('sleepDisorderDiagnoses.diagnosedRLS');
   const rlsTreated = form.watch('sleepDisorderDiagnoses.rlsTreated');
   const rlsTreatmentEffective = form.watch('sleepDisorderDiagnoses.rlsTreatmentEffective');
+
+  // Show detailed sections if they selected sleep apnea or RLS from the list
+  const hasSelectedSleepApnea = diagnosedDisorders.includes('sleep_apnea') || diagnosedOSA;
+  const hasSelectedRLS = diagnosedDisorders.includes('rls') || diagnosedRLS;
 
   return (
     <div className='space-y-6'>
@@ -51,6 +71,59 @@ export function SleepDisorderDiagnosesSection({ form }: SleepDisorderDiagnosesSe
           helps us provide more accurate recommendations and understand your sleep health history.
         </AlertDescription>
       </Alert>
+
+      {/* General diagnosed disorders checklist */}
+      <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
+        <FormField
+          control={form.control}
+          name='sleepDisorderDiagnoses.diagnosedDisorders'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className='text-base'>
+                Have you been diagnosed with any of the following? (check all that apply)
+              </FormLabel>
+              <div className='mt-2 grid grid-cols-1 gap-2 md:grid-cols-2'>
+                {diagnosedDisorderOptions.map(option => (
+                  <FormItem
+                    key={option.value}
+                    className='flex flex-row items-start space-y-0 space-x-3'
+                  >
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value?.includes(option.value)}
+                        onCheckedChange={checked => {
+                          return checked
+                            ? field.onChange([...(field.value || []), option.value])
+                            : field.onChange(
+                                field.value?.filter((value: string) => value !== option.value)
+                              );
+                        }}
+                      />
+                    </FormControl>
+                    <FormLabel className='text-sm font-normal'>{option.label}</FormLabel>
+                  </FormItem>
+                ))}
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Other diagnosis description */}
+        <FormField
+          control={form.control}
+          name='sleepDisorderDiagnoses.otherDiagnosisDescription'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Other diagnosis (please describe)</FormLabel>
+              <FormControl>
+                <Input placeholder='Enter any other diagnoses...' {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
 
       {/* Sleep Apnea Section */}
       <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
