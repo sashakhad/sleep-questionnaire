@@ -26,7 +26,7 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
 
   return (
     <div className='space-y-6'>
-      <div className='text-lg font-medium'>Sleep Preferences and Schedule</div>
+      <div className='text-lg font-medium'>Sleep Schedule Preferences</div>
 
       <Alert className='alert-info'>
         <Clock className='text-primary h-4 w-4' />
@@ -145,11 +145,12 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
           <AlertDescription className='text-amber-900'>
             <strong>Night Owl Chronotype</strong>
             <br />
-            You have a late chronotype preference. If you&apos;re experiencing difficulty waking in
-            the morning, daytime tiredness when your work/school schedule requires early wake times,
-            or difficulty falling asleep, you may have symptoms of Delayed Sleep Phase Syndrome.
+            You have a late chronotype preference. Difficulty waking in the morning, daytime
+            tiredness and difficulty falling asleep are symptoms of Delayed Sleep Phase Syndrome.
             This is particularly common between ages 12-25 but can affect all ages. Consider
-            consulting with a sleep specialist if these issues impact your daily functioning.
+            consulting with a sleep specialist if these issues impact your daily functioning. More
+            details will be provided in the report with links to education and recommendations on
+            our website.
           </AlertDescription>
         </Alert>
       )}
@@ -161,11 +162,10 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
           <AlertDescription>
             <strong>Morning Person Chronotype</strong>
             <br />
-            You have an early chronotype preference. If you&apos;re waking earlier than desired and
-            experiencing evening sleepiness that interferes with activities, you may have symptoms
-            of Advanced Sleep Phase Syndrome. This becomes increasingly common after age 70. If
-            you&apos;re struggling with your current sleep schedule, consider consulting with a
-            behavioral sleep specialist.
+            You have an early chronotype preference. Waking earlier than desired and experiencing
+            evening sleepiness that interferes with activities are symptoms of Advanced Sleep Phase
+            Syndrome. These may increase after the age of 55. More details will be provided in the
+            report with links to education and recommendations on our website.
           </AlertDescription>
         </Alert>
       )}
