@@ -154,8 +154,9 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
             <strong>High Caffeine Intake</strong>
             <br />
             You&apos;re consuming more than 4 caffeinated beverages per day. High caffeine intake
-            can lead to increased anxiety, disrupted sleep, and dependency. Consider gradually
-            reducing your intake, especially in the afternoon and evening.
+            can lead to increased anxiety, disrupted sleep, and dependency. In your personalized
+            report we will provide links to our website for information on managing caffeine
+            consumption.
           </AlertDescription>
         </Alert>
       )}
@@ -182,8 +183,10 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
             <br />
             You&apos;re consuming more than 14 alcoholic drinks per week. While alcohol may
             initially help you fall asleep, it significantly disrupts sleep architecture, reducing
-            REM sleep and causing frequent awakenings. Consider reducing alcohol intake, especially
-            within 3 hours of bedtime.
+            REM sleep and causing frequent awakenings. Recent evidence suggests that alcohol
+            consumption can contribute to cancer or other significant health complications. In your
+            personalized report we will provide links to our website for information on managing
+            alcohol consumption.
           </AlertDescription>
         </Alert>
       )}
@@ -207,8 +210,8 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
             <strong>No Regular Exercise</strong>
             <br />
             Regular exercise is one of the best ways to improve sleep quality. Even moderate
-            exercise like a 30-minute walk can significantly improve sleep. Try to incorporate some
-            physical activity into your daily routine, preferably in the morning or afternoon.
+            exercise like a 30-minute walk can significantly improve sleep. In your personalized
+            report we will provide links to our website for information on exercise and sleep.
           </AlertDescription>
         </Alert>
       )}
