@@ -457,9 +457,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-red-500' />
                 <div>
-                  <h4 className='font-semibold'>Insomnia ({insomniaSeverity})</h4>
+                  <h4 className='font-semibold'>Symptoms of Insomnia Disorder ({insomniaSeverity})</h4>
                   <p className='text-muted-foreground text-sm'>
-                    Difficulty falling asleep and/or staying asleep with daytime impairment
+                    Difficulty falling asleep and/or staying asleep with daytime impairment. See our
+                    website for more information and guidance.
                   </p>
                 </div>
               </div>
@@ -504,9 +505,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-red-500' />
                 <div>
-                  <h4 className='font-semibold'>Possible Sleep Apnea</h4>
+                  <h4 className='font-semibold'>Symptoms of Sleep Apnea Disorder</h4>
                   <p className='text-muted-foreground text-sm'>
-                    Symptoms suggest sleep-disordered breathing requiring medical evaluation
+                    Your responses suggest sleep-disordered breathing requiring medical evaluation.
+                    See our website for more information and guidance.
                   </p>
                 </div>
               </div>
@@ -517,13 +519,13 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                 <XCircle className='mt-0.5 h-5 w-5 text-red-600' />
                 <div>
                   <h4 className='font-semibold text-red-700'>
-                    COMISA (Comorbid Insomnia and Sleep Apnea)
+                    Symptoms of COMISA (Comorbid Insomnia and Sleep Apnea)
                   </h4>
                   <p className='text-muted-foreground text-sm'>
-                    You show signs of both insomnia and sleep apnea occurring together. COMISA is a
-                    complex condition that affects approximately 30-50% of people with either
-                    disorder. Treatment requires addressing both conditions simultaneously for best
-                    results.
+                    You show symptoms of both insomnia and sleep apnea occurring together. COMISA is
+                    a complex condition that affects approximately 30-50% of people with either
+                    disorder. See our website for more information and guidance on treatment
+                    approaches.
                   </p>
                 </div>
               </div>
@@ -533,9 +535,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
-                  <h4 className='font-semibold'>Restless Legs Syndrome Symptoms</h4>
+                  <h4 className='font-semibold'>Symptoms of Restless Legs Syndrome</h4>
                   <p className='text-muted-foreground text-sm'>
-                    Leg discomfort affecting sleep onset
+                    Leg discomfort affecting sleep onset. See our website for more information and
+                    guidance.
                   </p>
                 </div>
               </div>
@@ -545,9 +548,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
-                  <h4 className='font-semibold'>Frequent Nightmares</h4>
+                  <h4 className='font-semibold'>Symptoms of Nightmare Disorder</h4>
                   <p className='text-muted-foreground text-sm'>
-                    Disturbing dreams affecting sleep quality
+                    Disturbing dreams affecting sleep quality. See our website for more information
+                    and guidance.
                   </p>
                 </div>
               </div>
@@ -557,9 +561,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='flex items-start space-x-3'>
                 <Info className='text-primary mt-0.5 h-5 w-5' />
                 <div>
-                  <h4 className='font-semibold'>Delayed Sleep Phase</h4>
+                  <h4 className='font-semibold'>Symptoms of Delayed Sleep Phase Disorder</h4>
                   <p className='text-muted-foreground text-sm'>
-                    Natural tendency to sleep and wake later than conventional times
+                    Natural tendency to sleep and wake later than conventional times. See our website
+                    for more information and guidance.
                   </p>
                 </div>
               </div>
@@ -581,11 +586,12 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
-                  <h4 className='font-semibold'>Insufficient Sleep Syndrome</h4>
+                  <h4 className='font-semibold'>Symptoms of Insufficient Sleep Syndrome</h4>
                   <p className='text-muted-foreground text-sm'>
                     Your average sleep time of {avgWeeklySleep.toFixed(1)} hours is below the
                     recommended 7+ hours. Combined with your daytime sleepiness, this suggests you
-                    are not getting enough sleep to meet your body&apos;s needs.
+                    are not getting enough sleep to meet your body&apos;s needs. See our website for
+                    more information and guidance.
                   </p>
                 </div>
               </div>
@@ -596,13 +602,13 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
                   <h4 className='font-semibold'>
-                    Possible Chronic Fatigue / Fibromyalgia Symptoms
+                    Symptoms of Chronic Fatigue / Fibromyalgia
                   </h4>
                   <p className='text-muted-foreground text-sm'>
                     You report non-restorative sleep, muscle/joint pain, and daytime tiredness that
                     interferes with activities. These symptoms may be associated with fibromyalgia,
                     chronic fatigue syndrome, post-viral illness (e.g., long COVID), or Lyme
-                    disease.
+                    disease. See our website for more information and guidance.
                   </p>
                 </div>
               </div>
@@ -657,165 +663,104 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
           <div className='space-y-4'>
             {hasInsomnia && (
               <div>
-                <h4 className='mb-2 font-semibold'>For Your Insomnia:</h4>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Consider Cognitive Behavioral Therapy for Insomnia (CBT-I)</li>
-                  <li>Maintain consistent sleep and wake times, even on weekends</li>
-                  <li>Limit time in bed to actual sleep time (sleep restriction)</li>
-                  <li>Avoid screens 1-2 hours before bedtime</li>
-                  {data.mentalHealth.anxietyInBed && (
-                    <li>
-                      Practice relaxation techniques: deep breathing, progressive muscle relaxation
-                    </li>
-                  )}
-                </ul>
+                <h4 className='mb-2 font-semibold'>For Your Insomnia Symptoms:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Based on your responses, we recommend exploring treatment options for insomnia.
+                  Visit our website for detailed information on evidence-based treatments including
+                  Cognitive Behavioral Therapy for Insomnia (CBT-I) and other strategies.
+                </p>
               </div>
             )}
 
             {hasOSA && !hasCOMISA && (
               <div>
                 <h4 className='mb-2 font-semibold text-red-600'>
-                  ⚠️ Urgent: Sleep Apnea Evaluation
+                  ⚠️ Important: Sleep Apnea Evaluation Recommended
                 </h4>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Schedule a sleep study with a sleep specialist immediately</li>
-                  <li>Discuss CPAP therapy or other treatment options</li>
-                  <li>If overweight, weight loss can significantly improve symptoms</li>
-                  <li>Avoid alcohol and sedatives which worsen apnea</li>
-                  <li>Sleep on your side rather than your back</li>
-                </ul>
+                <p className='text-foreground/80 text-sm'>
+                  Based on your responses, we recommend evaluation for sleep apnea. This is an
+                  important health condition that warrants attention. Visit our website for detailed
+                  information on sleep studies, treatment options, and next steps.
+                </p>
               </div>
             )}
 
             {hasCOMISA && (
               <div>
-                <h4 className='mb-2 font-semibold text-red-600'>⚠️ Urgent: COMISA Treatment</h4>
-                <p className='text-foreground/80 mb-2 text-sm'>
-                  COMISA (Comorbid Insomnia and Sleep Apnea) requires coordinated treatment of both
-                  conditions. Research shows that treating only one condition often leaves patients
-                  with persistent symptoms.
+                <h4 className='mb-2 font-semibold text-red-600'>
+                  ⚠️ Important: COMISA Evaluation Recommended
+                </h4>
+                <p className='text-foreground/80 text-sm'>
+                  Your symptoms suggest COMISA (Comorbid Insomnia and Sleep Apnea), which requires
+                  coordinated treatment of both conditions. Visit our website for detailed
+                  information on comprehensive evaluation and treatment approaches.
                 </p>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Schedule a comprehensive sleep evaluation with a sleep specialist</li>
-                  <li>A sleep study is essential to diagnose and assess sleep apnea severity</li>
-                  <li>Consider combined therapy: CBT-I plus CPAP treatment</li>
-                  <li>
-                    Work with your sleep specialist to optimize CPAP settings and insomnia treatment
-                  </li>
-                  <li>Avoid sedative sleep medications which can worsen sleep apnea</li>
-                  <li>Weight management can improve both conditions</li>
-                  <li>Maintain consistent sleep schedules even while adjusting to CPAP</li>
-                </ul>
               </div>
             )}
 
             {hasRLS && (
               <div>
-                <h4 className='mb-2 font-semibold'>For Restless Legs Syndrome:</h4>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Have your ferritin levels checked by your doctor</li>
-                  <li>Consider iron supplementation if levels are below 75mcg/ml</li>
-                  <li>Reduce caffeine and alcohol consumption</li>
-                  <li>Gentle stretching or yoga before bed</li>
-                  <li>Maintain regular exercise routine</li>
-                </ul>
+                <h4 className='mb-2 font-semibold'>For Restless Legs Syndrome Symptoms:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Based on your responses, we recommend exploring treatment options for restless
+                  legs syndrome. Visit our website for detailed information on iron levels, lifestyle
+                  changes, and other treatments.
+                </p>
               </div>
             )}
 
             {hasInsufficientSleep && (
               <div>
                 <h4 className='mb-2 font-semibold text-amber-600'>
-                  For Insufficient Sleep Syndrome:
+                  For Insufficient Sleep Symptoms:
                 </h4>
-                <p className='text-foreground/80 mb-2 text-sm'>
+                <p className='text-foreground/80 text-sm'>
                   You&apos;re averaging {avgWeeklySleep.toFixed(1)} hours of sleep per night. Most
-                  adults need 7-9 hours for optimal health and functioning.
+                  adults need 7-9 hours for optimal health and functioning. Visit our website for
+                  strategies to improve your sleep duration and schedule.
                 </p>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Prioritize sleep by setting an earlier bedtime</li>
-                  <li>
-                    Calculate your target bedtime by counting back 7-8 hours from your wake time
-                  </li>
-                  <li>Reduce evening activities and screen time to allow for earlier sleep</li>
-                  <li>Consider your schedule - can any morning obligations be moved later?</li>
-                  <li>Avoid using caffeine to compensate for lack of sleep</li>
-                  <li>
-                    Track your sleep for 2 weeks to identify patterns and improvement opportunities
-                  </li>
-                </ul>
               </div>
             )}
 
             {hasChronicFatigueSymptoms && (
               <div>
                 <h4 className='mb-2 font-semibold text-amber-600'>For Chronic Fatigue Symptoms:</h4>
-                <p className='text-foreground/80 mb-2 text-sm'>
+                <p className='text-foreground/80 text-sm'>
                   Your combination of non-restorative sleep, pain, and fatigue warrants medical
-                  evaluation.
+                  evaluation. Visit our website for detailed information on evaluation options and
+                  management strategies.
                 </p>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Discuss symptoms with your primary care doctor</li>
-                  <li>Consider referral to a rheumatologist for fibromyalgia evaluation</li>
-                  <li>Request testing for thyroid function, vitamin D, iron/ferritin levels</li>
-                  <li>Consider evaluation for post-viral syndromes (long COVID, Lyme disease)</li>
-                  <li>Gentle exercise and pacing strategies may help manage symptoms</li>
-                  <li>Cognitive behavioral therapy can help with fatigue management</li>
-                  <li>Improving sleep quality is often the first step in treatment</li>
-                </ul>
               </div>
             )}
 
             {hasPainAffectingSleep && (
               <div>
-                <h4 className='mb-2 font-semibold'>For Pain Management:</h4>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Discuss pain management options with your healthcare provider</li>
-                  <li>Consider physical therapy or stretching routines before bed</li>
-                  <li>Evaluate your sleep position and mattress for proper support</li>
-                  <li>Heat or cold therapy may help before bedtime</li>
-                  <li>Timing of pain medications may be optimized for sleep</li>
-                  <li>Relaxation techniques can help manage pain perception</li>
-                </ul>
+                <h4 className='mb-2 font-semibold'>For Pain Affecting Sleep:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Pain is affecting your sleep quality. Visit our website for information on pain
+                  management strategies and how to improve sleep when dealing with chronic pain.
+                </p>
               </div>
             )}
 
             {chronotype === 'delayed' && (
               <div>
-                <h4 className='mb-2 font-semibold'>For Delayed Sleep Phase:</h4>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Use bright light therapy in the morning (10,000 lux for 30 minutes)</li>
-                  <li>Avoid bright lights and screens in the evening</li>
-                  <li>Consider melatonin 3-5 hours before desired bedtime (consult doctor)</li>
-                  <li>Gradually shift bedtime earlier by 15-30 minutes every few days</li>
-                </ul>
+                <h4 className='mb-2 font-semibold'>For Delayed Sleep Phase Symptoms:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Your natural sleep timing is later than desired. Visit our website for information
+                  on light therapy, melatonin, and other strategies to shift your sleep schedule.
+                </p>
               </div>
             )}
 
             {/* Sleep Hygiene Recommendations */}
             <div>
               <h4 className='mb-2 font-semibold'>General Sleep Hygiene:</h4>
-              <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                {data.lifestyle.caffeinePerDay > 2 && (
-                  <li>Reduce caffeine to 1-2 cups per day, none after noon</li>
-                )}
-                {data.lifestyle.alcoholPerWeek > 7 && (
-                  <li>Limit alcohol, especially within 3 hours of bedtime</li>
-                )}
-                {data.bedroom.dark < 7 && (
-                  <li>Make your bedroom darker with blackout curtains or eye mask</li>
-                )}
-                {data.bedroom.quiet < 7 && (
-                  <li>Reduce noise with earplugs, white noise, or soundproofing</li>
-                )}
-                {data.bedroom.comfortable < 7 && (
-                  <li>Evaluate your mattress and pillows for comfort</li>
-                )}
-                {data.lifestyle.exerciseDaysPerWeek < 3 && (
-                  <li>Add regular exercise, preferably in the morning or afternoon</li>
-                )}
-                <li>Keep bedroom temperature cool (60-67°F / 15-19°C)</li>
-                <li>Use your bed only for sleep and intimacy</li>
-              </ul>
+              <p className='text-foreground/80 text-sm'>
+                Good sleep hygiene is foundational to healthy sleep. Visit our website for
+                comprehensive information on bedroom environment, lifestyle factors, and sleep
+                habits that can improve your sleep quality.
+              </p>
             </div>
           </div>
         </CardContent>
@@ -826,7 +771,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
         <CardHeader className='bg-gradient-sleep-header text-white'>
           <CardTitle className='flex items-center space-x-2 text-white'>
             <Brain className='h-5 w-5' />
-            <span>When to Seek Professional Help</span>
+            <span>Next Steps</span>
           </CardTitle>
         </CardHeader>
         <CardContent className='pt-6'>
@@ -835,10 +780,11 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <Alert className='alert-danger'>
                 <AlertCircle className='h-4 w-4 text-red-600' />
                 <AlertDescription className='text-red-900'>
-                  <strong>Immediate Medical Attention Recommended</strong>
+                  <strong>Sleep Apnea Evaluation Recommended</strong>
                   <br />
                   Your symptoms suggest sleep apnea, which can have serious health consequences.
-                  Please schedule an appointment with a sleep specialist as soon as possible.
+                  Visit our website for information on finding a sleep specialist and what to expect
+                  during evaluation.
                 </AlertDescription>
               </Alert>
             )}
@@ -847,10 +793,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <Alert className='alert-warning'>
                 <AlertCircle className='h-4 w-4 text-amber-600' />
                 <AlertDescription className='text-amber-900'>
-                  <strong>Professional Sleep Consultation Recommended</strong>
+                  <strong>Sleep Consultation Recommended</strong>
                   <br />
-                  Your insomnia is significantly impacting your daily life. Consider seeing a
-                  behavioral sleep medicine specialist for comprehensive treatment.
+                  Your insomnia symptoms are significantly impacting your daily life. Visit our
+                  website for information on finding a behavioral sleep medicine specialist.
                 </AlertDescription>
               </Alert>
             )}
@@ -861,8 +807,8 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                 <AlertDescription>
                   <strong>Mental Health Support Available</strong>
                   <br />
-                  Trauma-related nightmares benefit from specialized therapy. Consider seeking a
-                  mental health professional who specializes in trauma treatment.
+                  Trauma-related nightmares benefit from specialized therapy. Visit our website for
+                  resources on finding appropriate mental health support.
                 </AlertDescription>
               </Alert>
             )}
