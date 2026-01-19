@@ -121,6 +121,10 @@ function createBaseQuestionnaireData(
       hasNightmares: false,
       nightmaresPerWeek: null,
       associatedWithTrauma: false,
+      historyOfTBI: false,
+      takingMedicationsThatMayCause: false,
+      hasBehavioralHealthDiagnosis: false,
+      hasSleepAversion: false,
     },
     chronotype: {
       preference: 'flexible',

@@ -111,6 +111,11 @@ export interface QuestionnaireData {
     hasNightmares: boolean;
     nightmaresPerWeek: number | null;
     associatedWithTrauma: boolean;
+    // Contributing factors for nightmares
+    historyOfTBI: boolean;
+    takingMedicationsThatMayCause: boolean;
+    hasBehavioralHealthDiagnosis: boolean;
+    hasSleepAversion: boolean;
   };
 
   // Section 7: Chronotype preferences

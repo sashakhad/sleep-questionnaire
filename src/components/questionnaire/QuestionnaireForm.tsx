@@ -96,6 +96,10 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     hasNightmares: true,
     nightmaresPerWeek: 1,
     associatedWithTrauma: false,
+    historyOfTBI: false,
+    takingMedicationsThatMayCause: false,
+    hasBehavioralHealthDiagnosis: false,
+    hasSleepAversion: false,
   },
   chronotype: {
     preference: 'late',
@@ -300,6 +304,10 @@ export function QuestionnaireForm() {
         hasNightmares: false,
         nightmaresPerWeek: null,
         associatedWithTrauma: false,
+        historyOfTBI: false,
+        takingMedicationsThatMayCause: false,
+        hasBehavioralHealthDiagnosis: false,
+        hasSleepAversion: false,
       },
       chronotype: {
         preference: 'flexible',

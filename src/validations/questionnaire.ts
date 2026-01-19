@@ -105,6 +105,11 @@ export const nightmaresSchema = z.object({
   hasNightmares: z.boolean(),
   nightmaresPerWeek: z.number().min(0).max(7).nullable(),
   associatedWithTrauma: z.boolean(),
+  // Contributing factors for nightmares
+  historyOfTBI: z.boolean(),
+  takingMedicationsThatMayCause: z.boolean(),
+  hasBehavioralHealthDiagnosis: z.boolean(),
+  hasSleepAversion: z.boolean(),
 });
 
 // Section 7: Chronotype

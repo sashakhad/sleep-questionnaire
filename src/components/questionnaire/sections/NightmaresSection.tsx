@@ -127,6 +127,37 @@ export function NightmaresSection({ form }: NightmaresSectionProps) {
             name="nightmares.associatedWithTrauma"
             label="My nightmares are associated with exposure to trauma or a history of post traumatic stress disorder (PTSD)"
           />
+
+          {/* Additional nightmare questions */}
+          <div className="border-border bg-card/50 rounded-xl border p-5 space-y-4">
+            <h3 className="text-muted-foreground text-sm font-semibold tracking-wide uppercase">
+              Contributing Factors
+            </h3>
+
+            <CheckboxField
+              control={form.control}
+              name="nightmares.historyOfTBI"
+              label="I have a history of traumatic brain injury (TBI) or concussion"
+            />
+
+            <CheckboxField
+              control={form.control}
+              name="nightmares.takingMedicationsThatMayCause"
+              label="I take medications that may cause nightmares (e.g., blood pressure medications, antidepressants, sleep aids)"
+            />
+
+            <CheckboxField
+              control={form.control}
+              name="nightmares.hasBehavioralHealthDiagnosis"
+              label="I have been diagnosed with a behavioral health or mental health condition"
+            />
+
+            <CheckboxField
+              control={form.control}
+              name="nightmares.hasSleepAversion"
+              label="I avoid going to sleep because I am afraid of having nightmares"
+            />
+          </div>
         </>
       )}
 
