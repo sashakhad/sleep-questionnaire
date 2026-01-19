@@ -1,0 +1,217 @@
+Statement of Work (SOW)
+Project: Sleep Questionnaire Application
+Client: Danny Lewin
+Developer: Helvetica Lake (Sasha Khadivian)
+Date: September 21, 2025
+
+1. Project Overview
+Helvetica Lake will develop a web-based interactive questionnaire focused on sleep health and
+sleep disorders. The application will:
+●
+
+Provide patients with a guided, validated questionnaire.
+
+●
+
+Generate a narrative report with tailored guidance, educational links, and references to
+clinicians and publicly available resources.
+
+●
+
+Offer a freemium experience that only collects de-identified demographic data (year of
+birth, county/zip code, sex).
+
+●
+
+Output recommendations for either sleep health optimization or probable diagnoses
+(non-treatment) across a defined set of sleep disorders.
+
+2. Scope of Work
+Functionality
+●
+
+Interactive Questionnaire: Questions and branching logic informed by
+psychometrically validated surveys (per provided reference).
+
+●
+
+Report Generation: Narrative summary, PDF download option, and relevant outbound
+links.
+
+●
+
+Data Capture: Collection of responses and raw data (de-identified).
+
+●
+
+Data Access: Database implementation with simple retrieval (CSV download or
+equivalent).
+
+●
+
+Deployment: Standalone application deployed on Vercel.
+
+Included Features
+●
+
+Questionnaire logic and flow.
+
+●
+
+Database setup for response storage.
+
+●
+
+Basic retrieval method (CSV download or equivalent).
+
+●
+
+PDF report generation.
+
+●
+
+Three (3) 30-minute calls to discuss requirements, review progress, and confirm
+delivery.
+
+●
+
+Deployment to a live environment (Vercel link provided).
+
+Not Included (may be scoped separately at additional cost)
+●
+
+UI/UX design polish beyond current state (recommendation: external designer).
+
+●
+
+Custom domain purchase, DNS setup, or hosting outside of Vercel.
+
+●
+
+Ongoing hosting/database costs beyond the initial deployment.
+
+●
+
+Integration into an existing website.
+
+●
+
+Extensive project management or line-item accounting of tasks.
+
+3. Responsibilities
+Developer (Helvetica Lake):
+●
+
+Build and deploy the application.
+
+●
+
+Implement database and CSV retrieval.
+
+●
+
+Provide report generation and PDF export.
+
+●
+
+Conduct three review calls.
+
+Client:
+●
+
+Provide questionnaire content, validated wording, and logic.
+
+●
+
+Provide feedback in writing (preferred: annotated screenshots or redlines).
+
+●
+
+Ensure timely responses to feedback cycles.
+
+●
+
+Cover ongoing hosting/database costs after handoff (see Section 6).
+
+4. Timeline
+●
+
+Estimated start date: October 5, 2025 (may begin earlier).
+
+●
+
+Estimated completion: Early November 2025 (~4 weeks).
+
+5. Fees & Payment Terms
+●
+
+Total Project Fee: $10,000 – $20,000, depending on requested changes and scope.
+○
+
+~$10,000 covers implementation “as-is” with minor adjustments.
+
+○
+
+Additional changes, complexity, or polish will bring the project to
+$15,000–$20,000.
+
+●
+
+Non-Refundable Fee: $2,500 due immediately to secure the project.
+
+●
+
+Deposit: $5,000 due prior to development start.
+
+●
+
+Balance: Remaining balance due upon delivery.
+
+6. Hosting, Data, and Ongoing Costs
+●
+
+Application deployed via Vercel (developer-provided link).
+
+●
+
+Client is responsible for ongoing costs (e.g., Vercel hosting, database usage).
+
+●
+
+Costs under $200 (monthly) will be billed if handled by developer.
+
+●
+
+If engagement ends, client agrees to provide card details so services can be billed
+directly.
+
+7. Feedback & Revisions
+●
+
+Three 30-minute review calls included.
+
+●
+
+Feedback should be delivered via email with annotated screenshots or redlines.
+
+●
+
+Additional project management, meetings, or ambiguous requests may increase project
+cost at developer’s discretion.
+
+8. Acceptance
+By signing below, both parties agree to the scope, terms, and payment schedule outlined in this
+SOW.
+Developer
+Name: Sasha Khadivian
+Title: Software Engineer, Helvetica Lake
+Signature: ___________________
+Date: ___________________
+Client
+Name: ___________________
+Title: ___________________
+
+Signature: ___________________
+Date: ___________________
+
+
