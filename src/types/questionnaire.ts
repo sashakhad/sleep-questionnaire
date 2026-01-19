@@ -93,6 +93,7 @@ export interface QuestionnaireData {
     nightBehaviors: string[];
     remembersEvents: boolean;
     actsOutDreams: boolean;
+    hasInjuredOrLeftHome: boolean;
     bedwetting: boolean;
     diagnosedParasomnia: boolean;
     parasomniaType: string;

@@ -87,6 +87,7 @@ export const parasomniaSchema = z.object({
   nightBehaviors: z.array(z.string()),
   remembersEvents: z.boolean(),
   actsOutDreams: z.boolean(),
+  hasInjuredOrLeftHome: z.boolean(),
   bedwetting: z.boolean(),
   diagnosedParasomnia: z.boolean(),
   parasomniaType: z.string(),

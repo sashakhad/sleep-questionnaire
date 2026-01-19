@@ -13,7 +13,7 @@ interface ParasomniaSectionProps {
 
 const nightBehaviors = [
   { value: 'walk', label: 'Walk' },
-  { value: 'talk', label: 'Talk' },
+  { value: 'eating', label: 'Eating' },
   { value: 'confused', label: 'Appear confused' },
   { value: 'upset', label: 'Are very upset and cannot be calmed' },
 ];
@@ -89,6 +89,13 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
             name='parasomnia.actsOutDreams'
             label='I act out my dreams'
             description='This may indicate REM Behavioral Disorder'
+          />
+
+          <CheckboxField
+            control={form.control}
+            name='parasomnia.hasInjuredOrLeftHome'
+            label='I have injured myself or others, or I have left my home'
+            description='This is a serious safety concern that should be addressed immediately'
           />
         </>
       )}

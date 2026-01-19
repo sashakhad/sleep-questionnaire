@@ -83,6 +83,7 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     nightBehaviors: [],
     remembersEvents: false,
     actsOutDreams: false,
+    hasInjuredOrLeftHome: false,
     bedwetting: false,
     diagnosedParasomnia: false,
     parasomniaType: '',
