@@ -226,6 +226,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
 
   // Insufficient Sleep Syndrome detection
   // Criteria: < 7 hours sleep + daytime sleepiness/tiredness + not explained by other disorders
+  // IMPORTANT: Maintenance insomnia (high WASO) takes precedence over insufficient sleep
   const avgWeeklySleep = (metrics.scheduledTST * 5 + metrics.unscheduledTST * 2) / 7;
   const hasDaytimeSleepiness =
     data.daytime.sleepinessInterferes || hasEDS || data.daytime.fallAsleepDuring.length >= 3;
@@ -233,7 +234,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
     data.daytime.diagnosedNarcolepsy ||
     (data.daytime.weaknessWhenExcited.length > 0 && data.daytime.sleepParalysis);
   const hasInsufficientSleep =
-    avgWeeklySleep < 7 && hasDaytimeSleepiness && !hasNarcolepsy && !hasOSA;
+    avgWeeklySleep < 7 && hasDaytimeSleepiness && !hasNarcolepsy && !hasOSA && !hasInsomnia;
 
   // Chronic Fatigue / Fibromyalgia screening
   // Criteria: non-restorative sleep + muscle/joint pain + sleepiness interferes
