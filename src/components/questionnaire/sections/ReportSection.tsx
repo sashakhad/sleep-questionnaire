@@ -65,6 +65,9 @@ interface SleepMetrics {
   unscheduledWASO: number;
   midSleepScheduled: string;
   midSleepUnscheduled: string;
+  weeklyAvgTST: number; // Weighted weekly average (5x scheduled + 2x unscheduled) / 7
+  socialJetLag: number; // Difference in sleep duration between weekend and weekday (hours)
+  midSleepTimeChange: number; // Difference in mid-sleep time (hours)
 }
 
 // Helper to parse minute increment string to number
@@ -125,6 +128,23 @@ function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics {
   // Calculate mid-sleep time for unscheduled days
   const unscheduledMidSleep = unscheduledBedtime + unscheduledSOL + unscheduledTST / 2;
 
+  // Calculate weighted weekly average TST (5x workdays + 2x weekend days) / 7
+  const weeklyAvgTST = ((scheduledTST / 60) * 5 + (unscheduledTST / 60) * 2) / 7;
+
+  // Calculate Social Jet Lag (difference in sleep duration between weekend and weekday)
+  // Positive value means more sleep on weekends (catching up)
+  const socialJetLag = (unscheduledTST - scheduledTST) / 60; // in hours
+
+  // Calculate Mid-sleep Time Change (difference between unscheduled and scheduled mid-sleep)
+  // Need to handle crossing midnight properly
+  let midSleepDiff = unscheduledMidSleep - scheduledMidSleep;
+  if (midSleepDiff > 720) {
+    midSleepDiff -= 1440; // Adjust for crossing midnight
+  } else if (midSleepDiff < -720) {
+    midSleepDiff += 1440;
+  }
+  const midSleepTimeChange = midSleepDiff / 60; // in hours
+
   return {
     scheduledTST: scheduledTST / 60, // Convert to hours
     unscheduledTST: unscheduledTST / 60,
@@ -136,6 +156,9 @@ function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics {
     unscheduledWASO,
     midSleepScheduled: minutesToTime(scheduledMidSleep % 1440),
     midSleepUnscheduled: minutesToTime(unscheduledMidSleep % 1440),
+    weeklyAvgTST,
+    socialJetLag,
+    midSleepTimeChange,
   };
 }
 
@@ -427,21 +450,47 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
 
           <div className='bg-primary/5 mt-6 space-y-3 rounded-xl p-4'>
             <p className='text-foreground/80 text-sm'>
-              <strong className='text-foreground'>Sleep Pattern Analysis:</strong> You sleep an
-              average of{' '}
+              <strong className='text-foreground'>Weekly Average Sleep:</strong>{' '}
               <span className='text-primary font-semibold'>
-                {metrics.scheduledTST.toFixed(1)} hours
+                {metrics.weeklyAvgTST.toFixed(1)} hours
               </span>{' '}
-              on weekdays and{' '}
-              <span className='text-primary font-semibold'>
-                {metrics.unscheduledTST.toFixed(1)} hours
-              </span>{' '}
-              on weekends.
-              {Math.abs(metrics.scheduledTST - metrics.unscheduledTST) > 2 && (
+              (weighted: 5× workdays + 2× weekends)
+            </p>
+            <p className='text-foreground/80 text-sm'>
+              <strong className='text-foreground'>Social Jet Lag:</strong>{' '}
+              <span
+                className={cn(
+                  'font-semibold',
+                  Math.abs(metrics.socialJetLag) > 1.5 ? 'text-amber-600' : 'text-primary'
+                )}
+              >
+                {metrics.socialJetLag > 0 ? '+' : ''}
+                {metrics.socialJetLag.toFixed(1)} hours
+              </span>
+              {metrics.socialJetLag > 1.5 && (
                 <span className='text-amber-600'>
                   {' '}
-                  Your sleep varies significantly between weekdays and weekends, which may indicate
-                  social jet lag.
+                  — Catching up more than 1.5 hours on weekends suggests insufficient sleep during
+                  the week.
+                </span>
+              )}
+            </p>
+            <p className='text-foreground/80 text-sm'>
+              <strong className='text-foreground'>Mid-Sleep Time Change:</strong>{' '}
+              <span
+                className={cn(
+                  'font-semibold',
+                  Math.abs(metrics.midSleepTimeChange) > 1 ? 'text-amber-600' : 'text-primary'
+                )}
+              >
+                {metrics.midSleepTimeChange > 0 ? '+' : ''}
+                {metrics.midSleepTimeChange.toFixed(1)} hours
+              </span>
+              {metrics.midSleepTimeChange > 1 && (
+                <span className='text-amber-600'>
+                  {' '}
+                  — Sleeping later on weekends suggests catch-up sleep and a propensity for a later
+                  chronotype.
                 </span>
               )}
             </p>
