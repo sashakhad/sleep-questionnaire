@@ -195,9 +195,8 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
             <strong>Prescription Sleep Medications</strong>
             <br />
             Long-term use of sleep medications can lead to dependence and may mask underlying 
-            sleep disorders. If you&apos;ve been using sleep medications for more than a few weeks, 
-            consider discussing alternative treatments like Cognitive Behavioral Therapy for 
-            Insomnia (CBT-I) with your healthcare provider.
+            sleep disorders. Your sleep report will include links and next steps for healthy 
+            management of these medications.
           </AlertDescription>
         </Alert>
       )}
@@ -211,9 +210,8 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
             <strong>Multiple Sleep Aids Detected</strong>
             <br />
             You&apos;re using multiple sleep aids, which may indicate significant sleep difficulties. 
-            This combination approach can lead to interactions and side effects. We strongly 
-            recommend consulting with a sleep specialist to address the underlying causes of 
-            your sleep problems rather than relying on multiple medications.
+            This combination approach can lead to interactions and side effects. Your sleep report 
+            will include links and next steps for healthy management of these medications.
           </AlertDescription>
         </Alert>
       )}
