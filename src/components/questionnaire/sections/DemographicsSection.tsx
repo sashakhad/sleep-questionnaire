@@ -22,6 +22,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
   const weight = form.watch('demographics.weight');
   const height = form.watch('demographics.height');
   const yearOfBirth = form.watch('demographics.yearOfBirth');
+  const sex = form.watch('demographics.sex');
 
   // Calculate age from year of birth (only if it's a reasonable 4-digit year)
   const currentYear = new Date().getFullYear();
@@ -158,21 +159,20 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
       )}
 
       {/* Age-related sleep info */}
-      {age && age >= 65 && (
+      {age && age >= 55 && (
         <Alert>
           <User className='h-4 w-4' />
           <AlertDescription>
             <strong>Age-Related Sleep Changes</strong>
             <br />
-            Sleep patterns naturally change with age. After 65, it&apos;s common to experience:
+            Sleep naturally changes with age. After 55, it&apos;s common to experience:
             <ul className='mt-2 list-inside list-disc space-y-1'>
-              <li>Earlier bedtimes and wake times (advanced sleep phase)</li>
+              <li>Increasingly earlier bedtimes and wake times</li>
               <li>More frequent nighttime awakenings</li>
-              <li>Lighter sleep with less deep sleep</li>
-              <li>Increased daytime napping</li>
+              <li>Perceiving sleep as lighter and more disrupted</li>
             </ul>
-            These changes are normal, but if they significantly impact your quality of life,
-            treatments are available.
+            These changes are normal and you will receive personalized guidance in the sleep report
+            to improve your sleep health and quality of life.
           </AlertDescription>
         </Alert>
       )}
@@ -184,14 +184,29 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
           <AlertDescription>
             <strong>Sleep in Adolescents and Young Adults</strong>
             <br />
-            Your age group commonly experiences delayed sleep phase, preferring to stay up late and
-            wake up late. This biological tendency often conflicts with school or work schedules. If
-            you&apos;re struggling with early morning obligations, you may benefit from light
-            therapy and sleep schedule adjustments.
+            Prior to the age of 25 there is a biological tendency for a delayed sleep phase, a
+            preference to stay up late and wake up late. This may conflict with school or work
+            schedules. If you&apos;re struggling with early morning obligations, you can shift your
+            schedule. In your sleep report you will receive guidance on next steps to maintain a
+            healthy schedule that does not interfere with your daily activities and improves your
+            sleep health and quality of life.
           </AlertDescription>
         </Alert>
       )}
 
+      {/* Women >45 perimenopausal info */}
+      {age && age >= 45 && sex === 'female' && (
+        <Alert>
+          <User className='h-4 w-4' />
+          <AlertDescription>
+            <strong>Sleep and Hormonal Changes</strong>
+            <br />
+            Sleep disturbance in women in your age group is often related to pre- and perimenopausal
+            hormone-related changes. We will provide you with specific information and guidance
+            regarding these changes in your sleep report.
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }
