@@ -1,15 +1,7 @@
 import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { NumberField } from '../form-fields/NumberField';
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-  FormDescription,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { TimeField } from '../form-fields/TimeField';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Coffee, Wine, Activity, AlertCircle } from 'lucide-react';
 
@@ -57,23 +49,11 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
         />
 
         {caffeinePerDay >= 1 && (
-          <FormField
+          <TimeField
             control={form.control}
             name='lifestyle.lastCaffeineTime'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  What time do you have your final caffeinated food or beverage?
-                </FormLabel>
-                <FormControl>
-                  <Input type='time' {...field} className='max-w-xs' />
-                </FormControl>
-                <FormDescription>
-                  Caffeine can affect sleep for 6-8 hours after consumption
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+            label='What time do you have your final caffeinated food or beverage?'
+            description='Caffeine can affect sleep for 6-8 hours after consumption'
           />
         )}
       </div>
@@ -128,19 +108,11 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
               max={300}
             />
 
-            <FormField
+            <TimeField
               control={form.control}
               name='lifestyle.exerciseEndTime'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>What time does your exercise typically end?</FormLabel>
-                  <FormControl>
-                    <Input type='time' {...field} className='max-w-xs' />
-                  </FormControl>
-                  <FormDescription>Late evening exercise can interfere with sleep</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label='What time does your exercise typically end?'
+              description='Late evening exercise can interfere with sleep'
             />
           </>
         )}

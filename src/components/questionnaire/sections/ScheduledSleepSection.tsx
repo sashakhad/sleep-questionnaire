@@ -3,7 +3,7 @@ import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { NumberField } from '../form-fields/NumberField';
 import { CheckboxField } from '../form-fields/CheckboxField';
 import { SelectField } from '../form-fields/SelectField';
-import { Input } from '@/components/ui/input';
+import { TimeField } from '../form-fields/TimeField';
 import {
   FormField,
   FormItem,
@@ -70,18 +70,10 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
       </div>
 
       {/* Lights out time */}
-      <FormField
+      <TimeField
         control={form.control}
         name='scheduledSleep.lightsOutTime'
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>What time do you turn out the lights and try to fall asleep?</FormLabel>
-            <FormControl>
-              <Input type='time' {...field} className='max-w-xs' />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+        label='What time do you turn out the lights and try to fall asleep?'
       />
 
       {/* Lights out varies */}
@@ -207,34 +199,18 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
       />
 
       {/* Wake up time */}
-      <FormField
+      <TimeField
         control={form.control}
         name='scheduledSleep.wakeupTime'
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>What time do you wake up?</FormLabel>
-            <FormControl>
-              <Input type='time' {...field} className='max-w-xs' />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+        label='What time do you wake up?'
       />
 
       {/* Get out of bed time */}
-      <FormField
+      <TimeField
         control={form.control}
         name='scheduledSleep.getOutOfBedTime'
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>What time do you get out of bed?</FormLabel>
-            <FormControl>
-              <Input type='time' {...field} className='max-w-xs' />
-            </FormControl>
-            <FormDescription>This may be different from your wake up time</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
+        label='What time do you get out of bed?'
+        description='This may be different from your wake up time'
       />
 
       {/* Early wakeup days */}

@@ -3,13 +3,13 @@ import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { CheckboxField } from '../form-fields/CheckboxField';
 import { RadioGroupField } from '../form-fields/RadioGroupField';
 import { NumberField } from '../form-fields/NumberField';
+import { TimeField } from '../form-fields/TimeField';
 import {
   FormField,
   FormItem,
   FormLabel,
   FormControl,
   FormMessage,
-  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -121,21 +121,11 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
       />
 
       {/* Work/school schedule */}
-      <FormField
+      <TimeField
         control={form.control}
         name='chronotype.workSchoolTime'
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>
-              On scheduled/work/school days, what time do you have to be at work/school?
-            </FormLabel>
-            <FormControl>
-              <Input type='time' {...field} className='max-w-xs' />
-            </FormControl>
-            <FormDescription>Leave blank if your schedule varies significantly</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
+        label='On scheduled/work/school days, what time do you have to be at work/school?'
+        description='Leave blank if your schedule varies significantly'
       />
 
       {/* Delayed Sleep Phase Syndrome warning */}
