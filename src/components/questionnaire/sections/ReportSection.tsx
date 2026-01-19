@@ -230,7 +230,11 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
   // Check for long naps (>= 60 minutes based on new 10-minute increments)
   const napDurationNum = parseMinuteIncrement(data.daytime.plannedNaps.duration);
   const hasEDSFromNaps = data.daytime.plannedNaps.daysPerWeek >= 3 && napDurationNum >= 60;
-  const hasEDS = hasEDSFromActivities || hasEDSFromNaps;
+  const hasEDSSymptoms = hasEDSFromActivities || hasEDSFromNaps;
+  // Per feedback: EDS (excessive daytime sleepiness) should only be shown when TST >= 7 hours
+  // If TST < 7 hours, it's more likely Insufficient Sleep Syndrome
+  const avgWeeklySleepForEDS = (metrics.scheduledTST * 5 + metrics.unscheduledTST * 2) / 7;
+  const hasEDS = hasEDSSymptoms && avgWeeklySleepForEDS >= 7;
   const hasOSA =
     data.breathingDisorders.stopsBreathing ||
     (data.breathingDisorders.snores && data.breathingDisorders.wakesWithDryMouth);
@@ -260,9 +264,9 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
   // Insufficient Sleep Syndrome detection
   // Criteria: < 7 hours sleep + daytime sleepiness/tiredness + not explained by other disorders
   // IMPORTANT: Maintenance insomnia (high WASO) takes precedence over insufficient sleep
-  const avgWeeklySleep = (metrics.scheduledTST * 5 + metrics.unscheduledTST * 2) / 7;
+  const avgWeeklySleep = avgWeeklySleepForEDS; // Use same calculation
   const hasDaytimeSleepiness =
-    data.daytime.sleepinessInterferes || hasEDS || data.daytime.fallAsleepDuring.length >= 3;
+    data.daytime.sleepinessInterferes || hasEDSSymptoms || data.daytime.fallAsleepDuring.length >= 3;
   const hasNarcolepsy =
     data.daytime.diagnosedNarcolepsy ||
     (data.daytime.weaknessWhenExcited.length > 0 && data.daytime.sleepParalysis);
