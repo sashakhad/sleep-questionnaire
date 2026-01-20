@@ -2,6 +2,8 @@ import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { NumberField } from '../form-fields/NumberField';
 import { SelectField } from '../form-fields/SelectField';
+import { YearComboboxField } from '../form-fields/YearComboboxField';
+import { HeightField } from '../form-fields/HeightField';
 import {
   FormField,
   FormItem,
@@ -54,13 +56,13 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
       </Alert>
 
       {/* Year of Birth */}
-      <NumberField
+      <YearComboboxField
         control={form.control}
         name='demographics.yearOfBirth'
         label='What year were you born?'
-        placeholder='e.g., 1990'
-        min={1900}
-        max={new Date().getFullYear()}
+        placeholder='Select your birth year...'
+        minYear={1920}
+        maxYear={new Date().getFullYear()}
         description='Your birth year helps us understand age-related sleep patterns'
       />
 
@@ -85,21 +87,15 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
         <NumberField
           control={form.control}
           name='demographics.weight'
-          label='Weight'
-          placeholder='Pounds'
-          min={0}
-          max={500}
-          description='In pounds (lbs)'
+          label='Weight (lbs)'
+          placeholder='e.g., 150'
+          min={50}
+          max={600}
         />
 
-        <NumberField
+        <HeightField
           control={form.control}
           name='demographics.height'
-          label='Height'
-          placeholder='Inches'
-          min={0}
-          max={96}
-          description="In inches (e.g., 70 for 5'10)"
         />
       </div>
 
