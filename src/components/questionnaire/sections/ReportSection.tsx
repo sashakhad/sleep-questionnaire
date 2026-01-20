@@ -942,140 +942,16 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
         </CardContent>
       </Card>
 
-      {/* Resources and Links */}
+      {/* Resources */}
       <Card className='shadow-sleep overflow-hidden border-0'>
         <CardHeader className='bg-gradient-sleep-header text-white'>
           <CardTitle className='flex items-center space-x-2 text-white'>
             <Info className='h-5 w-5' />
-            <span>Resources &amp; Next Steps</span>
+            <span>Resources</span>
           </CardTitle>
         </CardHeader>
         <CardContent className='pt-6'>
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-            <div className='rounded-lg border p-4'>
-              <h4 className='mb-2 font-semibold'>Find a Sleep Specialist</h4>
-              <ul className='space-y-2 text-sm'>
-                <li>
-                  <a
-                    href='https://aasm.org/clinical-resources/patient-info/'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    AASM Sleep Centers →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>
-                    Find accredited sleep centers near you
-                  </p>
-                </li>
-                <li>
-                  <a
-                    href='https://www.absm.org/diplomates-directory/'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    ABSM Certified Specialists →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>
-                    Board-certified sleep medicine physicians
-                  </p>
-                </li>
-              </ul>
-            </div>
-
-            <div className='rounded-lg border p-4'>
-              <h4 className='mb-2 font-semibold'>Behavioral Sleep Medicine</h4>
-              <ul className='space-y-2 text-sm'>
-                <li>
-                  <a
-                    href='https://www.behavioralsleep.org/index.php/society-of-behavioral-sleep-medicine-providers'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    SBSM Provider Directory →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>
-                    CBT-I and behavioral sleep specialists
-                  </p>
-                </li>
-                <li>
-                  <a
-                    href='https://www.perelman.upenn.edu/cbt-i'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    CBT-I Therapist Directory →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>
-                    Cognitive behavioral therapy for insomnia
-                  </p>
-                </li>
-              </ul>
-            </div>
-
-            <div className='rounded-lg border p-4'>
-              <h4 className='mb-2 font-semibold'>Mental Health Resources</h4>
-              <ul className='space-y-2 text-sm'>
-                <li>
-                  <a
-                    href='https://locator.apa.org/'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    APA Psychologist Locator →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>Find mental health professionals</p>
-                </li>
-                <li>
-                  <a
-                    href='https://www.psychologytoday.com/us/therapists'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    Psychology Today Directory →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>
-                    Therapists specializing in sleep and anxiety
-                  </p>
-                </li>
-              </ul>
-            </div>
-
-            <div className='rounded-lg border p-4'>
-              <h4 className='mb-2 font-semibold'>Educational Resources</h4>
-              <ul className='space-y-2 text-sm'>
-                <li>
-                  <a
-                    href='https://sleepeducation.org/'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    Sleep Education (AASM) →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>Evidence-based sleep information</p>
-                </li>
-                <li>
-                  <a
-                    href='https://www.sleepfoundation.org/'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    National Sleep Foundation →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>Sleep health guides and tools</p>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className='border-primary/20 bg-primary/5 mt-6 rounded-xl border p-4'>
+          <div className='border-primary/20 bg-primary/5 rounded-xl border p-4'>
             <p className='text-foreground/90 text-sm'>
               <strong className='text-primary'>SomnaHealth Services:</strong> Our team offers
               personalized sleep consultations, CBT-I treatment, and ongoing support. Visit our

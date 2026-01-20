@@ -1,5 +1,5 @@
 import React from 'react';
-import { Document, Page, Text, View, StyleSheet, Link } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { generateDiagnosisReport } from '@/lib/diagnosis-algorithms';
 
@@ -142,11 +142,6 @@ const styles = StyleSheet.create({
     right: 30,
     fontSize: 9,
     color: '#9ca3af',
-  },
-  link: {
-    color: '#2563eb',
-    textDecoration: 'underline',
-    fontSize: 10,
   },
   resourceBox: {
     backgroundColor: '#f8fafc',
@@ -740,49 +735,16 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
 
         {/* Resources Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Resources &amp; Next Steps</Text>
+          <Text style={styles.sectionTitle}>Resources</Text>
 
           <View style={styles.resourceBox}>
-            <Text style={styles.resourceTitle}>Find a Sleep Specialist</Text>
-            <Text style={styles.text}>• AASM Sleep Centers: </Text>
-            <Link src='https://aasm.org/clinical-resources/patient-info/' style={styles.link}>
-              aasm.org/clinical-resources/patient-info/
-            </Link>
-            <Text style={styles.text}>• ABSM Certified Specialists: </Text>
-            <Link src='https://www.absm.org/diplomates-directory/' style={styles.link}>
-              absm.org/diplomates-directory/
-            </Link>
-          </View>
-
-          <View style={styles.resourceBox}>
-            <Text style={styles.resourceTitle}>Behavioral Sleep Medicine</Text>
-            <Text style={styles.text}>• SBSM Provider Directory: </Text>
-            <Link
-              src='https://www.behavioralsleep.org/index.php/society-of-behavioral-sleep-medicine-providers'
-              style={styles.link}
-            >
-              behavioralsleep.org (CBT-I specialists)
-            </Link>
-          </View>
-
-          <View style={styles.resourceBox}>
-            <Text style={styles.resourceTitle}>Mental Health Resources</Text>
-            <Text style={styles.text}>• APA Psychologist Locator: </Text>
-            <Link src='https://locator.apa.org/' style={styles.link}>
-              locator.apa.org
-            </Link>
-          </View>
-
-          <View style={styles.resourceBox}>
-            <Text style={styles.resourceTitle}>Educational Resources</Text>
-            <Text style={styles.text}>• Sleep Education (AASM): </Text>
-            <Link src='https://sleepeducation.org/' style={styles.link}>
-              sleepeducation.org
-            </Link>
-            <Text style={styles.text}>• National Sleep Foundation: </Text>
-            <Link src='https://www.sleepfoundation.org/' style={styles.link}>
-              sleepfoundation.org
-            </Link>
+            <Text style={styles.resourceTitle}>SomnaHealth Services</Text>
+            <Text style={styles.text}>
+              Our team offers personalized sleep consultations, CBT-I treatment, and ongoing support.
+              Visit our website for more information about how we can help you achieve better sleep,
+              find a sleep specialist in your area, and access educational resources about your
+              specific sleep concerns.
+            </Text>
           </View>
         </View>
 
