@@ -624,8 +624,9 @@ export function QuestionnaireForm() {
                 if (firstError) {
                   const [section, sectionErrors] = firstError;
                   const fieldErrors = Object.entries(sectionErrors as Record<string, unknown>);
-                  if (fieldErrors.length > 0) {
-                    const [field, error] = fieldErrors[0];
+                  const firstFieldError = fieldErrors[0];
+                  if (firstFieldError) {
+                    const [field, error] = firstFieldError;
                     alert(`Validation error in ${section}.${field}: ${(error as { message?: string })?.message || 'Invalid value'}`);
                   }
                 }
