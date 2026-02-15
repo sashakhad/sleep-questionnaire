@@ -2,7 +2,6 @@ import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { CheckboxField } from '../form-fields/CheckboxField';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, Info } from 'lucide-react';
@@ -22,8 +21,6 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
   const hasNightBehaviors = form.watch('parasomnia.nightBehaviors')?.length > 0;
   const remembersEvents = form.watch('parasomnia.remembersEvents');
   const actsOutDreams = form.watch('parasomnia.actsOutDreams');
-  const diagnosedParasomnia = form.watch('parasomnia.diagnosedParasomnia');
-  const receivedTreatment = form.watch('parasomnia.receivedTreatment');
 
   return (
     <div className='space-y-6'>
@@ -32,8 +29,9 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
       <Alert className='alert-info'>
         <Info className='h-4 w-4 text-primary' />
         <AlertDescription className='text-foreground/90'>
-          Parasomnias are unusual behaviors during sleep that can affect your safety and sleep
-          quality. These include sleepwalking, sleep talking, night terrors, and other behaviors.
+          Parasomnias (Night Terrors, Sleepwalking, Sleep Eating) are unusual behaviors during sleep
+          that can affect your safety and sleep quality. Note: Sleep talking is very common and
+          usually not a cause for concern.
         </AlertDescription>
       </Alert>
 
@@ -116,59 +114,8 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
         description='If yes, we suggest discussing this with your primary care doctor or an endocrinologist'
       />
 
-      {/* Parasomnia diagnosis */}
-      <CheckboxField
-        control={form.control}
-        name='parasomnia.diagnosedParasomnia'
-        label='Have you been diagnosed with a parasomnia?'
-      />
-
-      {/* If diagnosed, get details */}
-      {diagnosedParasomnia && (
-        <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
-          <FormField
-            control={form.control}
-            name='parasomnia.parasomniaType'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Which parasomnia were you diagnosed with?</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder='e.g., sleepwalking, night terrors, sleep eating...'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <CheckboxField
-            control={form.control}
-            name='parasomnia.receivedTreatment'
-            label='Have you received treatment for your parasomnia?'
-          />
-
-          {receivedTreatment && (
-            <FormField
-              control={form.control}
-              name='parasomnia.treatmentType'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>What type of treatment?</FormLabel>
-                  <FormControl>
-                    <Input placeholder='e.g., medication, behavioral therapy...' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-        </div>
-      )}
-
-      {/* Safety warning for untreated parasomnia */}
-      {(hasNightBehaviors || diagnosedParasomnia) && !receivedTreatment && (
+      {/* Safety warning for night behaviors */}
+      {hasNightBehaviors && (
         <Alert className='alert-warning'>
           <AlertTriangle className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
@@ -176,8 +123,8 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
             <br />
             The most important initial step is to assure your safety and others who live in your
             home. Some parasomnias (nocturnal eating and cooking, sleepwalking) can result in
-            injuries. Until you receive treatment, take safety measures by using alarms and alerting
-            others in your home that you should be observed or calmly guided back to bed.
+            injuries. Until you receive treatment, take safety measures by using alarms and
+            alerting others in your home that you should be observed or calmly guided back to bed.
           </AlertDescription>
         </Alert>
       )}

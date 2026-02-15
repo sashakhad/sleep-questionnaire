@@ -23,16 +23,18 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
   const shiftWork = form.watch('chronotype.shiftWork');
   const pastShiftWorkYears = form.watch('chronotype.pastShiftWorkYears');
   const preference = form.watch('chronotype.preference');
+  const timeZoneTravelPerYear = form.watch('chronotype.timeZoneTravelPerYear') ?? 0;
 
   return (
     <div className='space-y-6'>
-      <div className='text-lg font-medium'>Sleep Preferences and Schedule</div>
+      <div className='text-lg font-medium'>Sleep Schedule Preferences</div>
 
       <Alert className='alert-info'>
         <Clock className='h-4 w-4 text-primary' />
         <AlertDescription className='text-foreground/90'>
-          Your natural sleep preferences (chronotype) can significantly impact your sleep quality
-          when they don&apos;t align with your work or school schedule.
+          Chronotype or Circadian Sleep Timing — Your natural sleep preferences (chronotype) can
+          significantly impact your sleep quality when they don&apos;t align with your work or
+          school schedule.
         </AlertDescription>
       </Alert>
 
@@ -42,10 +44,28 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
         name='chronotype.preference'
         label='What is your natural sleep preference?'
         options={[
-          { value: 'early', label: 'Go to bed early and wake up early (morning person)' },
-          { value: 'late', label: 'Go to bed late and wake up late (night owl)' },
-          { value: 'flexible', label: 'I have no preference and have a flexible sleep schedule' },
+          {
+            value: 'early',
+            label:
+              'Go to bed early and wake up early (bedtime 8:00 PM or earlier, wake time 4:00 AM or earlier)',
+          },
+          {
+            value: 'late',
+            label:
+              'Go to bed late and wake up late (bedtime 12:00 AM or later, wake time 8:00 AM or later)',
+          },
+          {
+            value: 'neutral',
+            label: 'I have no preference for when I go to bed or wake up',
+          },
         ]}
+      />
+
+      {/* Social jet lag */}
+      <CheckboxField
+        control={form.control}
+        name='chronotype.socialJetLag'
+        label='My work/school schedule requires me to go to bed and wake up at very different times than I would like (2 or more hours difference)'
       />
 
       {/* Shift work */}
@@ -93,30 +113,41 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
           min={0}
           max={50}
           description='Enter 0 if you never did shift work'
+          allowNull
         />
       )}
 
       {/* Time zone travel */}
-      <CheckboxField
+      <NumberField
         control={form.control}
-        name='chronotype.frequentTimeZoneTravel'
-        label='Do you travel across time zones more than 1 time a month?'
-        description='Frequent jet lag can disrupt your circadian rhythm'
+        name='chronotype.timeZoneTravelPerYear'
+        label='How many times per year do you travel across time zones?'
+        placeholder='0-50'
+        min={0}
+        max={50}
+        allowNull
       />
+
+      {/* Trouble adjusting after travel - show when timeZoneTravelPerYear > 3 */}
+      {timeZoneTravelPerYear > 3 && (
+        <CheckboxField
+          control={form.control}
+          name='chronotype.troubleAdjustingAfterTravel'
+          label='Do you have trouble adjusting to the time change after travel?'
+        />
+      )}
 
       {/* Work/school schedule */}
       <FormField
         control={form.control}
-        name='chronotype.workSchoolTime'
+        name='chronotype.earliestWorkSchoolTime'
         render={({ field }) => (
           <FormItem>
-            <FormLabel>
-              On scheduled/work/school days, what time do you have to be at work/school?
-            </FormLabel>
+            <FormLabel>What is your earliest work/school start time in the morning?</FormLabel>
             <FormControl>
               <Input type='time' {...field} className='max-w-xs' />
             </FormControl>
-            <FormDescription>Leave blank if your schedule varies significantly</FormDescription>
+            <FormDescription>Leave blank if you do not have to be up in the morning.</FormDescription>
             <FormMessage />
           </FormItem>
         )}

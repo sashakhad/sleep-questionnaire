@@ -1,6 +1,7 @@
 import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { CheckboxField } from '../form-fields/CheckboxField';
+import { RadioGroupField } from '../form-fields/RadioGroupField';
 import {
   FormField,
   FormItem,
@@ -10,6 +11,7 @@ import {
   FormDescription,
 } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Slider } from '@/components/ui/slider';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Info } from 'lucide-react';
 
@@ -24,24 +26,37 @@ const treatmentOptions = [
   { value: 'other', label: 'Other medication' },
 ];
 
+const rlsFrequencyOptions = [
+  { value: 'every-night', label: 'Every night' },
+  { value: 'most-nights', label: 'Most nights (4-6 per week)' },
+  { value: 'some-nights', label: 'Some nights (1-3 per week)' },
+  { value: 'rarely', label: 'Rarely (less than once a week)' },
+];
+
+const rlsOnsetTimeOptions = [
+  { value: 'evening', label: 'Evening' },
+  { value: 'bedtime', label: 'At bedtime' },
+  { value: 'both', label: 'Both evening and bedtime' },
+];
+
 export function RestlessLegsSection({ form }: RestlessLegsSectionProps) {
   const diagnosed = form.watch('restlessLegs.diagnosed');
-  const hasSymptoms =
-    form.watch('restlessLegs.troubleLyingStill') ||
-    form.watch('restlessLegs.urgeToMoveLegs') ||
-    form.watch('restlessLegs.movementRelieves');
+  const hardToLieStill = form.watch('restlessLegs.hardToLieStill');
+  const movementRelieves = form.watch('restlessLegs.movementRelieves');
+  const hasSymptoms = hardToLieStill && movementRelieves;
 
   return (
     <div className='space-y-6'>
-      <div className='text-lg font-medium'>Restless Legs Syndrome (RLS) and Movement Disorders</div>
+      <div className='text-lg font-medium'>Movement Disorders</div>
 
       <Alert className='alert-info'>
         <Info className='h-4 w-4 text-primary' />
         <AlertDescription className='text-foreground/90'>
-          Restless legs syndrome is a relatively common disorder that increases discomfort in bed
-          and interferes with your ability to fall asleep. RLS can be associated with insufficient
-          availability of dopamine, low levels of ferritin, pregnancy, or as an unwanted effect of
-          some medications including SSRIs.
+          Restless Legs Syndrome (RLS) and Periodic Limb Movements — Restless legs syndrome is a
+          relatively common disorder that increases discomfort in bed and interferes with your
+          ability to fall asleep. RLS can be associated with insufficient availability of dopamine,
+          low levels of ferritin, pregnancy, or as an unwanted effect of some medications including
+          SSRIs.
         </AlertDescription>
       </Alert>
 
@@ -105,21 +120,71 @@ export function RestlessLegsSection({ form }: RestlessLegsSectionProps) {
 
         <CheckboxField
           control={form.control}
-          name='restlessLegs.troubleLyingStill'
-          label='Do you have trouble lying still while trying to fall asleep at night?'
-        />
-
-        <CheckboxField
-          control={form.control}
-          name='restlessLegs.urgeToMoveLegs'
-          label='Do you have an urge to move your legs while lying in bed at night?'
+          name='restlessLegs.hardToLieStill'
+          label='It is hard to sit still before bedtime and/or lie still when trying to fall asleep at night because of discomfort in my legs.'
         />
 
         <CheckboxField
           control={form.control}
           name='restlessLegs.movementRelieves'
-          label='Does movement relieve the uncomfortable feelings in your legs?'
+          label='The discomfort in my legs is relieved when I stretch or move around.'
         />
+
+        {/* Follow-up questions when both are checked */}
+        {hasSymptoms && (
+          <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
+            <RadioGroupField
+              control={form.control}
+              name='restlessLegs.rlsFrequency'
+              label='How often do you experience these symptoms?'
+              options={rlsFrequencyOptions}
+            />
+
+            <FormField
+              control={form.control}
+              name='restlessLegs.rlsSeverity'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className='text-base font-medium'>
+                    How severe are your symptoms?
+                  </FormLabel>
+                  <FormDescription className='text-muted-foreground'>
+                    1 = Mild, 10 = Severe
+                  </FormDescription>
+                  <div className='pt-6 pb-2'>
+                    <div className='text-muted-foreground mb-4 flex justify-between text-xs font-medium'>
+                      <span>1 - Mild</span>
+                      <span>10 - Severe</span>
+                    </div>
+                    <FormControl>
+                      <Slider
+                        min={1}
+                        max={10}
+                        step={1}
+                        value={field.value ? [field.value] : [5]}
+                        onValueChange={value => field.onChange(value[0])}
+                        className='w-full'
+                      />
+                    </FormControl>
+                    <div className='mt-4 text-center'>
+                      <span className='bg-primary/10 text-primary inline-flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold'>
+                        {field.value ?? 5}
+                      </span>
+                    </div>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <RadioGroupField
+              control={form.control}
+              name='restlessLegs.rlsOnsetTime'
+              label='When do your symptoms typically begin?'
+              options={rlsOnsetTimeOptions}
+            />
+          </div>
+        )}
 
         <CheckboxField
           control={form.control}

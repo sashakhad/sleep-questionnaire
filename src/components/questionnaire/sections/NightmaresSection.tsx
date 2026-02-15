@@ -17,7 +17,7 @@ export function NightmaresSection({ form }: NightmaresSectionProps) {
   return (
     <div className="space-y-6">
       <div className="text-lg font-medium">
-        Nightmares and Dream Disturbances
+        Understanding Bad Dreams vs Nightmares
       </div>
 
       <Alert className="alert-info">
