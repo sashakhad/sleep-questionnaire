@@ -378,7 +378,9 @@ export function QuestionnaireForm() {
     }
   }
 
-  async function onSubmit(data: QuestionnaireFormData) {
+  async function handleGenerateReport() {
+    const data = form.getValues();
+
     try {
       // Save to database
       const response = await fetch('/api/responses', {
@@ -391,11 +393,9 @@ export function QuestionnaireForm() {
 
       if (!response.ok) {
         console.error('Failed to save questionnaire response');
-        // Still proceed to report even if save fails
       }
     } catch (error) {
       console.error('Error saving questionnaire response:', error);
-      // Still proceed to report even if save fails
     }
 
     handleNext();
@@ -603,7 +603,7 @@ export function QuestionnaireForm() {
           </CardHeader>
           <CardContent className='select-text px-6 py-8 md:px-8'>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+              <form onSubmit={(e) => e.preventDefault()} className='space-y-8'>
                 {renderSection()}
 
                 {/* PDF Download Button - Only show on report section */}
@@ -645,7 +645,7 @@ export function QuestionnaireForm() {
                   </Button>
 
                   {isSecondToLast ? (
-                    <Button type='submit' size='lg' className='ml-auto gap-2 px-6 shadow-md'>
+                    <Button type='button' onClick={handleGenerateReport} size='lg' className='ml-auto gap-2 px-6 shadow-md'>
                       Generate Report
                       <svg
                         className='h-4 w-4'
