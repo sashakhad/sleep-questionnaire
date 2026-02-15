@@ -27,7 +27,9 @@ const wakeupReasons = [
 ];
 
 function isLightsOutTimeUnusual(time: string): boolean {
-  if (!time || !time.includes(':')) return false;
+  if (!time || !time.includes(':')) {
+    return false;
+  }
   const parts = time.split(':').map(Number);
   const h = parts[0] ?? 0;
   const m = parts[1] ?? 0;
@@ -37,7 +39,9 @@ function isLightsOutTimeUnusual(time: string): boolean {
 }
 
 function isWakeupTimeUnusual(time: string): boolean {
-  if (!time || !time.includes(':')) return false;
+  if (!time || !time.includes(':')) {
+    return false;
+  }
   const parts = time.split(':').map(Number);
   const h = parts[0] ?? 0;
   const m = parts[1] ?? 0;
