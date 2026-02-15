@@ -274,7 +274,10 @@ function getInsomniaSeverity(
   metrics: ReturnType<typeof calculateSleepMetrics>
 ) {
   if (metrics.scheduledSOL > 30 || metrics.scheduledWASO > 40) {
-    if (data.daytime.tirednessInterferes) {
+    const tirednessInterferes =
+      (data.daytime.sleepinessInterference ?? 0) >= 5 ||
+      (data.daytime.fatigueInterference ?? 0) >= 5;
+    if (tirednessInterferes) {
       return 'moderate to severe';
     }
     return 'mild';
@@ -296,7 +299,7 @@ function getChronotype(
   } else if (data.chronotype.preference === 'early' || midSleepScheduled <= 1) {
     return 'morning (early bird)';
   }
-  return 'flexible';
+  return 'neutral';
 }
 
 export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
@@ -321,21 +324,26 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
     (data.breathingDisorders.wakesWithDryMouth && data.breathingDisorders.mouthBreathesDay);
   const hasCOMISA = hasInsomnia && hasOSA; // Comorbid Insomnia and Sleep Apnea
   const hasRLS =
-    data.restlessLegs.troubleLyingStill &&
-    data.restlessLegs.urgeToMoveLegs &&
-    data.restlessLegs.movementRelieves;
+    data.restlessLegs.hardToLieStill && data.restlessLegs.movementRelieves;
   const hasNightmares = data.nightmares.nightmaresPerWeek && data.nightmares.nightmaresPerWeek >= 3;
   const hasPoorHygiene =
     data.lifestyle.caffeinePerDay > 4 ||
     (data.lifestyle.lastCaffeineTime &&
       parseInt(data.lifestyle.lastCaffeineTime.split(':')[0] ?? '0') >= 14);
   const hasAnxiety = data.mentalHealth.worriesAffectSleep || data.mentalHealth.anxietyInBed;
-  const hasSevereTiredness = (data.daytime.tirednessSeverity ?? 0) > 8;
+  const tirednessSeverity = Math.max(
+    data.daytime.sleepinessInterference ?? 0,
+    data.daytime.fatigueInterference ?? 0
+  );
+  const hasSevereTiredness = tirednessSeverity > 8;
 
   // Insufficient Sleep Syndrome detection
   const avgWeeklySleep = (metrics.scheduledTST * 5 + metrics.unscheduledTST * 2) / 7;
+  const tirednessInterferes =
+    (data.daytime.sleepinessInterference ?? 0) >= 5 ||
+    (data.daytime.fatigueInterference ?? 0) >= 5;
   const hasDaytimeSleepiness =
-    data.daytime.tirednessInterferes || hasEDS || data.daytime.fallAsleepDuring.length >= 3;
+    tirednessInterferes || hasEDS || data.daytime.fallAsleepDuring.length >= 3;
   const hasNarcolepsy =
     data.daytime.diagnosedNarcolepsy ||
     (data.daytime.weaknessWhenExcited.length > 0 && data.daytime.sleepParalysis);
@@ -346,7 +354,7 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
   const hasChronicFatigueSymptoms =
     data.daytime.nonRestorativeSleep &&
     data.daytime.muscleJointPain &&
-    data.daytime.tirednessInterferes;
+    tirednessInterferes;
 
   return (
     <Document>
@@ -359,9 +367,9 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
         {/* Thank you message */}
         <View style={styles.infoBox}>
           <Text style={styles.infoText}>
-            Thank you for completing the SomnaHealth comprehensive sleep questionnaire. With more
-            than 4 decades of collective experience, our team created this questionnaire and
-            personalized report to provide you with guidance on improving your sleep health.
+            At SomnaHealth, our mission is to help you sleep better and live healthier because
+            optimal sleep is the foundation of lifelong wellness. That&apos;s why we offer free
+            tools and easy-to-understand guidance from our team of board-certified sleep experts.
           </Text>
         </View>
 
@@ -371,7 +379,7 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
             <Text style={styles.warningText}>
               <Text style={{ fontWeight: 'bold' }}>URGENT SAFETY WARNING</Text>
               {'\n\n'}
-              Your reported tiredness severity ({data.daytime.tirednessSeverity}/10) indicates a
+              Your reported tiredness severity ({tirednessSeverity}/10) indicates a
               significant safety concern. You should seek immediate help from a healthcare
               professional. Until you have done so, please avoid potentially dangerous activities
               such as driving, biking, or jobs involving high-risk activities (construction, heavy
@@ -414,9 +422,9 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
 
           <Text style={styles.paragraph}>
             During the day, you have{' '}
-            {hasEDS ? 'significant' : data.daytime.tirednessInterferes ? 'moderate' : 'minimal'}{' '}
+            {hasEDS ? 'significant' : tirednessInterferes ? 'moderate' : 'minimal'}{' '}
             daytime sleepiness, and your daytime tiredness is{' '}
-            {data.daytime.tirednessInterferes
+            {tirednessInterferes
               ? 'a problem that interferes with daily activities'
               : 'not a significant problem'}
             . Based on your responses, your sleep hygiene{' '}
@@ -515,7 +523,8 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
           <View style={styles.bulletPoint}>
             <Text>
               • Bedroom environment - Comfort: {data.bedroom.comfortable}/10, Dark:{' '}
-              {data.bedroom.dark}/10, Quiet: {data.bedroom.quiet}/10
+              {data.bedroom.dark}/10, Quiet: {data.bedroom.quiet}/10, Temperature:{' '}
+              {data.bedroom.temperature}/10, Safety: {data.bedroom.safety}/10
             </Text>
           </View>
         </View>

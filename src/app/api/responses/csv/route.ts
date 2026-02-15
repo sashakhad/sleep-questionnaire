@@ -20,16 +20,22 @@ function escapeCsvValue(value: unknown): string {
 // Flatten the questionnaire data for CSV export
 function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, unknown> {
   return {
+    // Sleep disorder history section
+    sleep_disorder_history_previous_diagnoses: data.sleepDisorderHistory.previousDiagnoses,
+    sleep_disorder_history_other_diagnosis: data.sleepDisorderHistory.otherDiagnosis,
+
     // Daytime section
     daytime_naps_days_per_week: data.daytime.plannedNaps.daysPerWeek,
     daytime_naps_duration: data.daytime.plannedNaps.duration,
     daytime_fall_asleep_during: data.daytime.fallAsleepDuring,
-    daytime_tiredness_interferes: data.daytime.tirednessInterferes,
-    daytime_tiredness_severity: data.daytime.tirednessSeverity,
-    daytime_tired_but_cant_sleep: data.daytime.tiredButCantSleep,
+    daytime_sleepiness_rating: data.daytime.sleepinessRating,
+    daytime_sleepiness_interference: data.daytime.sleepinessInterference,
+    daytime_fatigue_rating: data.daytime.fatigueRating,
+    daytime_fatigue_interference: data.daytime.fatigueInterference,
     daytime_dreams_while_falling_asleep: data.daytime.dreamsWhileFallingAsleep,
     daytime_weakness_when_excited: data.daytime.weaknessWhenExcited,
     daytime_sleep_paralysis: data.daytime.sleepParalysis,
+    daytime_sleep_paralysis_frequency: data.daytime.sleepParalysisFrequency,
     daytime_diagnosed_narcolepsy: data.daytime.diagnosedNarcolepsy,
     daytime_pain_affects_sleep: data.daytime.painAffectsSleep,
     daytime_pain_severity: data.daytime.painSeverity,
@@ -81,9 +87,11 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
     // Restless legs section
     rls_diagnosed: data.restlessLegs.diagnosed,
     rls_treatment: data.restlessLegs.treatment,
-    rls_trouble_lying_still: data.restlessLegs.troubleLyingStill,
-    rls_urge_to_move_legs: data.restlessLegs.urgeToMoveLegs,
+    rls_hard_to_lie_still: data.restlessLegs.hardToLieStill,
     rls_movement_relieves: data.restlessLegs.movementRelieves,
+    rls_frequency: data.restlessLegs.rlsFrequency,
+    rls_severity: data.restlessLegs.rlsSeverity,
+    rls_onset_time: data.restlessLegs.rlsOnsetTime,
     rls_daytime_discomfort: data.restlessLegs.daytimeDiscomfort,
 
     // Parasomnia section
@@ -91,10 +99,6 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
     parasomnia_remembers_events: data.parasomnia.remembersEvents,
     parasomnia_acts_out_dreams: data.parasomnia.actsOutDreams,
     parasomnia_bedwetting: data.parasomnia.bedwetting,
-    parasomnia_diagnosed: data.parasomnia.diagnosedParasomnia,
-    parasomnia_type: data.parasomnia.parasomniaType,
-    parasomnia_received_treatment: data.parasomnia.receivedTreatment,
-    parasomnia_treatment_type: data.parasomnia.treatmentType,
 
     // Nightmares section
     nightmares_has: data.nightmares.hasNightmares,
@@ -103,34 +107,42 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
 
     // Chronotype section
     chronotype_preference: data.chronotype.preference,
+    chronotype_social_jet_lag: data.chronotype.socialJetLag,
     chronotype_shift_work: data.chronotype.shiftWork,
     chronotype_shift_type: data.chronotype.shiftType,
     chronotype_shift_days_per_week: data.chronotype.shiftDaysPerWeek,
     chronotype_past_shift_work_years: data.chronotype.pastShiftWorkYears,
-    chronotype_frequent_time_zone_travel: data.chronotype.frequentTimeZoneTravel,
-    chronotype_work_school_time: data.chronotype.workSchoolTime,
+    chronotype_time_zone_travel_per_year: data.chronotype.timeZoneTravelPerYear,
+    chronotype_trouble_adjusting_after_travel: data.chronotype.troubleAdjustingAfterTravel,
+    chronotype_earliest_work_school_time: data.chronotype.earliestWorkSchoolTime,
 
     // Sleep hygiene section
     hygiene_supplements: data.sleepHygiene.supplements,
     hygiene_prescription_meds: data.sleepHygiene.prescriptionMeds,
+    hygiene_sleep_affecting_meds: data.sleepHygiene.sleepAffectingMeds,
     hygiene_stimulants: data.sleepHygiene.stimulants,
     hygiene_stimulant_time: data.sleepHygiene.stimulantTime,
-    hygiene_smokes_nicotine: data.sleepHygiene.smokesNicotine,
 
     // Bedroom section
     bedroom_relaxing: data.bedroom.relaxing,
     bedroom_comfortable: data.bedroom.comfortable,
     bedroom_dark: data.bedroom.dark,
     bedroom_quiet: data.bedroom.quiet,
+    bedroom_temperature: data.bedroom.temperature,
+    bedroom_safety: data.bedroom.safety,
 
     // Lifestyle section
     lifestyle_caffeine_per_day: data.lifestyle.caffeinePerDay,
     lifestyle_last_caffeine_time: data.lifestyle.lastCaffeineTime,
     lifestyle_alcohol_wine_per_week: data.lifestyle.alcoholPerWeek.wine,
     lifestyle_alcohol_cocktails_per_week: data.lifestyle.alcoholPerWeek.cocktails,
+    lifestyle_last_alcohol_time: data.lifestyle.lastAlcoholTime,
     lifestyle_exercise_days_per_week: data.lifestyle.exerciseDaysPerWeek,
     lifestyle_exercise_duration: data.lifestyle.exerciseDuration,
     lifestyle_exercise_end_time: data.lifestyle.exerciseEndTime,
+    lifestyle_smokes_nicotine: data.lifestyle.smokesNicotine,
+    lifestyle_last_meal_time: data.lifestyle.lastMealTime,
+    lifestyle_snacks_before_bed: data.lifestyle.snacksBeforeBed,
 
     // Mental health section
     mental_worries_affect_sleep: data.mentalHealth.worriesAffectSleep,
