@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
@@ -10,19 +10,25 @@ import { Progress } from '@/components/ui/progress';
 import { questionnaireSchema, type QuestionnaireFormData } from '@/validations/questionnaire';
 import { type QuestionnaireSection } from '@/types/questionnaire';
 import { cn } from '@/lib/utils';
-import { Download, TestTube } from 'lucide-react';
+import { Download, Moon, TestTube } from 'lucide-react';
 
 // Mock data for pre-filling in development
 const MOCK_DATA: Partial<QuestionnaireFormData> = {
+  sleepDisorderHistory: {
+    previousDiagnoses: ['insomnia'],
+    otherDiagnosis: '',
+  },
   daytime: {
     plannedNaps: { daysPerWeek: 2, duration: '15-30' },
     fallAsleepDuring: ['meetings', 'quiet-activity'],
-    tirednessInterferes: true,
-    tirednessSeverity: 5,
-    tiredButCantSleep: '3-5days',
+    sleepinessRating: 5,
+    sleepinessInterference: 4,
+    fatigueRating: 6,
+    fatigueInterference: 5,
     dreamsWhileFallingAsleep: false,
     weaknessWhenExcited: [],
     sleepParalysis: false,
+    sleepParalysisFrequency: null,
     diagnosedNarcolepsy: false,
     painAffectsSleep: false,
     painSeverity: null,
@@ -30,6 +36,7 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     nonRestorativeSleep: true,
   },
   scheduledSleep: {
+    bedtime: '22:30',
     lightsOutTime: '23:00',
     lightsOutVaries: false,
     minutesToFallAsleep: 25,
@@ -45,6 +52,7 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     averageNapMinutes: 0,
   },
   unscheduledSleep: {
+    bedtime: '00:00',
     lightsOutTime: '00:30',
     minutesToFallAsleep: 20,
     nightWakeups: 1,
@@ -64,15 +72,19 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     treatment: [],
     snores: true,
     stopsBreathing: false,
-    mouthBreathes: true,
     wakesWithDryMouth: true,
+    mouthBreathesDay: true,
+    morningHeadache: false,
+    airwayCrowding: [],
   },
   restlessLegs: {
     diagnosed: false,
     treatment: [],
-    troubleLyingStill: false,
-    urgeToMoveLegs: false,
+    hardToLieStill: false,
     movementRelieves: false,
+    rlsFrequency: null,
+    rlsSeverity: null,
+    rlsOnsetTime: null,
     daytimeDiscomfort: false,
   },
   parasomnia: {
@@ -80,10 +92,6 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     remembersEvents: false,
     actsOutDreams: false,
     bedwetting: false,
-    diagnosedParasomnia: false,
-    parasomniaType: '',
-    receivedTreatment: false,
-    treatmentType: '',
   },
   nightmares: {
     hasNightmares: true,
@@ -92,25 +100,29 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
   },
   chronotype: {
     preference: 'late',
+    socialJetLag: true,
     shiftWork: false,
     shiftType: '',
     shiftDaysPerWeek: 0,
     pastShiftWorkYears: 0,
-    frequentTimeZoneTravel: false,
-    workSchoolTime: '09:00',
+    timeZoneTravelPerYear: 2,
+    troubleAdjustingAfterTravel: false,
+    earliestWorkSchoolTime: '09:00',
   },
   sleepHygiene: {
     supplements: ['melatonin'],
     prescriptionMeds: [],
+    sleepAffectingMeds: [],
     stimulants: '',
     stimulantTime: '',
-    smokesNicotine: false,
   },
   bedroom: {
     relaxing: 7,
     comfortable: 8,
     dark: 6,
     quiet: 7,
+    temperature: 7,
+    safety: 9,
   },
   lifestyle: {
     caffeinePerDay: 2,
@@ -119,9 +131,13 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
       wine: 2,
       cocktails: 1,
     },
+    lastAlcoholTime: '20:00',
     exerciseDaysPerWeek: 3,
     exerciseDuration: 45,
     exerciseEndTime: '18:00',
+    smokesNicotine: false,
+    lastMealTime: '19:30',
+    snacksBeforeBed: false,
   },
   mentalHealth: {
     worriesAffectSleep: true,
@@ -143,6 +159,7 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
 
 // Import section components
 import { IntroSection } from './sections/IntroSection';
+import { SleepDisorderHistorySection } from './sections/SleepDisorderHistorySection';
 import { DaytimeSection } from './sections/DaytimeSection';
 import { ScheduledSleepSection } from './sections/ScheduledSleepSection';
 import { UnscheduledSleepSection } from './sections/UnscheduledSleepSection';
@@ -160,6 +177,7 @@ import { ReportSection } from './sections/ReportSection';
 
 const sections: QuestionnaireSection[] = [
   'intro',
+  'sleep-disorder-history',
   'daytime',
   'scheduled-sleep',
   'unscheduled-sleep',
@@ -178,14 +196,15 @@ const sections: QuestionnaireSection[] = [
 
 const sectionTitles: Record<QuestionnaireSection, string> = {
   intro: 'Welcome',
-  daytime: 'Daytime Feelings',
+  'sleep-disorder-history': 'Sleep Disorder History',
+  daytime: 'Daytime Energy and Alertness',
   'scheduled-sleep': 'Sleep on Work/School Days',
   'unscheduled-sleep': 'Sleep on Weekends/Free Days',
-  'breathing-disorders': 'Sleep Breathing',
-  'restless-legs': 'Restless Legs',
+  'breathing-disorders': 'Sleep Related Breathing Difficulties',
+  'restless-legs': 'Movement Disorders',
   parasomnia: 'Sleep Behaviors',
-  nightmares: 'Nightmares',
-  chronotype: 'Sleep Preferences',
+  nightmares: 'Understanding Bad Dreams vs Nightmares',
+  chronotype: 'Sleep Schedule Preferences',
   'sleep-hygiene': 'Sleep Medications & Supplements',
   bedroom: 'Bedroom Environment',
   lifestyle: 'Lifestyle Factors',
@@ -204,15 +223,21 @@ export function QuestionnaireForm() {
     resolver: zodResolver(questionnaireSchema),
     mode: 'onChange',
     defaultValues: {
+      sleepDisorderHistory: {
+        previousDiagnoses: [],
+        otherDiagnosis: '',
+      },
       daytime: {
         plannedNaps: { daysPerWeek: 0, duration: null },
         fallAsleepDuring: [],
-        tirednessInterferes: false,
-        tirednessSeverity: null,
-        tiredButCantSleep: null,
+        sleepinessRating: null,
+        sleepinessInterference: null,
+        fatigueRating: null,
+        fatigueInterference: null,
         dreamsWhileFallingAsleep: false,
         weaknessWhenExcited: [],
         sleepParalysis: false,
+        sleepParalysisFrequency: null,
         diagnosedNarcolepsy: false,
         painAffectsSleep: false,
         painSeverity: null,
@@ -220,6 +245,7 @@ export function QuestionnaireForm() {
         nonRestorativeSleep: false,
       },
       scheduledSleep: {
+        bedtime: '',
         lightsOutTime: '',
         lightsOutVaries: false,
         minutesToFallAsleep: 0,
@@ -235,6 +261,7 @@ export function QuestionnaireForm() {
         averageNapMinutes: null,
       },
       unscheduledSleep: {
+        bedtime: '',
         lightsOutTime: '',
         minutesToFallAsleep: 0,
         nightWakeups: 0,
@@ -254,15 +281,19 @@ export function QuestionnaireForm() {
         treatment: [],
         snores: false,
         stopsBreathing: false,
-        mouthBreathes: false,
         wakesWithDryMouth: false,
+        mouthBreathesDay: false,
+        morningHeadache: false,
+        airwayCrowding: [],
       },
       restlessLegs: {
         diagnosed: false,
         treatment: [],
-        troubleLyingStill: false,
-        urgeToMoveLegs: false,
+        hardToLieStill: false,
         movementRelieves: false,
+        rlsFrequency: null,
+        rlsSeverity: null,
+        rlsOnsetTime: null,
         daytimeDiscomfort: false,
       },
       parasomnia: {
@@ -270,10 +301,6 @@ export function QuestionnaireForm() {
         remembersEvents: false,
         actsOutDreams: false,
         bedwetting: false,
-        diagnosedParasomnia: false,
-        parasomniaType: '',
-        receivedTreatment: false,
-        treatmentType: '',
       },
       nightmares: {
         hasNightmares: false,
@@ -281,34 +308,42 @@ export function QuestionnaireForm() {
         associatedWithTrauma: false,
       },
       chronotype: {
-        preference: 'flexible',
+        preference: 'neutral',
+        socialJetLag: false,
         shiftWork: false,
         shiftType: '',
         shiftDaysPerWeek: null,
         pastShiftWorkYears: null,
-        frequentTimeZoneTravel: false,
-        workSchoolTime: '',
+        timeZoneTravelPerYear: null,
+        troubleAdjustingAfterTravel: false,
+        earliestWorkSchoolTime: '',
       },
       sleepHygiene: {
         supplements: [],
         prescriptionMeds: [],
+        sleepAffectingMeds: [],
         stimulants: '',
         stimulantTime: '',
-        smokesNicotine: false,
       },
       bedroom: {
         relaxing: 5,
         comfortable: 5,
         dark: 5,
         quiet: 5,
+        temperature: 5,
+        safety: 5,
       },
       lifestyle: {
         caffeinePerDay: 0,
         lastCaffeineTime: '',
         alcoholPerWeek: { wine: 0, cocktails: 0 },
+        lastAlcoholTime: '',
         exerciseDaysPerWeek: 0,
         exerciseDuration: null,
         exerciseEndTime: '',
+        smokesNicotine: false,
+        lastMealTime: '',
+        snacksBeforeBed: false,
       },
       mentalHealth: {
         worriesAffectSleep: false,
@@ -378,7 +413,6 @@ export function QuestionnaireForm() {
         },
         body: JSON.stringify({
           data: formData,
-          // Use a generic greeting since we don't collect names
           userName: 'Patient',
         }),
       });
@@ -402,17 +436,36 @@ export function QuestionnaireForm() {
     }
   };
 
-  // Function to pre-fill form
+  // Function to pre-fill form (development only)
   const handlePreFill = () => {
     form.reset(MOCK_DATA as QuestionnaireFormData);
-    // Jump to the report section to test quickly
     setCurrentSectionIndex(sections.length - 1);
   };
+
+  // Prevent copy/cut on non-input content
+  const handleCopyProtection = useCallback((e: React.ClipboardEvent) => {
+    const target = e.target as HTMLElement;
+    const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+    if (!isInput) {
+      e.preventDefault();
+    }
+  }, []);
+
+  // Prevent right-click on non-input content
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const isInput = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+    if (!isInput) {
+      e.preventDefault();
+    }
+  }, []);
 
   const renderSection = () => {
     switch (currentSection) {
       case 'intro':
         return <IntroSection />;
+      case 'sleep-disorder-history':
+        return <SleepDisorderHistorySection form={form} />;
       case 'daytime':
         return <DaytimeSection form={form} />;
       case 'scheduled-sleep':
@@ -449,9 +502,15 @@ export function QuestionnaireForm() {
   const isFirstSection = currentSectionIndex === 0;
   const isLastSection = currentSection === 'report';
   const isSecondToLast = currentSectionIndex === sections.length - 2;
+  const currentYear = new Date().getFullYear();
 
   return (
-    <div className='bg-gradient-sleep relative min-h-screen py-8 md:py-12'>
+    <div
+      className='bg-gradient-sleep relative min-h-screen py-8 md:py-12'
+      onCopy={handleCopyProtection}
+      onCut={handleCopyProtection}
+      onContextMenu={handleContextMenu}
+    >
       {/* Subtle decorative background elements */}
       <div className='pointer-events-none absolute inset-0 overflow-hidden'>
         <div className='bg-primary/5 absolute -top-24 -right-24 h-96 w-96 rounded-full blur-3xl' />
@@ -460,9 +519,8 @@ export function QuestionnaireForm() {
       </div>
 
       <div className='relative container mx-auto max-w-3xl px-4'>
-        {/* Dev Tools - Show in development or when explicitly enabled */}
-        {(process.env.NODE_ENV === 'development' ||
-          process.env.NEXT_PUBLIC_SHOW_DEV_TOOLS === 'true') && (
+        {/* Dev Tools - Show ONLY in development */}
+        {process.env.NODE_ENV === 'development' && (
           <div className='mb-4 flex justify-end gap-2'>
             <Button
               type='button'
@@ -476,6 +534,14 @@ export function QuestionnaireForm() {
             </Button>
           </div>
         )}
+
+        {/* SomnaHealth Branding Header */}
+        <div className='mb-6 flex items-center justify-center gap-2'>
+          <div className='bg-primary/10 flex h-8 w-8 items-center justify-center rounded-full'>
+            <Moon className='text-primary h-4 w-4' />
+          </div>
+          <span className='text-primary text-lg font-semibold tracking-tight'>SomnaHealth</span>
+        </div>
 
         {/* Progress Section */}
         <div className='mb-8'>
@@ -502,7 +568,7 @@ export function QuestionnaireForm() {
         </div>
 
         {/* Main Form Card */}
-        <Card className='shadow-sleep-lg bg-card/80 overflow-hidden border-0 backdrop-blur-sm'>
+        <Card className='shadow-sleep-lg bg-card/80 select-none overflow-hidden border-0 backdrop-blur-sm'>
           <CardHeader className='bg-gradient-sleep-header relative overflow-hidden px-6 py-8 text-white md:px-8'>
             {/* Subtle pattern overlay */}
             <div className='absolute inset-0 opacity-10'>
@@ -535,7 +601,7 @@ export function QuestionnaireForm() {
               )}
             </div>
           </CardHeader>
-          <CardContent className='px-6 py-8 md:px-8'>
+          <CardContent className='select-text px-6 py-8 md:px-8'>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
                 {renderSection()}
@@ -624,9 +690,9 @@ export function QuestionnaireForm() {
           </CardContent>
         </Card>
 
-        {/* Footer note */}
+        {/* Copyright footer */}
         <p className='text-muted-foreground mt-6 text-center text-xs'>
-          Your information is secure and confidential
+          © {currentYear} SomnaHealth. All rights reserved. Your information is secure and confidential.
         </p>
       </div>
     </div>

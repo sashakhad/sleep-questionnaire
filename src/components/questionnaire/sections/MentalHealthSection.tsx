@@ -24,11 +24,13 @@ const medicalConditions = [
   { value: 'heart_disease', label: 'Heart disease' },
   { value: 'diabetes', label: 'Diabetes' },
   { value: 'thyroid', label: 'Thyroid disorder' },
-  { value: 'gerd', label: 'GERD / Acid reflux' },
+  { value: 'gerd', label: 'GERD / IBS / Acid reflux' },
   { value: 'asthma', label: 'Asthma / COPD' },
+  { value: 'allergies', label: 'Indoor/outdoor allergies' },
   { value: 'chronic_pain', label: 'Chronic pain condition' },
   { value: 'arthritis', label: 'Arthritis' },
   { value: 'neurological', label: "Neurological condition (Parkinson's, MS, etc.)" },
+  { value: 'seizure', label: 'Seizure disorder / Epilepsy' },
   { value: 'cancer', label: 'Cancer (current or past)' },
   { value: 'kidney', label: 'Kidney disease' },
   { value: 'other_medical', label: 'Other medical condition' },
@@ -38,11 +40,12 @@ const medicalConditions = [
 const mentalHealthConditions = [
   { value: 'depression', label: 'Depression' },
   { value: 'anxiety', label: 'Anxiety disorder' },
-  { value: 'ptsd', label: 'PTSD / Trauma' },
+  { value: 'ptsd', label: 'Post-Traumatic Stress Disorder (PTSD)' },
   { value: 'bipolar', label: 'Bipolar disorder' },
-  { value: 'ocd', label: 'OCD' },
+  { value: 'ocd', label: 'Obsessive-Compulsive Disorder (OCD)' },
   { value: 'panic', label: 'Panic disorder' },
-  { value: 'adhd', label: 'ADHD' },
+  { value: 'adhd', label: 'Attention-Deficit/Hyperactivity Disorder (ADHD)' },
+  { value: 'asd', label: 'Autism Spectrum Disorder (ASD)' },
   { value: 'substance', label: 'Substance use disorder' },
   { value: 'eating', label: 'Eating disorder' },
   { value: 'other_mental', label: 'Other mental health condition' },
@@ -74,14 +77,14 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
       <CheckboxField
         control={form.control}
         name='mentalHealth.worriesAffectSleep'
-        label='Do worries about the next day often contribute to difficulty falling asleep or extend your nighttime awakenings?'
+        label='Worries about the next day often contribute to my difficulty falling asleep'
       />
 
       {/* Anxiety in bed */}
       <CheckboxField
         control={form.control}
         name='mentalHealth.anxietyInBed'
-        label='Do you have anxiety or persistent rumination while in bed at night?'
+        label='I have anxiety or persistent ruminations when awake at night'
         description='Racing thoughts, worry loops, or inability to quiet your mind'
       />
 
@@ -122,7 +125,7 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
                 Have you been diagnosed or are being treated for any of the following medical
                 conditions? (check all that apply)
               </FormLabel>
-              <FormDescription>These conditions can affect sleep quality</FormDescription>
+              <FormDescription>Check all that apply</FormDescription>
               <div className='mt-2 grid grid-cols-1 gap-2 md:grid-cols-2'>
                 {medicalConditions.map(condition => (
                   <FormItem
@@ -168,7 +171,7 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
                 Have you been diagnosed or are being treated for any of the following mental health
                 conditions? (check all that apply)
               </FormLabel>
-              <FormDescription>Mental health conditions often impact sleep</FormDescription>
+              <FormDescription>Check all that apply</FormDescription>
               <div className='mt-2 grid grid-cols-1 gap-2 md:grid-cols-2'>
                 {mentalHealthConditions.map(condition => (
                   <FormItem

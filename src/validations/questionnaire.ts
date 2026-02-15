@@ -7,19 +7,31 @@ const timeString = z
     message: 'Time must be in HH:MM format',
   });
 
-// Section 1: Daytime feelings schema
+// Sleep Disorder History schema
+export const sleepDisorderHistorySchema = z.object({
+  previousDiagnoses: z.array(z.string()),
+  otherDiagnosis: z.string().max(25),
+});
+
+// Daytime Energy and Alertness schema
 export const daytimeSchema = z.object({
   plannedNaps: z.object({
     daysPerWeek: z.number().min(0).max(7),
     duration: z.enum(['0-10', '15-30', '30-90', '>90']).nullable(),
   }),
   fallAsleepDuring: z.array(z.string()),
-  tirednessInterferes: z.boolean(),
-  tirednessSeverity: z.number().min(1).max(10).nullable(), // 1=nuisance, 10=safety concern
-  tiredButCantSleep: z.enum(['everyday', '5+days', '3-5days', '1-3days', '<1day']).nullable(),
+  // Sleepiness (heavy eyes, urge to fall asleep) — 1-10 scale: 1=never, 10=often
+  sleepinessRating: z.number().min(1).max(10).nullable(),
+  // Sleepiness interference with daily activities — 1-10 scale
+  sleepinessInterference: z.number().min(1).max(10).nullable(),
+  // Fatigue/tiredness (physical/mental exhaustion) — 1-10 scale: 1=never, 10=often
+  fatigueRating: z.number().min(1).max(10).nullable(),
+  // Fatigue/tiredness interference with daily activities — 1-10 scale
+  fatigueInterference: z.number().min(1).max(10).nullable(),
   dreamsWhileFallingAsleep: z.boolean(),
   weaknessWhenExcited: z.array(z.string()),
   sleepParalysis: z.boolean(),
+  sleepParalysisFrequency: z.number().min(0).nullable(), // times in last month
   diagnosedNarcolepsy: z.boolean(),
   // Pain and chronic fatigue screening
   painAffectsSleep: z.boolean(),
@@ -30,6 +42,7 @@ export const daytimeSchema = z.object({
 
 // Sleep pattern schema (reusable for scheduled and unscheduled)
 const sleepPatternSchema = z.object({
+  bedtime: timeString, // Time getting into bed (distinct from lights out)
   lightsOutTime: timeString,
   minutesToFallAsleep: z.number().min(0),
   nightWakeups: z.number().min(0),
@@ -44,83 +57,88 @@ const sleepPatternSchema = z.object({
   averageNapMinutes: z.number().min(0).nullable(),
 });
 
-// Section 2a: Scheduled sleep with extra field
+// Scheduled sleep with extra field
 export const scheduledSleepSchema = sleepPatternSchema.extend({
   lightsOutVaries: z.boolean(),
 });
 
-// Section 2b: Unscheduled sleep
+// Unscheduled sleep
 export const unscheduledSleepSchema = sleepPatternSchema;
 
-// Section 3: Breathing disorders
+// Breathing disorders
 export const breathingDisordersSchema = z.object({
   diagnosed: z.boolean(),
   severity: z.enum(['mild', 'moderate', 'severe']).nullable(),
   treatment: z.array(z.string()),
   snores: z.boolean(),
   stopsBreathing: z.boolean(),
-  mouthBreathes: z.boolean(),
-  wakesWithDryMouth: z.boolean(),
+  wakesWithDryMouth: z.boolean(), // standalone (was conditional on mouthBreathes)
+  mouthBreathesDay: z.boolean(), // daytime mouth breathing (nasal congestion)
+  morningHeadache: z.boolean(),
+  airwayCrowding: z.array(z.string()), // wisdom teeth, orthodontics, tonsillectomy
 });
 
-// Section 4: Restless legs
+// Restless legs — condensed from 3 questions to 2 + conditional follow-ups
 export const restlessLegsSchema = z.object({
   diagnosed: z.boolean(),
   treatment: z.array(z.string()),
-  troubleLyingStill: z.boolean(),
-  urgeToMoveLegs: z.boolean(),
+  hardToLieStill: z.boolean(), // condensed: trouble lying still / urge to move
   movementRelieves: z.boolean(),
+  // Conditional follow-ups (shown when both hardToLieStill AND movementRelieves are true)
+  rlsFrequency: z.string().nullable(), // how often per week
+  rlsSeverity: z.number().min(1).max(10).nullable(),
+  rlsOnsetTime: z.string().nullable(), // when symptoms begin
   daytimeDiscomfort: z.boolean(),
 });
 
-// Section 5: Parasomnia
+// Parasomnia — simplified (diagnosis questions moved to Sleep Disorder History)
 export const parasomniaSchema = z.object({
   nightBehaviors: z.array(z.string()),
   remembersEvents: z.boolean(),
   actsOutDreams: z.boolean(),
   bedwetting: z.boolean(),
-  diagnosedParasomnia: z.boolean(),
-  parasomniaType: z.string(),
-  receivedTreatment: z.boolean(),
-  treatmentType: z.string(),
 });
 
-// Section 6: Nightmares
+// Nightmares
 export const nightmaresSchema = z.object({
   hasNightmares: z.boolean(),
   nightmaresPerWeek: z.number().min(0).max(7).nullable(),
   associatedWithTrauma: z.boolean(),
 });
 
-// Section 7: Chronotype
+// Chronotype — added social jet lag, revised jet lag, renamed work time
 export const chronotypeSchema = z.object({
-  preference: z.enum(['early', 'late', 'flexible']),
+  preference: z.enum(['early', 'late', 'neutral']), // 'flexible' → 'neutral'
+  socialJetLag: z.boolean(),
   shiftWork: z.boolean(),
   shiftType: z.string(),
   shiftDaysPerWeek: z.number().min(0).max(7).nullable(),
   pastShiftWorkYears: z.number().min(0).nullable(),
-  frequentTimeZoneTravel: z.boolean(),
-  workSchoolTime: timeString,
+  timeZoneTravelPerYear: z.number().min(0).nullable(), // was boolean frequentTimeZoneTravel
+  troubleAdjustingAfterTravel: z.boolean(),
+  earliestWorkSchoolTime: timeString, // renamed from workSchoolTime
 });
 
-// Section 8: Sleep hygiene
+// Sleep hygiene — nicotine moved to lifestyle
 export const sleepHygieneSchema = z.object({
   supplements: z.array(z.string()),
   prescriptionMeds: z.array(z.string()),
+  sleepAffectingMeds: z.array(z.string()), // SSRIs, steroids, etc. that affect sleep
   stimulants: z.string(),
   stimulantTime: timeString,
-  smokesNicotine: z.boolean(),
 });
 
-// Section 9: Bedroom environment
+// Bedroom environment — added temperature and safety
 export const bedroomSchema = z.object({
   relaxing: z.number().min(1).max(10),
   comfortable: z.number().min(1).max(10),
   dark: z.number().min(1).max(10),
   quiet: z.number().min(1).max(10),
+  temperature: z.number().min(1).max(10),
+  safety: z.number().min(1).max(10),
 });
 
-// Section 10-12: Lifestyle
+// Lifestyle — added nicotine, meal timing, alcohol timing, snacking
 export const lifestyleSchema = z.object({
   caffeinePerDay: z.number().min(0),
   lastCaffeineTime: timeString,
@@ -128,20 +146,22 @@ export const lifestyleSchema = z.object({
     wine: z.number().min(0),
     cocktails: z.number().min(0),
   }),
+  lastAlcoholTime: timeString,
   exerciseDaysPerWeek: z.number().min(0).max(7),
   exerciseDuration: z.number().min(0).nullable(),
   exerciseEndTime: timeString,
+  smokesNicotine: z.boolean(), // moved from sleepHygiene
+  lastMealTime: timeString,
+  snacksBeforeBed: z.boolean(),
 });
 
-// Section 13-15: Mental health
+// Mental health
 export const mentalHealthSchema = z.object({
   worriesAffectSleep: z.boolean(),
   anxietyInBed: z.boolean(),
   timeInBedTrying: z.boolean(),
   cancelsAfterPoorSleep: z.enum(['never', '1-2week', '3+week']),
-  // Medical history
   diagnosedMedicalConditions: z.array(z.string()),
-  // Mental health history
   diagnosedMentalHealthConditions: z.array(z.string()),
   currentlyReceivingTreatment: z.boolean(),
 });
@@ -157,6 +177,7 @@ export const demographicsSchema = z.object({
 
 // Complete questionnaire schema
 export const questionnaireSchema = z.object({
+  sleepDisorderHistory: sleepDisorderHistorySchema,
   daytime: daytimeSchema,
   scheduledSleep: scheduledSleepSchema,
   unscheduledSleep: unscheduledSleepSchema,
