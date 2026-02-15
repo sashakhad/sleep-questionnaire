@@ -63,8 +63,10 @@ export function BedroomSection({ form }: BedroomSectionProps) {
   const comfortable = form.watch('bedroom.comfortable');
   const dark = form.watch('bedroom.dark');
   const quiet = form.watch('bedroom.quiet');
+  const temperature = form.watch('bedroom.temperature');
+  const safety = form.watch('bedroom.safety');
 
-  const averageScore = (relaxing + comfortable + dark + quiet) / 4;
+  const averageScore = (relaxing + comfortable + dark + quiet + temperature + safety) / 6;
 
   return (
     <div className='space-y-6'>
@@ -83,7 +85,7 @@ export function BedroomSection({ form }: BedroomSectionProps) {
       <RatingField
         control={form.control}
         name='bedroom.relaxing'
-        label='How relaxing and comfortable is your bedroom environment?'
+        label='How relaxing is your bedroom environment?'
         description='Consider factors like clutter, decoration, and overall atmosphere'
       />
 
@@ -109,6 +111,22 @@ export function BedroomSection({ form }: BedroomSectionProps) {
         name='bedroom.quiet'
         label='How quiet is your bedroom?'
         description='Consider noise from outside, other rooms, or household members'
+      />
+
+      {/* Temperature */}
+      <RatingField
+        control={form.control}
+        name='bedroom.temperature'
+        label='How comfortable is the temperature in your bedroom?'
+        description='Consider if your room is too hot, too cold, or just right'
+      />
+
+      {/* Safety */}
+      <RatingField
+        control={form.control}
+        name='bedroom.safety'
+        label='How safe do you feel in your bedroom?'
+        description='Feeling safe is important for quality sleep'
       />
 
       {/* Overall score display */}
@@ -146,6 +164,8 @@ export function BedroomSection({ form }: BedroomSectionProps) {
               {comfortable < 6 && <li>Evaluate your mattress, pillows, and bedding</li>}
               {dark < 6 && <li>Use blackout curtains or an eye mask</li>}
               {quiet < 6 && <li>Consider earplugs, white noise, or addressing noise sources</li>}
+              {temperature < 6 && <li>Adjust room temperature (cooler is generally better for sleep)</li>}
+              {safety < 6 && <li>Address any safety concerns that may affect your ability to relax</li>}
             </ul>
           </AlertDescription>
         </Alert>
@@ -175,6 +195,33 @@ export function BedroomSection({ form }: BedroomSectionProps) {
             who snores, consider separate sleeping arrangements or medical evaluation for the
             snoring. For external noise, try white noise machines, fans, or earplugs designed for
             sleeping.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {temperature < 4 && (
+        <Alert>
+          <Home className='h-4 w-4' />
+          <AlertDescription>
+            <strong>Bedroom Temperature</strong>
+            <br />
+            Bedroom temperature can significantly affect sleep quality. Most people sleep best in a
+            cool room (around 65-68°F / 18-20°C). Consider adjusting your thermostat, using fans,
+            or improving ventilation to create a more comfortable sleeping environment.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {safety < 4 && (
+        <Alert>
+          <Home className='h-4 w-4' />
+          <AlertDescription>
+            <strong>Safety Concerns</strong>
+            <br />
+            Feeling unsafe in your bedroom can significantly impact sleep. Safety concerns may lead
+            to hypervigilance, difficulty falling asleep, and disrupted sleep. If you have concerns
+            about your safety, consider discussing them with a trusted professional who can help
+            address these issues.
           </AlertDescription>
         </Alert>
       )}

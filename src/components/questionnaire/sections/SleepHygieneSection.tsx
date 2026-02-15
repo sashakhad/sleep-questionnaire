@@ -1,6 +1,5 @@
 import { UseFormReturn } from 'react-hook-form'
 import { QuestionnaireFormData } from '@/validations/questionnaire'
-import { CheckboxField } from '../form-fields/CheckboxField'
 import { 
   FormField, 
   FormItem, 
@@ -18,25 +17,36 @@ interface SleepHygieneSectionProps {
   form: UseFormReturn<QuestionnaireFormData>
 }
 
-const supplementOptions = [
+const otcSleepAidsOptions = [
   { value: 'melatonin', label: 'Melatonin' },
   { value: 'benadryl', label: 'Benadryl (diphenhydramine)' },
-  { value: 'tylenol_pm', label: 'Tylenol PM / Advil PM' },
   { value: 'nyquil', label: 'NyQuil' },
   { value: 'unisom', label: 'Unisom (doxylamine succinate)' },
-  { value: 'magnesium', label: 'Magnesium' },
+  { value: 'tylenol_pm', label: 'Tylenol PM / Advil PM' },
+]
+
+const supplementOptions = [
   { value: 'l_theanine', label: 'L-theanine' },
-  { value: 'valerian', label: 'Valerian root' },
   { value: 'cbd', label: 'CBD' },
+  { value: 'magnesium', label: 'Magnesium' },
+  { value: 'valerian', label: 'Valerian root' },
 ]
 
 const prescriptionMedOptions = [
-  { value: 'benzos', label: 'Benzodiazepines (ProSom, Dalmane, Restoril, Halcion)' },
-  { value: 'z_drugs', label: 'Z-drugs (Ambien/zolpidem, Lunesta/eszopiclone, Sonata/zaleplon)' },
-  { value: 'orexin', label: 'Orexin blockers (Quviviq, Dayvigo, Belsomra)' },
-  { value: 'antidepressants', label: 'Sedating antidepressants (Trazodone, Mirtazapine, Doxepin, Amitriptyline)' },
-  { value: 'melatonin_agonist', label: 'Melatonin agonists (Rozerem/ramelteon)' },
-  { value: 'antipsychotic', label: 'Antipsychotic (Seroquel, Zyprexa, Risperdal)' },
+  { value: 'benzos', label: 'Benzodiazepines — Estazolam (ProSom), Flurazepam (Dalmane), Temazepam (Restoril), Triazolam (Halcion), Lorazepam (Ativan), Diazepam (Valium), Clonazepam (Klonopin)' },
+  { value: 'z_drugs', label: 'Non-benzodiazepine hypnotics — Zolpidem (Ambien), Eszopiclone (Lunesta), Zaleplon (Sonata)' },
+  { value: 'orexin', label: 'Dual Orexin Receptor Antagonists — Daridorexant (Quviviq), Lemborexant (Dayvigo), Suvorexant (Belsomra)' },
+  { value: 'antidepressants', label: 'Sedating antidepressants — Trazodone, Mirtazapine, Doxepin, Amitriptyline' },
+  { value: 'melatonin_agonist', label: 'Melatonin Receptor Agonists — Ramelteon (Rozerem)' },
+  { value: 'antipsychotic', label: 'Antipsychotic — Quetiapine (Seroquel), Olanzapine (Zyprexa), Risperidone (Risperdal)' },
+]
+
+const sleepAffectingMedsOptions = [
+  { value: 'ssri_snri', label: 'SSRIs/SNRIs (e.g., Lexapro/escitalopram, Zoloft/sertraline, Effexor/venlafaxine, Cymbalta/duloxetine)' },
+  { value: 'steroids', label: 'Steroids (e.g., Prednisone)' },
+  { value: 'pde5', label: 'PDE-5 inhibitors (e.g., Sildenafil/Viagra, Tadalafil/Cialis)' },
+  { value: 'antihistamines', label: 'Antihistamines (e.g., Cetirizine/Zyrtec, Loratadine/Claritin)' },
+  { value: 'antiemetics', label: 'Antiemetics (e.g., Ondansetron/Zofran, Metoclopramide/Reglan)' },
 ]
 
 export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
@@ -58,7 +68,7 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
         </AlertDescription>
       </Alert>
 
-      {/* Supplements */}
+      {/* OTC Supplements - two groups */}
       <FormField
         control={form.control}
         name="sleepHygiene.supplements"
@@ -67,29 +77,57 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
             <FormLabel className="text-base">
               What supplements or over-the-counter medications do you take for sleep? (check all that apply)
             </FormLabel>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-              {supplementOptions.map((option) => (
-                <FormItem
-                  key={option.value}
-                  className="flex flex-row items-start space-x-3 space-y-0"
-                >
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value?.includes(option.value)}
-                      onCheckedChange={(checked) => {
-                        return checked
-                          ? field.onChange([...field.value, option.value])
-                          : field.onChange(
-                              field.value?.filter((value: string) => value !== option.value)
-                            )
-                      }}
-                    />
-                  </FormControl>
-                  <FormLabel className="font-normal text-sm">
-                    {option.label}
-                  </FormLabel>
-                </FormItem>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold text-muted-foreground">OTC Sleep Aids</h4>
+                {otcSleepAidsOptions.map((option) => (
+                  <FormItem
+                    key={option.value}
+                    className="flex flex-row items-start space-x-3 space-y-0"
+                  >
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value?.includes(option.value)}
+                        onCheckedChange={(checked) => {
+                          return checked
+                            ? field.onChange([...(field.value ?? []), option.value])
+                            : field.onChange(
+                                (field.value ?? []).filter((value: string) => value !== option.value)
+                              )
+                        }}
+                      />
+                    </FormControl>
+                    <FormLabel className="font-normal text-sm">
+                      {option.label}
+                    </FormLabel>
+                  </FormItem>
+                ))}
+              </div>
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold text-muted-foreground">Supplements</h4>
+                {supplementOptions.map((option) => (
+                  <FormItem
+                    key={option.value}
+                    className="flex flex-row items-start space-x-3 space-y-0"
+                  >
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value?.includes(option.value)}
+                        onCheckedChange={(checked) => {
+                          return checked
+                            ? field.onChange([...(field.value ?? []), option.value])
+                            : field.onChange(
+                                (field.value ?? []).filter((value: string) => value !== option.value)
+                              )
+                        }}
+                      />
+                    </FormControl>
+                    <FormLabel className="font-normal text-sm">
+                      {option.label}
+                    </FormLabel>
+                  </FormItem>
+                ))}
+              </div>
             </div>
             <FormMessage />
           </FormItem>
@@ -116,9 +154,47 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
                       checked={field.value?.includes(option.value)}
                       onCheckedChange={(checked) => {
                         return checked
-                          ? field.onChange([...field.value, option.value])
+                          ? field.onChange([...(field.value ?? []), option.value])
                           : field.onChange(
-                              field.value?.filter((value: string) => value !== option.value)
+                              (field.value ?? []).filter((value: string) => value !== option.value)
+                            )
+                      }}
+                    />
+                  </FormControl>
+                  <FormLabel className="font-normal text-sm">
+                    {option.label}
+                  </FormLabel>
+                </FormItem>
+              ))}
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      {/* Sleep-affecting medications */}
+      <FormField
+        control={form.control}
+        name="sleepHygiene.sleepAffectingMeds"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-base">
+              Are you taking any medications that can affect sleep? (check all that apply)
+            </FormLabel>
+            <div className="space-y-2 mt-2">
+              {sleepAffectingMedsOptions.map((option) => (
+                <FormItem
+                  key={option.value}
+                  className="flex flex-row items-start space-x-3 space-y-0"
+                >
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value?.includes(option.value)}
+                      onCheckedChange={(checked) => {
+                        return checked
+                          ? field.onChange([...(field.value ?? []), option.value])
+                          : field.onChange(
+                              (field.value ?? []).filter((value: string) => value !== option.value)
                             )
                       }}
                     />
@@ -178,14 +254,6 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
           )}
         />
       )}
-
-      {/* Nicotine */}
-      <CheckboxField
-        control={form.control}
-        name="sleepHygiene.smokesNicotine"
-        label="Do you smoke cigarettes or use nicotine patches?"
-        description="Nicotine can significantly impact sleep quality"
-      />
 
       {/* Medication dependence warning */}
       {prescriptionMeds && prescriptionMeds.length > 0 && (

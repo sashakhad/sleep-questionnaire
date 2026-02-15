@@ -1,6 +1,7 @@
 import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { NumberField } from '../form-fields/NumberField';
+import { CheckboxField } from '../form-fields/CheckboxField';
 import {
   FormField,
   FormItem,
@@ -11,7 +12,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Coffee, Wine, Activity, AlertCircle } from 'lucide-react';
+import { Coffee, Wine, Activity, AlertCircle, Cigarette, Utensils } from 'lucide-react';
 
 interface LifestyleSectionProps {
   form: UseFormReturn<QuestionnaireFormData>;
@@ -26,6 +27,11 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
 
   const totalAlcohol = alcoholWine + alcoholCocktails;
   const lateCaffeine = lastCaffeineTime && parseInt(lastCaffeineTime.split(':')[0] ?? '0') >= 14; // After 2 PM
+  const smokesNicotine = form.watch('lifestyle.smokesNicotine');
+  const lastMealTime = form.watch('lifestyle.lastMealTime');
+  const snacksBeforeBed = form.watch('lifestyle.snacksBeforeBed');
+  const lastMealHour = lastMealTime ? parseInt(lastMealTime.split(':')[0] ?? '0') : 0;
+  const lateMealOrSnacks = lastMealHour >= 21 || snacksBeforeBed;
 
   return (
     <div className='space-y-6'>
@@ -104,6 +110,91 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
           min={0}
           max={50}
         />
+
+        {totalAlcohol > 0 && (
+          <FormField
+            control={form.control}
+            name='lifestyle.lastAlcoholTime'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>What time do you typically have your last alcoholic drink?</FormLabel>
+                <FormControl>
+                  <Input type='time' {...field} className='max-w-xs' />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+      </div>
+
+      {/* Nicotine section */}
+      <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
+        <div className='flex items-center space-x-2'>
+          <Cigarette className='h-5 w-5 text-gray-600' />
+          <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
+            Nicotine Use
+          </h3>
+        </div>
+
+        <CheckboxField
+          control={form.control}
+          name='lifestyle.smokesNicotine'
+          label='Do you smoke cigarettes or use nicotine products (patches, vape, etc.)?'
+          description='Nicotine is a stimulant that can significantly impact sleep quality'
+        />
+
+        {smokesNicotine && (
+          <Alert className='alert-warning'>
+            <Cigarette className='h-4 w-4 text-amber-600' />
+            <AlertDescription className='text-amber-900'>
+              <strong>Nicotine and Sleep</strong>
+              <br />
+              Nicotine is a stimulant that can make it harder to fall asleep and reduce sleep
+              quality. Avoid nicotine within several hours of bedtime for better sleep.
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
+
+      {/* Meal Timing section */}
+      <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
+        <div className='flex items-center space-x-2'>
+          <Utensils className='h-5 w-5 text-amber-600' />
+          <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
+            Meal Timing
+          </h3>
+        </div>
+
+        <FormField
+          control={form.control}
+          name='lifestyle.lastMealTime'
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>What time does your last meal of the day typically end?</FormLabel>
+              <FormControl>
+                <Input type='time' {...field} className='max-w-xs' />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <CheckboxField
+          control={form.control}
+          name='lifestyle.snacksBeforeBed'
+          label='Do you snack after dinner and within an hour of bedtime?'
+        />
+
+        {lateMealOrSnacks && (
+          <Alert>
+            <Utensils className='h-4 w-4' />
+            <AlertDescription>
+              Eating late or snacking close to bedtime can contribute to poor sleep quality and may
+              worsen acid reflux symptoms.
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
 
       {/* Exercise section */}
