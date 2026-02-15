@@ -98,7 +98,7 @@ function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics {
     scheduledTimeInBed -
     data.scheduledSleep.minutesToFallAsleep -
     data.scheduledSleep.minutesAwakeAtNight;
-  const scheduledSE = (scheduledTST / scheduledTimeInBed) * 100;
+  const scheduledSE = scheduledTimeInBed > 0 ? (scheduledTST / scheduledTimeInBed) * 100 : 0;
 
   // Calculate mid-sleep time for scheduled days
   const scheduledMidSleep =
@@ -116,7 +116,7 @@ function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics {
     unscheduledTimeInBed -
     data.unscheduledSleep.minutesToFallAsleep -
     data.unscheduledSleep.minutesAwakeAtNight;
-  const unscheduledSE = (unscheduledTST / unscheduledTimeInBed) * 100;
+  const unscheduledSE = unscheduledTimeInBed > 0 ? (unscheduledTST / unscheduledTimeInBed) * 100 : 0;
 
   // Calculate mid-sleep time for unscheduled days
   const unscheduledMidSleep =
@@ -173,10 +173,30 @@ function getChronotype(metrics: SleepMetrics, preference: string): string {
   return 'normal';
 }
 
+// Helper to format metric values — shows "N/A" when no sleep data was entered
+function formatHours(hours: number): string {
+  if (!Number.isFinite(hours) || (hours === 0 && hours <= 0)) return 'N/A';
+  return `${hours.toFixed(1)} hours`;
+}
+
+function formatPercent(pct: number): string {
+  if (!Number.isFinite(pct)) return 'N/A';
+  return `${pct.toFixed(0)}%`;
+}
+
+function formatMinutes(mins: number): string {
+  if (!Number.isFinite(mins)) return 'N/A';
+  return `${mins} minutes`;
+}
+
 export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
   const metrics = calculateSleepMetrics(data);
   const insomniaSeverity = getInsomniaSeverity(data, metrics);
   const chronotype = getChronotype(metrics, data.chronotype.preference);
+
+  // Check if user entered sleep timing data
+  const hasScheduledData = data.scheduledSleep.lightsOutTime !== '' && data.scheduledSleep.wakeupTime !== '';
+  const hasUnscheduledData = data.unscheduledSleep.lightsOutTime !== '' && data.unscheduledSleep.wakeupTime !== '';
 
   // Calculate weighted EDS score
   const edsResult = calculateEDSScore(data.daytime.fallAsleepDuring);
@@ -339,116 +359,142 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
           <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
             <div>
               <h3 className='mb-3 font-semibold'>Work/School Days</h3>
-              <div className='space-y-2 text-sm'>
-                <div className='flex justify-between'>
-                  <span>Average Sleep Duration:</span>
-                  <span className='font-medium'>{metrics.scheduledTST.toFixed(1)} hours</span>
+              {hasScheduledData ? (
+                <div className='space-y-2 text-sm'>
+                  <div className='flex justify-between'>
+                    <span>Average Sleep Duration:</span>
+                    <span className='font-medium'>{formatHours(metrics.scheduledTST)}</span>
+                  </div>
+                  <div className='flex justify-between'>
+                    <span>Sleep Efficiency:</span>
+                    <span
+                      className={cn(
+                        'font-medium',
+                        metrics.scheduledSE >= 85
+                          ? 'text-green-600'
+                          : metrics.scheduledSE >= 75
+                            ? 'text-amber-600'
+                            : 'text-red-600'
+                      )}
+                    >
+                      {formatPercent(metrics.scheduledSE)}
+                    </span>
+                  </div>
+                  <div className='flex justify-between'>
+                    <span>Time to Fall Asleep:</span>
+                    <span
+                      className={cn(
+                        'font-medium',
+                        metrics.scheduledSOL <= 30 ? 'text-green-600' : 'text-amber-600'
+                      )}
+                    >
+                      {formatMinutes(metrics.scheduledSOL)}
+                    </span>
+                  </div>
+                  <div className='flex justify-between'>
+                    <span>Time Awake at Night:</span>
+                    <span
+                      className={cn(
+                        'font-medium',
+                        metrics.scheduledWASO <= 40 ? 'text-green-600' : 'text-amber-600'
+                      )}
+                    >
+                      {formatMinutes(metrics.scheduledWASO)}
+                    </span>
+                  </div>
                 </div>
-                <div className='flex justify-between'>
-                  <span>Sleep Efficiency:</span>
-                  <span
-                    className={cn(
-                      'font-medium',
-                      metrics.scheduledSE >= 85
-                        ? 'text-green-600'
-                        : metrics.scheduledSE >= 75
-                          ? 'text-amber-600'
-                          : 'text-red-600'
-                    )}
-                  >
-                    {metrics.scheduledSE.toFixed(0)}%
-                  </span>
-                </div>
-                <div className='flex justify-between'>
-                  <span>Time to Fall Asleep:</span>
-                  <span
-                    className={cn(
-                      'font-medium',
-                      metrics.scheduledSOL <= 30 ? 'text-green-600' : 'text-amber-600'
-                    )}
-                  >
-                    {metrics.scheduledSOL} minutes
-                  </span>
-                </div>
-                <div className='flex justify-between'>
-                  <span>Time Awake at Night:</span>
-                  <span
-                    className={cn(
-                      'font-medium',
-                      metrics.scheduledWASO <= 40 ? 'text-green-600' : 'text-amber-600'
-                    )}
-                  >
-                    {metrics.scheduledWASO} minutes
-                  </span>
-                </div>
-              </div>
+              ) : (
+                <p className='text-muted-foreground text-sm italic'>No sleep timing data entered for work/school days.</p>
+              )}
             </div>
 
             <div>
               <h3 className='mb-3 font-semibold'>Weekends/Free Days</h3>
-              <div className='space-y-2 text-sm'>
-                <div className='flex justify-between'>
-                  <span>Average Sleep Duration:</span>
-                  <span className='font-medium'>{metrics.unscheduledTST.toFixed(1)} hours</span>
+              {hasUnscheduledData ? (
+                <div className='space-y-2 text-sm'>
+                  <div className='flex justify-between'>
+                    <span>Average Sleep Duration:</span>
+                    <span className='font-medium'>{formatHours(metrics.unscheduledTST)}</span>
+                  </div>
+                  <div className='flex justify-between'>
+                    <span>Sleep Efficiency:</span>
+                    <span
+                      className={cn(
+                        'font-medium',
+                        metrics.unscheduledSE >= 85
+                          ? 'text-green-600'
+                          : metrics.unscheduledSE >= 75
+                            ? 'text-amber-600'
+                            : 'text-red-600'
+                      )}
+                    >
+                      {formatPercent(metrics.unscheduledSE)}
+                    </span>
+                  </div>
+                  <div className='flex justify-between'>
+                    <span>Time to Fall Asleep:</span>
+                    <span
+                      className={cn(
+                        'font-medium',
+                        metrics.unscheduledSOL <= 30 ? 'text-green-600' : 'text-amber-600'
+                      )}
+                    >
+                      {formatMinutes(metrics.unscheduledSOL)}
+                    </span>
+                  </div>
+                  <div className='flex justify-between'>
+                    <span>Time Awake at Night:</span>
+                    <span
+                      className={cn(
+                        'font-medium',
+                        metrics.unscheduledWASO <= 40 ? 'text-green-600' : 'text-amber-600'
+                      )}
+                    >
+                      {formatMinutes(metrics.unscheduledWASO)}
+                    </span>
+                  </div>
                 </div>
-                <div className='flex justify-between'>
-                  <span>Sleep Efficiency:</span>
-                  <span
-                    className={cn(
-                      'font-medium',
-                      metrics.unscheduledSE >= 85
-                        ? 'text-green-600'
-                        : metrics.unscheduledSE >= 75
-                          ? 'text-amber-600'
-                          : 'text-red-600'
-                    )}
-                  >
-                    {metrics.unscheduledSE.toFixed(0)}%
-                  </span>
-                </div>
-                <div className='flex justify-between'>
-                  <span>Time to Fall Asleep:</span>
-                  <span
-                    className={cn(
-                      'font-medium',
-                      metrics.unscheduledSOL <= 30 ? 'text-green-600' : 'text-amber-600'
-                    )}
-                  >
-                    {metrics.unscheduledSOL} minutes
-                  </span>
-                </div>
-                <div className='flex justify-between'>
-                  <span>Time Awake at Night:</span>
-                  <span
-                    className={cn(
-                      'font-medium',
-                      metrics.unscheduledWASO <= 40 ? 'text-green-600' : 'text-amber-600'
-                    )}
-                  >
-                    {metrics.unscheduledWASO} minutes
-                  </span>
-                </div>
-              </div>
+              ) : (
+                <p className='text-muted-foreground text-sm italic'>No sleep timing data entered for weekends/free days.</p>
+              )}
             </div>
           </div>
 
           <div className='bg-primary/5 mt-6 rounded-xl p-4'>
             <p className='text-foreground/80 text-sm'>
-              <strong className='text-foreground'>Sleep Pattern Analysis:</strong> You sleep an
-              average of{' '}
-              <span className='text-primary font-semibold'>
-                {metrics.scheduledTST.toFixed(1)} hours
-              </span>{' '}
-              on weekdays and{' '}
-              <span className='text-primary font-semibold'>
-                {metrics.unscheduledTST.toFixed(1)} hours
-              </span>{' '}
-              on weekends.
-              {Math.abs(metrics.scheduledTST - metrics.unscheduledTST) > 2 && (
-                <span className='text-amber-600'>
-                  {' '}
-                  Your sleep varies significantly between weekdays and weekends, which may indicate
-                  social jet lag.
+              <strong className='text-foreground'>Sleep Pattern Analysis:</strong>{' '}
+              {hasScheduledData || hasUnscheduledData ? (
+                <>
+                  {hasScheduledData && (
+                    <>
+                      You sleep an average of{' '}
+                      <span className='text-primary font-semibold'>
+                        {formatHours(metrics.scheduledTST)}
+                      </span>{' '}
+                      on weekdays
+                    </>
+                  )}
+                  {hasScheduledData && hasUnscheduledData && ' and '}
+                  {hasUnscheduledData && (
+                    <>
+                      <span className='text-primary font-semibold'>
+                        {formatHours(metrics.unscheduledTST)}
+                      </span>{' '}
+                      on weekends
+                    </>
+                  )}
+                  .
+                  {hasScheduledData && hasUnscheduledData && Math.abs(metrics.scheduledTST - metrics.unscheduledTST) > 2 && (
+                    <span className='text-amber-600'>
+                      {' '}
+                      Your sleep varies significantly between weekdays and weekends, which may indicate
+                      social jet lag.
+                    </span>
+                  )}
+                </>
+              ) : (
+                <span className='text-muted-foreground italic'>
+                  Sleep timing data was not provided. Please complete the sleep timing sections for a more detailed analysis.
                 </span>
               )}
             </p>
