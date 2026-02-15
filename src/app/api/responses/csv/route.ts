@@ -37,6 +37,7 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
     daytime_non_restorative_sleep: data.daytime.nonRestorativeSleep,
 
     // Scheduled sleep section
+    scheduled_bedtime: data.scheduledSleep.bedtime,
     scheduled_lights_out_time: data.scheduledSleep.lightsOutTime,
     scheduled_lights_out_varies: data.scheduledSleep.lightsOutVaries,
     scheduled_minutes_to_fall_asleep: data.scheduledSleep.minutesToFallAsleep,
@@ -52,6 +53,7 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
     scheduled_average_nap_minutes: data.scheduledSleep.averageNapMinutes,
 
     // Unscheduled sleep section
+    unscheduled_bedtime: data.unscheduledSleep.bedtime,
     unscheduled_lights_out_time: data.unscheduledSleep.lightsOutTime,
     unscheduled_minutes_to_fall_asleep: data.unscheduledSleep.minutesToFallAsleep,
     unscheduled_night_wakeups: data.unscheduledSleep.nightWakeups,
@@ -71,8 +73,10 @@ function flattenQuestionnaireData(data: QuestionnaireFormData): Record<string, u
     breathing_treatment: data.breathingDisorders.treatment,
     breathing_snores: data.breathingDisorders.snores,
     breathing_stops_breathing: data.breathingDisorders.stopsBreathing,
-    breathing_mouth_breathes: data.breathingDisorders.mouthBreathes,
     breathing_wakes_dry_mouth: data.breathingDisorders.wakesWithDryMouth,
+    breathing_mouth_breathes_day: data.breathingDisorders.mouthBreathesDay,
+    breathing_morning_headache: data.breathingDisorders.morningHeadache,
+    breathing_airway_crowding: data.breathingDisorders.airwayCrowding,
 
     // Restless legs section
     rls_diagnosed: data.restlessLegs.diagnosed,

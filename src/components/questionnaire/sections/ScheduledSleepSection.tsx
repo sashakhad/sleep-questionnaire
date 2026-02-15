@@ -12,6 +12,8 @@ import {
   FormDescription,
 } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
 interface ScheduledSleepSectionProps {
   form: UseFormReturn<QuestionnaireFormData>;
@@ -24,10 +26,32 @@ const wakeupReasons = [
   { value: 'unknown', label: "Don't know" },
 ];
 
+function isLightsOutTimeUnusual(time: string): boolean {
+  if (!time || !time.includes(':')) return false;
+  const parts = time.split(':').map(Number);
+  const h = parts[0] ?? 0;
+  const m = parts[1] ?? 0;
+  const mins = h * 60 + m;
+  // Valid: 20:30-02:00 (1230 mins to 120 mins, spans midnight)
+  return mins < 1230 && mins > 120;
+}
+
+function isWakeupTimeUnusual(time: string): boolean {
+  if (!time || !time.includes(':')) return false;
+  const parts = time.split(':').map(Number);
+  const h = parts[0] ?? 0;
+  const m = parts[1] ?? 0;
+  const mins = h * 60 + m;
+  // Valid: 05:00-11:00
+  return mins < 300 || mins > 660;
+}
+
 export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
   const nightWakeups = form.watch('scheduledSleep.nightWakeups');
   const earlyWakeupDays = form.watch('scheduledSleep.earlyWakeupDays');
   const plannedNapsPerWeek = form.watch('scheduledSleep.plannedNapsPerWeek');
+  const lightsOutTime = form.watch('scheduledSleep.lightsOutTime');
+  const wakeupTime = form.watch('scheduledSleep.wakeupTime');
 
   return (
     <div className='space-y-6'>
@@ -35,16 +59,39 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
         Please tell us about your sleep on scheduled/work/school days:
       </div>
 
+      {/* Bedtime */}
+      <FormField
+        control={form.control}
+        name='scheduledSleep.bedtime'
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>What time do you typically get into bed on work/school nights?</FormLabel>
+            <FormControl>
+              <Input type='time' {...field} className='max-w-xs' />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       {/* Lights out time */}
       <FormField
         control={form.control}
         name='scheduledSleep.lightsOutTime'
         render={({ field }) => (
           <FormItem>
-            <FormLabel>What time do you turn out the lights and try to fall asleep?</FormLabel>
+            <FormLabel>What time do you typically turn out the lights and try to fall asleep?</FormLabel>
             <FormControl>
               <Input type='time' {...field} className='max-w-xs' />
             </FormControl>
+            {isLightsOutTimeUnusual(lightsOutTime) && (
+              <Alert className='alert-warning mt-2'>
+                <AlertCircle className='h-4 w-4 text-amber-600' />
+                <AlertDescription className='text-amber-900'>
+                  This bedtime seems unusual. Please double-check that you entered the correct time.
+                </AlertDescription>
+              </Alert>
+            )}
             <FormMessage />
           </FormItem>
         )}
@@ -54,7 +101,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
       <CheckboxField
         control={form.control}
         name='scheduledSleep.lightsOutVaries'
-        label='Does your lights out time vary more than 3 hours?'
+        label='Does your lights out time typically vary more than 3 hours?'
         description='This may indicate irregular sleep patterns'
       />
 
@@ -62,7 +109,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
       <NumberField
         control={form.control}
         name='scheduledSleep.minutesToFallAsleep'
-        label='After you turn out the lights, about how long does it take you to fall asleep?'
+        label='After you turn out the lights, about how long does it typically take you to fall asleep?'
         placeholder='Minutes'
         description='Enter the number of minutes'
         min={0}
@@ -73,7 +120,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
       <NumberField
         control={form.control}
         name='scheduledSleep.nightWakeups'
-        label='About how many times do you wake up during the night prior to your final wake-up?'
+        label='About how many times do you typically wake up during the night prior to your final wake-up?'
         placeholder='Number of times'
         min={0}
         max={20}
@@ -87,7 +134,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
             name='scheduledSleep.wakeupReasons'
             render={({ field }) => (
               <FormItem>
-                <FormLabel className='text-base font-medium'>What wakes you?</FormLabel>
+                <FormLabel className='text-base font-medium'>What typically wakes you?</FormLabel>
                 <p className='text-muted-foreground text-sm'>Check all that apply</p>
                 <div className='mt-3 space-y-2'>
                   {wakeupReasons.map(reason => (
@@ -124,7 +171,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
       <NumberField
         control={form.control}
         name='scheduledSleep.minutesAwakeAtNight'
-        label='About how many minutes total are you awake during the night?'
+        label='About how many minutes total are you typically awake during the night before your final awakening? (total wake time after falling asleep)'
         placeholder='Minutes'
         description='Total time awake after initially falling asleep'
         min={0}
@@ -137,10 +184,18 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
         name='scheduledSleep.wakeupTime'
         render={({ field }) => (
           <FormItem>
-            <FormLabel>What time do you wake up?</FormLabel>
+            <FormLabel>What time do you typically wake up?</FormLabel>
             <FormControl>
               <Input type='time' {...field} className='max-w-xs' />
             </FormControl>
+            {isWakeupTimeUnusual(wakeupTime) && (
+              <Alert className='alert-warning mt-2'>
+                <AlertCircle className='h-4 w-4 text-amber-600' />
+                <AlertDescription className='text-amber-900'>
+                  This wake time seems unusual. Please double-check that you entered the correct time.
+                </AlertDescription>
+              </Alert>
+            )}
             <FormMessage />
           </FormItem>
         )}
@@ -152,7 +207,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
         name='scheduledSleep.getOutOfBedTime'
         render={({ field }) => (
           <FormItem>
-            <FormLabel>What time do you get out of bed?</FormLabel>
+            <FormLabel>What time do you typically get out of bed?</FormLabel>
             <FormControl>
               <Input type='time' {...field} className='max-w-xs' />
             </FormControl>
@@ -166,7 +221,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
       <NumberField
         control={form.control}
         name='scheduledSleep.earlyWakeupDays'
-        label='How many days a week do you wake up earlier than planned?'
+        label='How many days a week do you typically wake up earlier than planned?'
         placeholder='Days per week'
         min={0}
         max={7}
@@ -189,14 +244,14 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
       <CheckboxField
         control={form.control}
         name='scheduledSleep.usesAlarm'
-        label='Do you use an alarm clock to wake up in the morning?'
+        label='Do you typically use an alarm clock to wake up in the morning?'
       />
 
       {/* Planned naps */}
       <NumberField
         control={form.control}
         name='scheduledSleep.plannedNapsPerWeek'
-        label='How many planned naps do you take a week?'
+        label='How many planned naps do you typically take a week?'
         placeholder='Number of naps'
         min={0}
         max={14}
@@ -207,7 +262,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
         <NumberField
           control={form.control}
           name='scheduledSleep.averageNapMinutes'
-          label='How long is your average nap?'
+          label='How long is your average nap typically?'
           placeholder='Minutes'
           description='Average duration in minutes'
           min={0}

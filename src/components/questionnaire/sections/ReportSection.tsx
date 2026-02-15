@@ -188,7 +188,8 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
   const hasEDS = hasEDSFromActivities || hasEDSFromNaps;
   const hasOSA =
     data.breathingDisorders.stopsBreathing ||
-    (data.breathingDisorders.snores && data.breathingDisorders.wakesWithDryMouth);
+    (data.breathingDisorders.snores && data.breathingDisorders.wakesWithDryMouth) ||
+    (data.breathingDisorders.wakesWithDryMouth && data.breathingDisorders.mouthBreathesDay);
   const hasCOMISA = hasInsomnia && hasOSA; // Comorbid Insomnia and Sleep Apnea
   const hasRLS =
     data.restlessLegs.troubleLyingStill &&

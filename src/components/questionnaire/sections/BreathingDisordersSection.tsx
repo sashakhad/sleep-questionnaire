@@ -17,13 +17,35 @@ const treatmentOptions = [
   { value: 'other', label: 'Other treatment' },
 ];
 
+const airwayCrowdingOptions = [
+  { value: 'wisdom_teeth', label: 'Wisdom teeth extraction' },
+  { value: 'orthodontics', label: 'Orthodontic treatment' },
+  { value: 'tonsillectomy', label: 'Tonsillectomy' },
+];
+
 export function BreathingDisordersSection({ form }: BreathingDisordersSectionProps) {
   const diagnosed = form.watch('breathingDisorders.diagnosed');
-  const mouthBreathes = form.watch('breathingDisorders.mouthBreathes');
+  const snores = form.watch('breathingDisorders.snores');
+  const stopsBreathing = form.watch('breathingDisorders.stopsBreathing');
+  const wakesWithDryMouth = form.watch('breathingDisorders.wakesWithDryMouth');
+  const mouthBreathesDay = form.watch('breathingDisorders.mouthBreathesDay');
+
+  const showWarning =
+    !diagnosed &&
+    (snores ||
+      stopsBreathing ||
+      (wakesWithDryMouth && mouthBreathesDay));
 
   return (
     <div className='space-y-6'>
-      <div className='text-lg font-medium'>Sleep Related Breathing Disorders</div>
+      <div className='text-lg font-medium'>Sleep Related Breathing Difficulties</div>
+
+      <p className='text-muted-foreground text-sm'>
+        Obstructive Sleep Apnea Syndrome and Central Sleep Apnea Syndrome are conditions where
+        breathing is repeatedly interrupted during sleep. Risk factors include excess weight, large
+        neck circumference, and anatomical features. Untreated sleep apnea can lead to high blood
+        pressure, heart disease, stroke, and excessive daytime sleepiness.
+      </p>
 
       <Alert className='alert-info'>
         <AlertCircle className='h-4 w-4 text-primary' />
@@ -110,35 +132,76 @@ export function BreathingDisordersSection({ form }: BreathingDisordersSectionPro
         description='This is a serious symptom that should be evaluated'
       />
 
-      {/* Mouth breathing */}
+      {/* Dry mouth - standalone */}
       <CheckboxField
         control={form.control}
-        name='breathingDisorders.mouthBreathes'
-        label='Do you mouth breathe?'
+        name='breathingDisorders.wakesWithDryMouth'
+        label='I often wake up with a dry mouth'
       />
 
-      {/* Dry mouth - only show if they mouth breathe */}
-      {mouthBreathes && (
-        <CheckboxField
-          control={form.control}
-          name='breathingDisorders.wakesWithDryMouth'
-          label='Do you frequently wake up with a dry mouth?'
-        />
-      )}
+      {/* Mouth breathing during day */}
+      <CheckboxField
+        control={form.control}
+        name='breathingDisorders.mouthBreathesDay'
+        label='I typically breathe through my mouth during the day'
+      />
+
+      {/* Morning headache */}
+      <CheckboxField
+        control={form.control}
+        name='breathingDisorders.morningHeadache'
+        label='I often wake up with a headache in the morning'
+      />
+
+      {/* Airway crowding */}
+      <FormField
+        control={form.control}
+        name='breathingDisorders.airwayCrowding'
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className='text-base font-medium'>
+              Have you had any of the following? (check all that apply)
+            </FormLabel>
+            <div className='mt-3 space-y-2'>
+              {airwayCrowdingOptions.map(option => (
+                <FormItem
+                  key={option.value}
+                  className='hover:bg-muted/50 has-[[data-state=checked]]:border-primary/20 has-[[data-state=checked]]:bg-primary/5 flex flex-row items-center space-y-0 space-x-3 rounded-lg border border-transparent px-3 py-2.5 transition-colors'
+                >
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value?.includes(option.value)}
+                      onCheckedChange={checked => {
+                        return checked
+                          ? field.onChange([...field.value, option.value])
+                          : field.onChange(
+                              field.value?.filter((value: string) => value !== option.value)
+                            );
+                      }}
+                    />
+                  </FormControl>
+                  <FormLabel className='text-foreground/90 cursor-pointer font-normal'>
+                    {option.label}
+                  </FormLabel>
+                </FormItem>
+              ))}
+            </div>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       {/* Warning message if symptoms but not diagnosed */}
-      {!diagnosed &&
-        (form.watch('breathingDisorders.snores') ||
-          form.watch('breathingDisorders.stopsBreathing')) && (
-          <Alert className='alert-warning'>
-            <AlertCircle className='h-4 w-4 text-amber-600' />
-            <AlertDescription className='text-amber-900'>
-              Based on your responses, we recommend that you discuss treatment options with your
-              sleep specialist or primary care doctor. Sleep breathing disorders can significantly
-              impact your health.
-            </AlertDescription>
-          </Alert>
-        )}
+      {showWarning && (
+        <Alert className='alert-warning'>
+          <AlertCircle className='h-4 w-4 text-amber-600' />
+          <AlertDescription className='text-amber-900'>
+            Based on your response, you may have a sleep and breathing problem or disorder. We
+            strongly recommend that you discuss this with your sleep specialist or primary care
+            doctor.
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }
