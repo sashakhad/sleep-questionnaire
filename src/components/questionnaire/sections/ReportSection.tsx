@@ -13,6 +13,8 @@ import {
   Info,
   Printer,
   Download,
+  ExternalLink,
+  ClipboardList,
 } from 'lucide-react';
 
 interface ReportSectionProps {
@@ -139,7 +141,8 @@ function getInsomniaSeverity(data: QuestionnaireFormData, metrics: SleepMetrics)
   const hasSMI = metrics.scheduledWASO > 40 || metrics.unscheduledWASO > 40;
   const hasEMA =
     data.scheduledSleep.earlyWakeupMinutes && data.scheduledSleep.earlyWakeupMinutes > 20;
-  const hasDaytimeImpairment = data.daytime.tirednessInterferes;
+  const hasDaytimeImpairment =
+    (data.daytime.sleepinessInterference ?? 0) >= 5 || (data.daytime.fatigueInterference ?? 0) >= 5;
 
   if (!hasSOI && !hasSMI && !hasEMA) {
     return 'none';
@@ -192,21 +195,24 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
     (data.breathingDisorders.wakesWithDryMouth && data.breathingDisorders.mouthBreathesDay);
   const hasCOMISA = hasInsomnia && hasOSA; // Comorbid Insomnia and Sleep Apnea
   const hasRLS =
-    data.restlessLegs.troubleLyingStill &&
-    data.restlessLegs.urgeToMoveLegs &&
+    data.restlessLegs.hardToLieStill &&
     data.restlessLegs.movementRelieves;
   const hasNightmares = data.nightmares.nightmaresPerWeek && data.nightmares.nightmaresPerWeek >= 3;
   const hasPoorHygiene =
     data.lifestyle.caffeinePerDay > 4 ||
     (data.lifestyle.lastCaffeineTime &&
       parseInt(data.lifestyle.lastCaffeineTime.split(':')[0] ?? '0') >= 14);
-  const hasSevereTiredness = (data.daytime.tirednessSeverity ?? 0) > 8;
+  const hasSevereTiredness =
+    (data.daytime.sleepinessInterference ?? 0) >= 8 || (data.daytime.fatigueInterference ?? 0) >= 8;
 
   // Insufficient Sleep Syndrome detection
   // Criteria: < 7 hours sleep + daytime sleepiness/tiredness + not explained by other disorders
   const avgWeeklySleep = (metrics.scheduledTST * 5 + metrics.unscheduledTST * 2) / 7;
   const hasDaytimeSleepiness =
-    data.daytime.tirednessInterferes || hasEDS || data.daytime.fallAsleepDuring.length >= 3;
+    (data.daytime.sleepinessInterference ?? 0) >= 5 ||
+    (data.daytime.fatigueInterference ?? 0) >= 5 ||
+    hasEDS ||
+    data.daytime.fallAsleepDuring.length >= 3;
   const hasNarcolepsy =
     data.daytime.diagnosedNarcolepsy ||
     (data.daytime.weaknessWhenExcited.length > 0 && data.daytime.sleepParalysis);
@@ -218,9 +224,44 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
   const hasChronicFatigueSymptoms =
     data.daytime.nonRestorativeSleep &&
     data.daytime.muscleJointPain &&
-    data.daytime.tirednessInterferes;
+    (data.daytime.fatigueInterference ?? 0) >= 5;
   const hasPainAffectingSleep =
     data.daytime.painAffectsSleep && (data.daytime.painSeverity ?? 0) >= 5;
+
+  // Chronotype label
+  const chronotypeLabel =
+    chronotype === 'advanced'
+      ? 'Morning Lark'
+      : chronotype === 'delayed'
+        ? 'Night Owl'
+        : 'Neutral';
+
+  // Sleep paralysis detection (K)
+  const hasFrequentSleepParalysis = (data.daytime.sleepParalysisFrequency ?? 0) > 4;
+
+  // Sleep disorder history (I)
+  const previousDiagnoses = (data.sleepDisorderHistory?.previousDiagnoses ?? []).filter(
+    (d: string) => d !== 'none'
+  );
+  const hasPreviousDiagnoses = previousDiagnoses.length > 0;
+
+  const DISORDER_LABELS: Record<string, string> = {
+    insomnia: 'Insomnia Disorder',
+    osa: 'Obstructive Sleep Apnea Syndrome',
+    csa: 'Central Sleep Apnea Syndrome',
+    rls: 'Restless Leg Syndrome',
+    plmd: 'Periodic Limb Movement Disorder',
+    circadian: 'Circadian Rhythm Disorder',
+    narcolepsy: 'Narcolepsy',
+    hypersomnia: 'Idiopathic Hypersomnia',
+    nightmares: 'Nightmare Disorder',
+    parasomnia: 'Parasomnia',
+    enuresis: 'Enuresis (bedwetting)',
+    rbd: 'REM Behavioral Disorder',
+    insufficient: 'Insufficient Sleep',
+  };
+
+  const currentYear = new Date().getFullYear();
 
   const handlePrint = () => {
     window.print();
@@ -230,6 +271,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
     <div className='space-y-8 print:space-y-4'>
       {/* Header */}
       <div className='space-y-3 text-center'>
+        <div className='mb-2 flex items-center justify-center gap-2'>
+          <Moon className='text-primary h-6 w-6' />
+          <span className='text-primary text-xl font-bold tracking-tight'>SomnaHealth</span>
+        </div>
         <div className='from-primary/20 to-accent/20 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br'>
           <Moon className='text-primary h-8 w-8' />
         </div>
@@ -247,13 +292,16 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
         </p>
       </div>
 
-      {/* Thank you message */}
+      {/* Intro message */}
       <Alert className='border-primary/20 bg-primary/5'>
         <Heart className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
-          Thank you for completing the SomnaHealth comprehensive sleep questionnaire. With more than
-          4 decades of collective experience, our team created this questionnaire and personalized
-          report to provide you with guidance on improving your sleep health.
+          At SomnaHealth, our mission is to help you sleep better and live healthier because optimal
+          sleep is the foundation of lifelong wellness. That&apos;s why we offer free tools and
+          easy-to-understand guidance from our team of board-certified sleep experts. Whether you want
+          to improve your nightly rest or address a specific sleep issue, we&apos;re here to help. We
+          have provided a personalized set of links to where there are free resources, and a few
+          premium options and links to our board certified sleep experts.
         </AlertDescription>
       </Alert>
 
@@ -263,7 +311,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
           <AlertCircle className='h-5 w-5 text-red-600' />
           <AlertDescription className='text-red-900'>
             <strong className='mb-2 block text-lg'>Urgent Safety Warning</strong>
-            Your reported tiredness severity ({data.daytime.tirednessSeverity}/10) indicates a
+            Your reported severity ({Math.max(data.daytime.sleepinessInterference ?? 0, data.daytime.fatigueInterference ?? 0)}/10) indicates a
             significant safety concern. You should seek immediate help from a healthcare
             professional. Until you have done so, please consider avoiding potentially dangerous
             activities such as:
@@ -404,6 +452,12 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                 </span>
               )}
             </p>
+            <p className='text-foreground/80 mt-2 text-sm'>
+              <strong className='text-foreground'>Chronotype:</strong>{' '}
+              <span className='text-primary font-semibold'>{chronotypeLabel}</span>
+              {chronotype === 'delayed' && ' — You tend to sleep and wake later than conventional times.'}
+              {chronotype === 'advanced' && ' — You tend to sleep and wake earlier than conventional times.'}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -542,6 +596,19 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
+            {hasFrequentSleepParalysis && (
+              <div className='flex items-start space-x-3'>
+                <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>Frequent Sleep Paralysis</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    You report frequent episodes of sleep paralysis. This may warrant evaluation for
+                    narcolepsy, delayed sleep phase disorder, or insufficient sleep.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {hasInsufficientSleep && (
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
@@ -593,6 +660,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               !hasRLS &&
               !hasNightmares &&
               !hasPoorHygiene &&
+              !hasFrequentSleepParalysis &&
               !hasInsufficientSleep &&
               !hasChronicFatigueSymptoms &&
               !hasPainAffectingSleep && (
@@ -609,6 +677,58 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Previous Diagnoses (I) */}
+      {hasPreviousDiagnoses && (
+        <Card className='shadow-sleep overflow-hidden border-0'>
+          <CardHeader className='bg-gradient-sleep-header text-white'>
+            <CardTitle className='flex items-center space-x-2 text-white'>
+              <ClipboardList className='h-5 w-5' />
+              <span>Your Previous Diagnoses</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='pt-6'>
+            <div className='space-y-4'>
+              {previousDiagnoses.map((disorder: string) => {
+                const label = DISORDER_LABELS[disorder] ?? disorder;
+                const isOSADiagnosis = disorder === 'osa';
+                const isOSATreated =
+                  isOSADiagnosis &&
+                  data.breathingDisorders.diagnosed &&
+                  data.breathingDisorders.treatment.length > 0;
+
+                return (
+                  <div key={disorder} className='rounded-lg border p-4'>
+                    <p className='text-foreground/90 text-sm'>
+                      You indicated that you have been diagnosed with{' '}
+                      <strong>{label}</strong>.
+                    </p>
+                    {isOSADiagnosis && isOSATreated && (
+                      <p className='text-foreground/80 mt-2 text-sm'>
+                        The data you provided confirms you are being treated for this condition. We
+                        encourage you to continue treatment and follow up with your healthcare
+                        provider.
+                      </p>
+                    )}
+                    {isOSADiagnosis && !isOSATreated && (
+                      <p className='mt-2 text-sm text-amber-700'>
+                        We strongly recommend discussing treatment options with your sleep specialist
+                        or primary care doctor.
+                      </p>
+                    )}
+                    {!isOSADiagnosis && (
+                      <p className='text-foreground/70 mt-2 text-sm'>
+                        If you are not currently receiving treatment, we recommend consulting a sleep
+                        specialist.
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Personalized Recommendations */}
       <Card className='shadow-sleep overflow-hidden border-0'>
@@ -780,6 +900,23 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                 <li>Keep bedroom temperature cool (60-67°F / 15-19°C)</li>
                 <li>Use your bed only for sleep and intimacy</li>
               </ul>
+            </div>
+
+            {/* SomnaHealth link (L) */}
+            <div className='border-primary/20 bg-primary/5 mt-4 rounded-xl border p-4'>
+              <p className='text-foreground/90 text-sm'>
+                For your optimal sleep health, SomnaHealth provides free resources and guidance to
+                maximize your sleep and improve your quality of life.{' '}
+                <a
+                  href='https://www.somnahealth.com/services'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-primary inline-flex items-center gap-1 font-medium hover:underline'
+                >
+                  Visit SomnaHealth Services
+                  <ExternalLink className='h-3 w-3' />
+                </a>
+              </p>
             </div>
           </div>
         </CardContent>
@@ -1007,6 +1144,11 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
           sleep disorders. If you are experiencing a medical emergency, call 911 immediately.
         </AlertDescription>
       </Alert>
+
+      {/* Copyright (N) */}
+      <div className='text-muted-foreground text-center text-xs'>
+        <p>&copy; {currentYear} SomnaHealth. All rights reserved.</p>
+      </div>
     </div>
   );
 }
