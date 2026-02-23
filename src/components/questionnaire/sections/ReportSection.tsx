@@ -220,6 +220,28 @@ function getChronotype(metrics: SleepMetrics, preference: string): { type: strin
   return { type, chronotypeLabel };
 }
 
+// Helper to format metric values — shows "N/A" when no sleep data was entered
+function formatHours(hours: number): string {
+  if (!Number.isFinite(hours) || hours <= 0) {
+    return 'N/A';
+  }
+  return `${hours.toFixed(1)} hours`;
+}
+
+function formatPercent(pct: number): string {
+  if (!Number.isFinite(pct)) {
+    return 'N/A';
+  }
+  return `${pct.toFixed(0)}%`;
+}
+
+function formatMinutes(mins: number): string {
+  if (!Number.isFinite(mins)) {
+    return 'N/A';
+  }
+  return `${mins} minutes`;
+}
+
 export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
   const metrics = calculateSleepMetrics(data);
   const insomniaSeverity = getInsomniaSeverity(data, metrics);
@@ -385,7 +407,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='space-y-2 text-sm'>
                 <div className='flex justify-between'>
                   <span>Average Sleep Duration:</span>
-                  <span className='font-medium'>{metrics.scheduledTST.toFixed(1)} hours</span>
+                  <span className='font-medium'>{formatHours(metrics.scheduledTST)}</span>
                 </div>
                 <div className='flex justify-between'>
                   <span>Sleep Efficiency:</span>
@@ -399,7 +421,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                           : 'text-red-600'
                     )}
                   >
-                    {metrics.scheduledSE.toFixed(0)}%
+                    {formatPercent(metrics.scheduledSE)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -410,7 +432,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                       metrics.scheduledSOL <= 30 ? 'text-green-600' : 'text-amber-600'
                     )}
                   >
-                    {metrics.scheduledSOL} minutes
+                    {formatMinutes(metrics.scheduledSOL)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -421,7 +443,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                       metrics.scheduledWASO <= 40 ? 'text-green-600' : 'text-amber-600'
                     )}
                   >
-                    {metrics.scheduledWASO} minutes
+                    {formatMinutes(metrics.scheduledWASO)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -436,7 +458,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='space-y-2 text-sm'>
                 <div className='flex justify-between'>
                   <span>Average Sleep Duration:</span>
-                  <span className='font-medium'>{metrics.unscheduledTST.toFixed(1)} hours</span>
+                  <span className='font-medium'>{formatHours(metrics.unscheduledTST)}</span>
                 </div>
                 <div className='flex justify-between'>
                   <span>Sleep Efficiency:</span>
@@ -450,7 +472,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                           : 'text-red-600'
                     )}
                   >
-                    {metrics.unscheduledSE.toFixed(0)}%
+                    {formatPercent(metrics.unscheduledSE)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -461,7 +483,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                       metrics.unscheduledSOL <= 30 ? 'text-green-600' : 'text-amber-600'
                     )}
                   >
-                    {metrics.unscheduledSOL} minutes
+                    {formatMinutes(metrics.unscheduledSOL)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -472,7 +494,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                       metrics.unscheduledWASO <= 40 ? 'text-green-600' : 'text-amber-600'
                     )}
                   >
-                    {metrics.unscheduledWASO} minutes
+                    {formatMinutes(metrics.unscheduledWASO)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -487,7 +509,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
             <p className='text-foreground/80 text-sm'>
               <strong className='text-foreground'>Weekly Average Sleep:</strong>{' '}
               <span className='text-primary font-semibold'>
-                {metrics.weeklyAvgTST.toFixed(1)} hours
+                {formatHours(metrics.weeklyAvgTST)}
               </span>{' '}
               (weighted: 5× workdays + 2× weekends)
             </p>
