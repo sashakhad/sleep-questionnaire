@@ -57,7 +57,9 @@ export function YearComboboxField<TFieldValues extends FieldValues = FieldValues
 
   // Filter years based on search - prefix matching
   const filteredYears = useMemo(() => {
-    if (!searchValue) return allYears;
+    if (!searchValue) {
+      return allYears;
+    }
     return allYears.filter(year => year.toString().startsWith(searchValue));
   }, [allYears, searchValue]);
 
@@ -70,7 +72,9 @@ export function YearComboboxField<TFieldValues extends FieldValues = FieldValues
           <FormLabel>{label}</FormLabel>
           <Popover open={open} onOpenChange={(isOpen) => {
             setOpen(isOpen);
-            if (!isOpen) setSearchValue('');
+            if (!isOpen) {
+              setSearchValue('');
+            }
           }}>
             <PopoverTrigger asChild>
               <FormControl>

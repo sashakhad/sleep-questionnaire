@@ -48,17 +48,12 @@ const rlsTreatmentOptions = [
 ];
 
 export function SleepDisorderDiagnosesSection({ form }: SleepDisorderDiagnosesSectionProps) {
-  const diagnosedDisorders = form.watch('sleepDisorderDiagnoses.diagnosedDisorders') || [];
   const diagnosedOSA = form.watch('sleepDisorderDiagnoses.diagnosedOSA');
   const osaTreated = form.watch('sleepDisorderDiagnoses.osaTreated');
   const osaTreatmentEffective = form.watch('sleepDisorderDiagnoses.osaTreatmentEffective');
   const diagnosedRLS = form.watch('sleepDisorderDiagnoses.diagnosedRLS');
   const rlsTreated = form.watch('sleepDisorderDiagnoses.rlsTreated');
   const rlsTreatmentEffective = form.watch('sleepDisorderDiagnoses.rlsTreatmentEffective');
-
-  // Show detailed sections if they selected sleep apnea or RLS from the list
-  const hasSelectedSleepApnea = diagnosedDisorders.includes('obstructive_sleep_apnea') || diagnosedDisorders.includes('central_sleep_apnea') || diagnosedOSA;
-  const hasSelectedRLS = diagnosedDisorders.includes('rls') || diagnosedRLS;
 
   return (
     <div className='space-y-6'>
