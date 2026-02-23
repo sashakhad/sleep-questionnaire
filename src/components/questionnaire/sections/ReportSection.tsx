@@ -289,11 +289,8 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
   // Use centralized diagnosis algorithms for additional findings not covered by inline logic
   const diagnosisReport: DiagnosisReport = generateDiagnosisReport(data);
 
-  // Mild respiratory disturbance (snoring-only or mouth-breathing-only, no stopsBreathing)
   const hasMildRespiratoryDisturbance =
-    !data.breathingDisorders.stopsBreathing &&
-    !hasOSA &&
-    (data.breathingDisorders.snores || data.breathingDisorders.mouthBreathes);
+    !hasOSA && diagnosisReport.sleepApnea.hasMildRespiratoryDisturbance;
 
   // Nocturnal leg cramps (frequency-based: ≥2 nights/week)
   const hasLegCrampsConcern =
