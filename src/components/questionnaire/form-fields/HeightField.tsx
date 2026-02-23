@@ -51,14 +51,16 @@ export function HeightField<TFieldValues extends FieldValues = FieldValues>({
   const displayInches = derivedInches;
 
   function handleFeetChange(newFeet: number | null) {
-    if (newFeet !== null) {
-      // If inches are already selected, update the form immediately
-      const currentInches = derivedInches ?? 0;
-      field.onChange(newFeet * 12 + currentInches);
-      setPendingFeet(null);
-    } else {
+    if (newFeet === null) {
       field.onChange(null);
       setPendingFeet(null);
+      return;
+    }
+    if (derivedInches !== null) {
+      field.onChange(newFeet * 12 + derivedInches);
+      setPendingFeet(null);
+    } else {
+      setPendingFeet(newFeet);
     }
   }
 
