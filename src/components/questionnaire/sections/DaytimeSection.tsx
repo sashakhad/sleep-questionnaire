@@ -1,5 +1,6 @@
 import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
+import { EDS_WEIGHTS } from '@/lib/diagnosis-algorithms';
 import { CheckboxField } from '../form-fields/CheckboxField';
 import { NumberField } from '../form-fields/NumberField';
 import { RadioGroupField } from '../form-fields/RadioGroupField';
@@ -43,12 +44,10 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
   const weaknessWhenExcited = form.watch('daytime.weaknessWhenExcited');
 
   // Calculate EDS dozing score for narcolepsy/cataplexy popup trigger
-  const edsWeights: Record<string, number> = {
-    stoplight: 2, lectures: 1, working: 1, conversation: 2, evening: 1, meal: 2,
-  };
-  const edsDozingScore = (fallAsleepDuring ?? []).reduce(
-    (sum: number, activity: string) => sum + (edsWeights[activity] ?? 1), 0
-  );
+  let edsDozingScore = 0;
+  for (const activity of fallAsleepDuring ?? []) {
+    edsDozingScore += EDS_WEIGHTS[activity] ?? 1;
+  }
 
   // Show narcolepsy/cataplexy alert when ANY cataplexy symptom is endorsed
   // OR when falling asleep dozing score > 6

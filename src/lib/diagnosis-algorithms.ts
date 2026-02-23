@@ -292,7 +292,7 @@ export function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics
 // EDS (EXCESSIVE DAYTIME SLEEPINESS) SCORING
 // =============================================================================
 
-const EDS_WEIGHTS: Record<string, number> = {
+export const EDS_WEIGHTS: Record<string, number> = {
   stoplight: 2,
   lectures: 1,
   working: 1,
