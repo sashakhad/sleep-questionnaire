@@ -120,14 +120,16 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
         description='Frequent jet lag can disrupt your circadian rhythm'
       />
 
-      {/* Work/school schedule */}
-      <TimeField
-        control={form.control}
-        name='chronotype.workSchoolTime'
-        label='On scheduled/work/school days, what time do you have to be at work/school?'
-        defaultPeriod='AM'
-        description='Leave blank if your schedule varies significantly'
-      />
+      {/* Work/school schedule - only show when user has a set schedule preference */}
+      {(preference === 'early' || preference === 'late' || shiftWork) && (
+        <TimeField
+          control={form.control}
+          name='chronotype.workSchoolTime'
+          label='On scheduled/work/school days, what time do you have to be at work/school?'
+          defaultPeriod='AM'
+          description='Leave blank if your schedule varies significantly'
+        />
+      )}
 
       {/* Delayed Sleep Phase Syndrome warning */}
       {preference === 'late' && (
