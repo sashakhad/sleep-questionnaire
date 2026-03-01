@@ -2,7 +2,6 @@ import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { CheckboxField } from '../form-fields/CheckboxField';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, Info } from 'lucide-react';
@@ -22,8 +21,6 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
   const hasNightBehaviors = form.watch('parasomnia.nightBehaviors')?.length > 0;
   const remembersEvents = form.watch('parasomnia.remembersEvents');
   const actsOutDreams = form.watch('parasomnia.actsOutDreams');
-  const diagnosedParasomnia = form.watch('parasomnia.diagnosedParasomnia');
-  const receivedTreatment = form.watch('parasomnia.receivedTreatment');
 
   return (
     <div className='space-y-6'>
@@ -123,59 +120,8 @@ export function ParasomniaSection({ form }: ParasomniaSectionProps) {
         description='If yes, we suggest discussing this with your primary care doctor or an endocrinologist'
       />
 
-      {/* Parasomnia diagnosis */}
-      <CheckboxField
-        control={form.control}
-        name='parasomnia.diagnosedParasomnia'
-        label='I have been diagnosed with a parasomnia'
-      />
-
-      {/* If diagnosed, get details */}
-      {diagnosedParasomnia && (
-        <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
-          <FormField
-            control={form.control}
-            name='parasomnia.parasomniaType'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Which parasomnia were you diagnosed with?</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder='e.g., sleepwalking, night terrors, sleep eating...'
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <CheckboxField
-            control={form.control}
-            name='parasomnia.receivedTreatment'
-            label='I have received treatment for my parasomnia'
-          />
-
-          {receivedTreatment && (
-            <FormField
-              control={form.control}
-              name='parasomnia.treatmentType'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>What type of treatment?</FormLabel>
-                  <FormControl>
-                    <Input placeholder='e.g., medication, behavioral therapy...' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
-        </div>
-      )}
-
-      {/* Safety warning for untreated parasomnia */}
-      {(hasNightBehaviors || diagnosedParasomnia) && !receivedTreatment && (
+      {/* Safety warning for parasomnia behaviors */}
+      {hasNightBehaviors && (
         <Alert className='alert-warning'>
           <AlertTriangle className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
