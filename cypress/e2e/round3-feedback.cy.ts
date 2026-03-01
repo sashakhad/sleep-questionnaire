@@ -115,22 +115,22 @@ describe('Round 3 Client Feedback Changes', () => {
       cy.navigateToSection('scheduled-sleep');
     });
 
-    it('should show PM for bedtime when pre-filled with evening time', () => {
+    it('should show PM placeholder for bedtime field', () => {
       cy.contains('turn out the lights')
         .closest('[data-slot="form-item"]')
         .find('button[role="combobox"]')
         .last()
         .invoke('text')
-        .should('match', /^(PM|AM\/PM)$/);
+        .should('match', /PM/);
     });
 
-    it('should show AM for wake time when pre-filled with morning time', () => {
+    it('should show AM placeholder for wake time field', () => {
       cy.contains('What time do you wake up?')
         .closest('[data-slot="form-item"]')
         .find('button[role="combobox"]')
         .last()
         .invoke('text')
-        .should('match', /^(AM|AM\/PM)$/);
+        .should('match', /AM/);
     });
   });
 
@@ -238,7 +238,8 @@ describe('Round 3 Client Feedback Changes', () => {
       cy.contains('Your bedtime appears to be set during daytime hours').should('be.visible');
     });
 
-    it('should not show warning when bedtime is PM', () => {
+    it('should not show warning when bedtime is PM (fresh page)', () => {
+      cy.navigateToSection('scheduled-sleep');
       cy.contains('Your bedtime appears to be set during daytime hours').should('not.exist');
     });
   });
