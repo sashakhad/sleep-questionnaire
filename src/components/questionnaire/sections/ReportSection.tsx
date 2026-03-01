@@ -4,6 +4,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
+  generateDiagnosisReport,
+  type DiagnosisReport,
+} from '@/lib/diagnosis-algorithms';
+import {
   Moon,
   Brain,
   Heart,
@@ -216,6 +220,28 @@ function getChronotype(metrics: SleepMetrics, preference: string): { type: strin
   return { type, chronotypeLabel };
 }
 
+// Helper to format metric values — shows "N/A" when no sleep data was entered
+function formatHours(hours: number): string {
+  if (!Number.isFinite(hours) || hours <= 0) {
+    return 'N/A';
+  }
+  return `${hours.toFixed(1)} hours`;
+}
+
+function formatPercent(pct: number): string {
+  if (!Number.isFinite(pct)) {
+    return 'N/A';
+  }
+  return `${pct.toFixed(0)}%`;
+}
+
+function formatMinutes(mins: number): string {
+  if (!Number.isFinite(mins)) {
+    return 'N/A';
+  }
+  return `${mins} minutes`;
+}
+
 export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
   const metrics = calculateSleepMetrics(data);
   const insomniaSeverity = getInsomniaSeverity(data, metrics);
@@ -281,6 +307,33 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
     data.daytime.sleepinessInterferes;
   const hasPainAffectingSleep =
     data.daytime.painAffectsSleep && (data.daytime.painSeverity ?? 0) >= 5;
+
+  // Use centralized diagnosis algorithms for additional findings not covered by inline logic
+  const diagnosisReport: DiagnosisReport = generateDiagnosisReport(data);
+
+  const hasMildRespiratoryDisturbance =
+    !hasOSA && diagnosisReport.sleepApnea.hasMildRespiratoryDisturbance;
+
+  // Nocturnal leg cramps (frequency-based: ≥2 nights/week)
+  const hasLegCrampsConcern =
+    data.restlessLegs.legCramps &&
+    (data.restlessLegs.legCrampsPerWeek ?? 0) >= 2;
+
+  // Treatment ineffectiveness
+  const osaTreatmentIneffective =
+    data.sleepDisorderDiagnoses.diagnosedOSA &&
+    data.sleepDisorderDiagnoses.osaTreated &&
+    data.sleepDisorderDiagnoses.osaTreatmentEffective === false;
+  const rlsTreatmentIneffective =
+    data.sleepDisorderDiagnoses.diagnosedRLS &&
+    data.sleepDisorderDiagnoses.rlsTreated &&
+    data.sleepDisorderDiagnoses.rlsTreatmentEffective === false;
+
+  // Pain-related sleep disturbance (from centralized algorithm)
+  const hasPainRelatedSleepDisturbance = diagnosisReport.painRelated.hasCondition;
+
+  // Medication-related sleep disturbance (from centralized algorithm)
+  const hasMedicationRelatedSleepDisturbance = diagnosisReport.medicationRelated.hasCondition;
 
   const handlePrint = () => {
     window.print();
@@ -354,7 +407,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='space-y-2 text-sm'>
                 <div className='flex justify-between'>
                   <span>Average Sleep Duration:</span>
-                  <span className='font-medium'>{metrics.scheduledTST.toFixed(1)} hours</span>
+                  <span className='font-medium'>{formatHours(metrics.scheduledTST)}</span>
                 </div>
                 <div className='flex justify-between'>
                   <span>Sleep Efficiency:</span>
@@ -368,7 +421,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                           : 'text-red-600'
                     )}
                   >
-                    {metrics.scheduledSE.toFixed(0)}%
+                    {formatPercent(metrics.scheduledSE)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -379,7 +432,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                       metrics.scheduledSOL <= 30 ? 'text-green-600' : 'text-amber-600'
                     )}
                   >
-                    {metrics.scheduledSOL} minutes
+                    {formatMinutes(metrics.scheduledSOL)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -390,7 +443,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                       metrics.scheduledWASO <= 40 ? 'text-green-600' : 'text-amber-600'
                     )}
                   >
-                    {metrics.scheduledWASO} minutes
+                    {formatMinutes(metrics.scheduledWASO)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -405,7 +458,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='space-y-2 text-sm'>
                 <div className='flex justify-between'>
                   <span>Average Sleep Duration:</span>
-                  <span className='font-medium'>{metrics.unscheduledTST.toFixed(1)} hours</span>
+                  <span className='font-medium'>{formatHours(metrics.unscheduledTST)}</span>
                 </div>
                 <div className='flex justify-between'>
                   <span>Sleep Efficiency:</span>
@@ -419,7 +472,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                           : 'text-red-600'
                     )}
                   >
-                    {metrics.unscheduledSE.toFixed(0)}%
+                    {formatPercent(metrics.unscheduledSE)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -430,7 +483,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                       metrics.unscheduledSOL <= 30 ? 'text-green-600' : 'text-amber-600'
                     )}
                   >
-                    {metrics.unscheduledSOL} minutes
+                    {formatMinutes(metrics.unscheduledSOL)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -441,7 +494,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                       metrics.unscheduledWASO <= 40 ? 'text-green-600' : 'text-amber-600'
                     )}
                   >
-                    {metrics.unscheduledWASO} minutes
+                    {formatMinutes(metrics.unscheduledWASO)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -456,7 +509,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
             <p className='text-foreground/80 text-sm'>
               <strong className='text-foreground'>Weekly Average Sleep:</strong>{' '}
               <span className='text-primary font-semibold'>
-                {metrics.weeklyAvgTST.toFixed(1)} hours
+                {formatHours(metrics.weeklyAvgTST)}
               </span>{' '}
               (weighted: 5× workdays + 2× weekends)
             </p>
@@ -678,7 +731,24 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasPainAffectingSleep && !hasChronicFatigueSymptoms && (
+            {hasPainRelatedSleepDisturbance && (
+              <div className='flex items-start space-x-3'>
+                <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>Pain-Related Sleep Disturbance</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    It is common for those who experience acute or chronic pain to have poor sleep
+                    quality. There is a bidirectional relationship between inadequate sleep and pain
+                    during the night and day. Addressing your sleep problems and adequate treatment
+                    of your pain is important. Please refer to our website for more information on
+                    this important relationship and discuss this finding with your primary medical
+                    provider.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {hasPainAffectingSleep && !hasChronicFatigueSymptoms && !hasPainRelatedSleepDisturbance && (
               <div className='flex items-start space-x-3'>
                 <Info className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
@@ -686,6 +756,83 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                   <p className='text-muted-foreground text-sm'>
                     Moderate to severe pain ({data.daytime.painSeverity}/10) is affecting your sleep
                     quality. Pain management should be addressed alongside sleep treatment.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {hasMedicationRelatedSleepDisturbance && (
+              <div className='flex items-start space-x-3'>
+                <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>Medication-Related Sleep Disturbance</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    The medications that you are currently taking can contribute to sleep disturbance
+                    and your sleepiness/tiredness or fatigue during the day. Please check out our
+                    website for more information and discuss the impact of your medications on your
+                    sleep with your medical provider. Do not discontinue prescription or over the
+                    counter medications that your medical providers have recommended.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {hasMildRespiratoryDisturbance && !hasCOMISA && (
+              <div className='flex items-start space-x-3'>
+                <Info className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>Mild Respiratory Disturbance</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    You have at least mild symptoms of sleep-related respiratory disturbance that may
+                    require more assessment. Both snoring and mouth breathing alone or together cause
+                    sleep disruption and may place a burden on your cardiovascular and respiratory
+                    system. Please see our website for more detailed information and discuss your
+                    symptoms with your medical provider or a sleep specialist.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {hasLegCrampsConcern && (
+              <div className='flex items-start space-x-3'>
+                <Info className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>Nocturnal Leg Cramps</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    Your nocturnal leg cramps can be sleep disruptors and can be a sign of age,
+                    muscle fatigue, an electrolyte or other imbalance. They can be more common during
+                    pregnancy. Since these occur on two or more nights a week, we suggest that you
+                    discuss these symptoms with your primary care provider.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {osaTreatmentIneffective && (
+              <div className='flex items-start space-x-3'>
+                <AlertCircle className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>Sleep Apnea Treatment Not Fully Effective</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    You indicated that despite being treated for sleep apnea, you are still having
+                    symptoms. Please see the section on our website related to your disorder and
+                    discuss with your primary care provider. You may benefit from a consultation with
+                    a sleep specialist.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {rlsTreatmentIneffective && (
+              <div className='flex items-start space-x-3'>
+                <AlertCircle className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>RLS Treatment Not Fully Effective</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    You indicated that despite being treated for restless legs syndrome, you are
+                    still having symptoms. Please see the section on our website related to your
+                    disorder and discuss with your primary care provider. You may benefit from a
+                    consultation with a sleep specialist.
                   </p>
                 </div>
               </div>
@@ -700,7 +847,13 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               !hasPoorHygiene &&
               !hasInsufficientSleep &&
               !hasChronicFatigueSymptoms &&
-              !hasPainAffectingSleep && (
+              !hasPainAffectingSleep &&
+              !hasPainRelatedSleepDisturbance &&
+              !hasMedicationRelatedSleepDisturbance &&
+              !hasMildRespiratoryDisturbance &&
+              !hasLegCrampsConcern &&
+              !osaTreatmentIneffective &&
+              !rlsTreatmentIneffective && (
                 <div className='flex items-start space-x-3'>
                   <CheckCircle className='mt-0.5 h-5 w-5 text-green-500' />
                   <div>
@@ -797,12 +950,46 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasPainAffectingSleep && (
+            {hasPainRelatedSleepDisturbance && (
+              <div>
+                <h4 className='mb-2 font-semibold'>For Pain-Related Sleep Disturbance:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Addressing both your sleep problems and pain is important for improving your
+                  quality of life. Visit our website for more information on the relationship
+                  between pain and sleep and discuss this finding with your primary medical provider.
+                </p>
+              </div>
+            )}
+
+            {hasPainAffectingSleep && !hasPainRelatedSleepDisturbance && (
               <div>
                 <h4 className='mb-2 font-semibold'>For Pain Affecting Sleep:</h4>
                 <p className='text-foreground/80 text-sm'>
                   Pain is affecting your sleep quality. Visit our website for information on pain
                   management strategies and how to improve sleep when dealing with chronic pain.
+                </p>
+              </div>
+            )}
+
+            {hasMedicationRelatedSleepDisturbance && (
+              <div>
+                <h4 className='mb-2 font-semibold'>For Medication-Related Sleep Disturbance:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Your medications may be contributing to your sleep difficulties. Visit our website
+                  for more information and discuss the impact of your medications on your sleep with
+                  your medical provider. Do not discontinue any medications without consulting your
+                  prescribing provider.
+                </p>
+              </div>
+            )}
+
+            {hasMildRespiratoryDisturbance && !hasOSA && !hasCOMISA && (
+              <div>
+                <h4 className='mb-2 font-semibold'>For Respiratory Disturbance:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Your snoring and/or mouth breathing may be disrupting your sleep. Visit our
+                  website for more information and discuss your symptoms with your medical provider
+                  or a sleep specialist.
                 </p>
               </div>
             )}

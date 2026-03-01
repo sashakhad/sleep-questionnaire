@@ -1,5 +1,6 @@
 import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
+import { EDS_WEIGHTS } from '@/lib/diagnosis-algorithms';
 import { CheckboxField } from '../form-fields/CheckboxField';
 import { NumberField } from '../form-fields/NumberField';
 import { RadioGroupField } from '../form-fields/RadioGroupField';
@@ -40,6 +41,18 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
   // Watch values for conditional rendering
   const fallAsleepDuring = form.watch('daytime.fallAsleepDuring');
   const sleepinessInterferes = form.watch('daytime.sleepinessInterferes');
+  const weaknessWhenExcited = form.watch('daytime.weaknessWhenExcited');
+
+  // Calculate EDS dozing score for narcolepsy/cataplexy popup trigger
+  let edsDozingScore = 0;
+  for (const activity of fallAsleepDuring ?? []) {
+    edsDozingScore += EDS_WEIGHTS[activity] ?? 1;
+  }
+
+  // Show narcolepsy/cataplexy alert when ANY cataplexy symptom is endorsed
+  // OR when falling asleep dozing score > 6
+  const showNarcolepsyCataplexAlert =
+    (weaknessWhenExcited?.length ?? 0) > 0 || edsDozingScore > 6;
 
   // Show narcolepsy/hypersomnia questions only if fall asleep during activities AND sleepiness interferes
   const showNarcolepsyQuestions =
@@ -304,6 +317,19 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
             description='E.g., idiopathic, post viral, post concussion'
           />
         </>
+      )}
+
+      {/* Narcolepsy/Cataplexy/EDS alert - triggers on cataplexy symptoms OR high dozing score */}
+      {showNarcolepsyCataplexAlert && (
+        <Alert className='border-red-200/80 bg-red-50/80'>
+          <AlertTriangle className='h-5 w-5 text-red-600' />
+          <AlertDescription className='text-red-900'>
+            <strong className='mb-2 block text-red-700'>Important Notice</strong>
+            You have signs and symptoms of excessive daytime sleepiness, narcolepsy or idiopathic
+            hypersomnia. We will provide guidance on next steps in your report. Please be aware
+            that these disorders can increase risk of injuries and car accidents.
+          </AlertDescription>
+        </Alert>
       )}
 
       {/* Sleep Quality Section (formerly Pain and Energy Levels) */}

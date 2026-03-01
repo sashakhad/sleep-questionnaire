@@ -34,7 +34,9 @@ function parseTime(time: string): { hour: string; minute: string; period: 'AM' |
   const minute = m ?? 0
   
   let hour12 = hour24 % 12
-  if (hour12 === 0) hour12 = 12
+  if (hour12 === 0) {
+    hour12 = 12
+  }
   const period: 'AM' | 'PM' = hour24 < 12 ? 'AM' : 'PM'
   
   return {
@@ -78,9 +80,15 @@ export function TimeField<T extends FieldValues>({
           const current = parseTime(field.value as string)
           const newParsed = { ...current }
           
-          if (type === 'hour') newParsed.hour = value
-          if (type === 'minute') newParsed.minute = value
-          if (type === 'period') newParsed.period = value as 'AM' | 'PM'
+          if (type === 'hour') {
+            newParsed.hour = value
+          }
+          if (type === 'minute') {
+            newParsed.minute = value
+          }
+          if (type === 'period') {
+            newParsed.period = value as 'AM' | 'PM'
+          }
           
           const newTime = formatTime(newParsed.hour, newParsed.minute, newParsed.period)
           field.onChange(newTime)

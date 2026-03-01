@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Control, FieldValues, Path, useController } from 'react-hook-form';
 import {
   FormDescription,
@@ -31,36 +31,46 @@ export function HeightField<TFieldValues extends FieldValues = FieldValues>({
 }: HeightFieldProps<TFieldValues>) {
   const { field, fieldState } = useController({ control, name });
 
-  // Convert total inches to feet/inches for display
+  // Derive feet/inches directly from the form value (single source of truth).
+  // Local "partial" state is only used when the user has picked feet but not
+  // yet picked inches, so we can show the feet selection without writing a
+  // partial value back to the form.
   const totalInches = field.value as number | null;
-  const initialFeet = totalInches ? Math.floor(totalInches / 12) : null;
-  const initialInches = totalInches ? totalInches % 12 : null;
+  const derivedFeet = (totalInches !== null && totalInches !== undefined)
+    ? Math.floor(totalInches / 12)
+    : null;
+  const derivedInches = (totalInches !== null && totalInches !== undefined)
+    ? totalInches % 12
+    : null;
 
-  const [feet, setFeet] = useState<number | null>(initialFeet);
-  const [inches, setInches] = useState<number | null>(initialInches);
+  // Track a partial feet selection that hasn't been committed to the form yet
+  const [pendingFeet, setPendingFeet] = useState<number | null>(null);
 
-  // Update form value when feet or inches change
-  useEffect(() => {
-    if (feet !== null && inches !== null) {
-      const total = feet * 12 + inches;
-      field.onChange(total);
-    } else if (feet !== null && inches === null) {
-      // If only feet is selected, use 0 inches
-      field.onChange(feet * 12);
-    } else {
+  // The displayed feet value: use form-derived when available, else pending
+  const displayFeet = derivedFeet ?? pendingFeet;
+  const displayInches = derivedInches;
+
+  function handleFeetChange(newFeet: number | null) {
+    if (newFeet === null) {
       field.onChange(null);
+      setPendingFeet(null);
+      return;
     }
-  }, [feet, inches, field]);
+    if (derivedInches !== null) {
+      field.onChange(newFeet * 12 + derivedInches);
+      setPendingFeet(null);
+    } else {
+      setPendingFeet(newFeet);
+    }
+  }
 
-  // Sync from form to local state when form value changes externally
-  useEffect(() => {
-    if (totalInches !== null && totalInches !== undefined) {
-      const newFeet = Math.floor(totalInches / 12);
-      const newInches = totalInches % 12;
-      if (newFeet !== feet) setFeet(newFeet);
-      if (newInches !== inches) setInches(newInches);
+  function handleInchesChange(newInches: number | null) {
+    const currentFeet = derivedFeet ?? pendingFeet;
+    if (currentFeet !== null && newInches !== null) {
+      field.onChange(currentFeet * 12 + newInches);
+      setPendingFeet(null);
     }
-  }, [totalInches]);
+  }
 
   // Generate options for feet (3-7 feet covers most adults)
   const feetOptions = [3, 4, 5, 6, 7];
@@ -72,8 +82,8 @@ export function HeightField<TFieldValues extends FieldValues = FieldValues>({
       <FormLabel>{label}</FormLabel>
       <div className='flex gap-2'>
         <Select
-          value={feet?.toString() ?? ''}
-          onValueChange={(value) => setFeet(value ? parseInt(value, 10) : null)}
+          value={displayFeet?.toString() ?? ''}
+          onValueChange={(value) => handleFeetChange(value ? parseInt(value, 10) : null)}
         >
           <SelectTrigger className='w-24'>
             <SelectValue placeholder='Feet' />
@@ -88,8 +98,8 @@ export function HeightField<TFieldValues extends FieldValues = FieldValues>({
         </Select>
 
         <Select
-          value={inches?.toString() ?? ''}
-          onValueChange={(value) => setInches(value ? parseInt(value, 10) : null)}
+          value={displayInches?.toString() ?? ''}
+          onValueChange={(value) => handleInchesChange(value ? parseInt(value, 10) : null)}
         >
           <SelectTrigger className='w-24'>
             <SelectValue placeholder='Inches' />
