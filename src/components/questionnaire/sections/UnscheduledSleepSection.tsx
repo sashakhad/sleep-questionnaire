@@ -61,6 +61,7 @@ export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) 
         control={form.control}
         name='unscheduledSleep.lightsOutTime'
         label='What time do you turn out the lights and try to fall asleep?'
+        defaultPeriod='PM'
       />
 
       {/* Time to fall asleep - now as select with 10-minute increments */}
@@ -138,6 +139,7 @@ export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) 
         control={form.control}
         name='unscheduledSleep.wakeupTime'
         label='What time do you wake up?'
+        defaultPeriod='AM'
       />
 
       {/* Get out of bed time */}
@@ -145,6 +147,7 @@ export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) 
         control={form.control}
         name='unscheduledSleep.getOutOfBedTime'
         label='What time do you get out of bed?'
+        defaultPeriod='AM'
         description='This may be different from your wake up time'
       />
 

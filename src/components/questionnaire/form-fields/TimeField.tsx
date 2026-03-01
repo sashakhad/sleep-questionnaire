@@ -22,12 +22,13 @@ interface TimeFieldProps<T extends FieldValues> {
   name: Path<T>
   label: string
   description?: string
+  defaultPeriod?: 'AM' | 'PM'
 }
 
 // Convert 24-hour time string (HH:MM) to 12-hour format parts
-function parseTime(time: string): { hour: string; minute: string; period: 'AM' | 'PM' } {
+function parseTime(time: string, defaultPeriod: 'AM' | 'PM' = 'PM'): { hour: string; minute: string; period: 'AM' | 'PM' } {
   if (!time) {
-    return { hour: '12', minute: '00', period: 'PM' }
+    return { hour: '12', minute: '00', period: defaultPeriod }
   }
   const [h, m] = time.split(':').map(Number)
   const hour24 = h ?? 0
@@ -65,19 +66,20 @@ export function TimeField<T extends FieldValues>({
   name,
   label,
   description,
+  defaultPeriod = 'PM',
 }: TimeFieldProps<T>) {
   return (
     <FormField
       control={control}
       name={name}
       render={({ field }) => {
-        const parsed = parseTime(field.value as string)
+        const parsed = parseTime(field.value as string, defaultPeriod)
         
         const handleChange = (
           type: 'hour' | 'minute' | 'period',
           value: string
         ) => {
-          const current = parseTime(field.value as string)
+          const current = parseTime(field.value as string, defaultPeriod)
           const newParsed = { ...current }
           
           if (type === 'hour') {

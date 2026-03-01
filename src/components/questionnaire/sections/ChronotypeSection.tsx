@@ -125,6 +125,7 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
         control={form.control}
         name='chronotype.workSchoolTime'
         label='On scheduled/work/school days, what time do you have to be at work/school?'
+        defaultPeriod='AM'
         description='Leave blank if your schedule varies significantly'
       />
 

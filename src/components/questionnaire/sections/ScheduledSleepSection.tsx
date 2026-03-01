@@ -75,6 +75,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
         control={form.control}
         name='scheduledSleep.lightsOutTime'
         label='What time do you turn out the lights and try to fall asleep?'
+        defaultPeriod='PM'
       />
 
       {/* Lights out varies */}
@@ -204,6 +205,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
         control={form.control}
         name='scheduledSleep.wakeupTime'
         label='What time do you wake up?'
+        defaultPeriod='AM'
       />
 
       {/* Get out of bed time */}
@@ -211,6 +213,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
         control={form.control}
         name='scheduledSleep.getOutOfBedTime'
         label='What time do you get out of bed?'
+        defaultPeriod='AM'
         description='This may be different from your wake up time'
       />
 
