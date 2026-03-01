@@ -5,6 +5,7 @@
  * They enable doctors to verify algorithm accuracy by reviewing test cases.
  */
 
+import { getYear } from 'date-fns';
 import {
   timeToMinutes,
   parseMinuteIncrement,
@@ -265,7 +266,7 @@ describe('Helper Functions', () => {
 
   describe('calculateAge', () => {
     it('should calculate age from year of birth', () => {
-      const currentYear = new Date().getFullYear();
+      const currentYear = getYear(new Date());
       expect(calculateAge(1985)).toBe(currentYear - 1985);
     });
   });

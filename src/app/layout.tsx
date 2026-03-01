@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Sleep Health Questionnaire | SomnaHealth',
   description:
-    'Comprehensive sleep health assessment to help you understand your sleep patterns and get personalized recommendations.',
+    'Comprehensive sleep health assessment to help you understand your sleep patterns and get recommendations.',
 };
 
 export default function RootLayout({

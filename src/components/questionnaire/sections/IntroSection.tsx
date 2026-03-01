@@ -40,8 +40,8 @@ export function IntroSection({ form }: IntroSectionProps) {
           </div>
           <h3 className='text-foreground mb-1 font-semibold'>Questionnaire: 15-20 Minutes</h3>
           <p className='text-muted-foreground text-sm'>
-            Complete at your own pace with progress saved automatically and a free personalized
-            report with recommendations provided.
+            Complete at your own pace with progress saved automatically and a free report with
+            recommendations provided.
           </p>
         </div>
 
@@ -62,8 +62,8 @@ export function IntroSection({ form }: IntroSectionProps) {
           </div>
           <h3 className='text-foreground mb-1 font-semibold'>Free & Anonymous Report</h3>
           <p className='text-muted-foreground text-sm'>
-            You will receive a free and personalized anonymous report with specific guidance on your
-            next steps to improve your sleep health or address a probable sleep disorder.
+            You will receive a free anonymous report with specific guidance on your next steps to
+            improve your sleep health or address a probable sleep disorder.
           </p>
         </div>
 

@@ -1,4 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
+import { getYear } from 'date-fns';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { NumberField } from '../form-fields/NumberField';
 import { SelectField } from '../form-fields/SelectField';
@@ -26,8 +27,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
   const yearOfBirth = form.watch('demographics.yearOfBirth');
   const sex = form.watch('demographics.sex');
 
-  // Calculate age from year of birth (only if it's a reasonable 4-digit year)
-  const currentYear = new Date().getFullYear();
+  const currentYear = getYear(new Date());
   const isValidYear = yearOfBirth && yearOfBirth >= 1900 && yearOfBirth <= currentYear;
   const age = isValidYear ? currentYear - yearOfBirth : null;
 
@@ -50,7 +50,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
       <Alert className='alert-info'>
         <User className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
-          This information helps us provide more personalized recommendations. Age and body
+          This information helps us provide more accurate recommendations. Age and body
           measurements can influence sleep patterns and the likelihood of certain sleep disorders.
         </AlertDescription>
       </Alert>
@@ -62,7 +62,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
         label='What year were you born?'
         placeholder='Select your birth year...'
         minYear={1920}
-        maxYear={new Date().getFullYear()}
+        maxYear={currentYear - 12}
         description='Your birth year helps us understand age-related sleep patterns'
       />
 
@@ -167,7 +167,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
               <li>More frequent nighttime awakenings</li>
               <li>Perceiving sleep as lighter and more disrupted</li>
             </ul>
-            These changes are normal and you will receive personalized guidance in the sleep report
+            These changes are normal and you will receive guidance in the sleep report
             to improve your sleep health and quality of life.
           </AlertDescription>
         </Alert>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Form } from '@/components/ui/form';
@@ -176,7 +176,7 @@ import { MentalHealthSection } from './sections/MentalHealthSection';
 import { SleepDisorderDiagnosesSection } from './sections/SleepDisorderDiagnosesSection';
 import { ReportSection } from './sections/ReportSection';
 
-const sections: QuestionnaireSection[] = [
+export const sections: QuestionnaireSection[] = [
   'intro',
   'demographics',
   'sleep-disorder-diagnoses', // Moved to beginning per round 2 feedback
@@ -195,7 +195,7 @@ const sections: QuestionnaireSection[] = [
   'report',
 ];
 
-const sectionTitles: Record<QuestionnaireSection, string> = {
+export const sectionTitles: Record<QuestionnaireSection, string> = {
   intro: 'Welcome',
   demographics: 'About You',
   daytime: 'Daytime Functioning',
@@ -214,8 +214,15 @@ const sectionTitles: Record<QuestionnaireSection, string> = {
   report: 'Your Sleep Report',
 };
 
-export function QuestionnaireForm() {
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
+interface QuestionnaireFormProps {
+  initialSection?: QuestionnaireSection | undefined;
+  prefill?: boolean | undefined;
+  onSectionChange?: ((section: QuestionnaireSection, index: number) => void) | undefined;
+}
+
+export function QuestionnaireForm({ initialSection, prefill, onSectionChange }: QuestionnaireFormProps = {}) {
+  const initialIndex = initialSection ? sections.indexOf(initialSection) : 0;
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(initialIndex >= 0 ? initialIndex : 0);
   const currentSection = sections[currentSectionIndex]!;
   // Progress: 0% on intro, 100% on report (last section)
   const progress = (currentSectionIndex / (sections.length - 1)) * 100;
@@ -369,17 +376,30 @@ export function QuestionnaireForm() {
     },
   });
 
+  useEffect(() => {
+    if (prefill) {
+      form.reset(MOCK_DATA as QuestionnaireFormData);
+    }
+  }, [prefill, form]);
+
+  const navigateToSection = useCallback((index: number) => {
+    setCurrentSectionIndex(index);
+    const section = sections[index];
+    if (section && onSectionChange) {
+      onSectionChange(section, index);
+    }
+    window.scrollTo(0, 0);
+  }, [onSectionChange]);
+
   function handleNext() {
     if (currentSectionIndex < sections.length - 1) {
-      setCurrentSectionIndex(currentSectionIndex + 1);
-      window.scrollTo(0, 0);
+      navigateToSection(currentSectionIndex + 1);
     }
   }
 
   function handlePrevious() {
     if (currentSectionIndex > 0) {
-      setCurrentSectionIndex(currentSectionIndex - 1);
-      window.scrollTo(0, 0);
+      navigateToSection(currentSectionIndex - 1);
     }
   }
 
@@ -442,11 +462,9 @@ export function QuestionnaireForm() {
     }
   };
 
-  // Function to pre-fill form
   const handlePreFill = () => {
     form.reset(MOCK_DATA as QuestionnaireFormData);
-    // Jump to the report section to test quickly
-    setCurrentSectionIndex(sections.length - 1);
+    navigateToSection(sections.length - 1);
   };
 
   const renderSection = () => {

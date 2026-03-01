@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { getYear } from 'date-fns';
 
 // Time string validation - accepts HH:MM format or empty string
 const timeString = z
@@ -168,7 +169,7 @@ export const mentalHealthSchema = z.object({
 
 // Demographics (collected early after intro) - required fields for linking
 export const demographicsSchema = z.object({
-  yearOfBirth: z.number().min(1900).max(new Date().getFullYear(), { message: 'Please enter a valid year' }),
+  yearOfBirth: z.number().min(1900).max(getYear(new Date()) - 12, { message: 'Respondents must be at least 12 years old' }),
   sex: z.enum(['male', 'female', 'transgender', 'other', 'prefer-not-to-say'], { message: 'Please select an option' }),
   zipcode: z.string().min(5, { message: 'Please enter a valid zipcode' }),
   weight: z.number().min(0).nullable(),

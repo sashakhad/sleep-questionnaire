@@ -4,13 +4,7 @@ import { CheckboxField } from '../form-fields/CheckboxField';
 import { RadioGroupField } from '../form-fields/RadioGroupField';
 import { NumberField } from '../form-fields/NumberField';
 import { TimeField } from '../form-fields/TimeField';
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from '@/components/ui/form';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Clock, Info } from 'lucide-react';
@@ -120,13 +114,16 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
         description='Frequent jet lag can disrupt your circadian rhythm'
       />
 
-      {/* Work/school schedule */}
-      <TimeField
-        control={form.control}
-        name='chronotype.workSchoolTime'
-        label='On scheduled/work/school days, what time do you have to be at work/school?'
-        description='Leave blank if your schedule varies significantly'
-      />
+      {/* Work/school schedule - only show when user has a set schedule preference */}
+      {(preference === 'early' || preference === 'late' || shiftWork) && (
+        <TimeField
+          control={form.control}
+          name='chronotype.workSchoolTime'
+          label='On scheduled/work/school days, what time do you have to be at work/school?'
+          defaultPeriod='AM'
+          description='Leave blank if your schedule varies significantly'
+        />
+      )}
 
       {/* Delayed Sleep Phase Syndrome warning */}
       {preference === 'late' && (
@@ -161,7 +158,7 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
       )}
 
       {/* Shift work warning */}
-      {(shiftWork || (pastShiftWorkYears && pastShiftWorkYears > 0)) && (
+      {(shiftWork || (pastShiftWorkYears !== null && pastShiftWorkYears !== undefined && pastShiftWorkYears > 0)) && (
         <Alert className='alert-warning'>
           <Clock className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>

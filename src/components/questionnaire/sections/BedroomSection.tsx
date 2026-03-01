@@ -139,14 +139,8 @@ export function BedroomSection({ form }: BedroomSectionProps) {
           <AlertDescription className='text-amber-900'>
             <strong>Room for Improvement</strong>
             <br />
-            Your bedroom environment could be contributing to sleep challenges. Consider these
-            improvements:
-            <ul className='mt-2 list-inside list-disc space-y-1'>
-              {relaxing < 6 && <li>Declutter and create a more relaxing atmosphere</li>}
-              {comfortable < 6 && <li>Evaluate your mattress, pillows, and bedding</li>}
-              {dark < 6 && <li>Use blackout curtains or an eye mask</li>}
-              {quiet < 6 && <li>Consider earplugs, white noise, or addressing noise sources</li>}
-            </ul>
+            We provide several recommendations to improve your sleep by improving the comfort of
+            your bedroom.
           </AlertDescription>
         </Alert>
       )}

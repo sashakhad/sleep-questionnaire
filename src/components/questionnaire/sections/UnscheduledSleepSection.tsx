@@ -12,6 +12,22 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
+
+function isUnusualBedtime(time: string | undefined): boolean {
+  if (!time) {return false;}
+  const parts = time.split(':');
+  const hour = parseInt(parts[0] ?? '0', 10);
+  return hour >= 4 && hour < 18;
+}
+
+function isUnusualWakeTime(time: string | undefined): boolean {
+  if (!time) {return false;}
+  const parts = time.split(':');
+  const hour = parseInt(parts[0] ?? '0', 10);
+  return hour >= 14 || hour < 2;
+}
 
 interface UnscheduledSleepSectionProps {
   form: UseFormReturn<QuestionnaireFormData>;
@@ -26,6 +42,7 @@ const wakeupReasons = [
 
 // 10-minute increment options ending with >120
 const minuteIncrementOptions = [
+  { value: '0', label: '0 minutes' },
   { value: '10', label: '10 minutes' },
   { value: '20', label: '20 minutes' },
   { value: '30', label: '30 minutes' },
@@ -43,6 +60,8 @@ const minuteIncrementOptions = [
 
 export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) {
   const nightWakeups = form.watch('unscheduledSleep.nightWakeups');
+  const lightsOutTime = form.watch('unscheduledSleep.lightsOutTime');
+  const wakeupTime = form.watch('unscheduledSleep.wakeupTime');
 
   return (
     <div className='space-y-6'>
@@ -60,7 +79,18 @@ export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) 
         control={form.control}
         name='unscheduledSleep.lightsOutTime'
         label='What time do you turn out the lights and try to fall asleep?'
+        defaultPeriod='PM'
       />
+
+      {isUnusualBedtime(lightsOutTime) && (
+        <Alert className='alert-warning'>
+          <AlertCircle className='h-4 w-4 text-amber-600' />
+          <AlertDescription className='text-amber-900'>
+            Your bedtime appears to be set during daytime hours. Please double-check the AM/PM
+            selection — most people go to bed between 8:00 PM and 2:00 AM.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Time to fall asleep - now as select with 10-minute increments */}
       <SelectField
@@ -137,13 +167,25 @@ export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) 
         control={form.control}
         name='unscheduledSleep.wakeupTime'
         label='What time do you wake up?'
+        defaultPeriod='AM'
       />
+
+      {isUnusualWakeTime(wakeupTime) && (
+        <Alert className='alert-warning'>
+          <AlertCircle className='h-4 w-4 text-amber-600' />
+          <AlertDescription className='text-amber-900'>
+            Your wake time appears to be set during evening/nighttime hours. Please double-check
+            the AM/PM selection — most people wake up between 4:00 AM and 12:00 PM.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Get out of bed time */}
       <TimeField
         control={form.control}
         name='unscheduledSleep.getOutOfBedTime'
         label='What time do you get out of bed?'
+        defaultPeriod='AM'
         description='This may be different from your wake up time'
       />
 

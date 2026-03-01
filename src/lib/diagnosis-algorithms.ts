@@ -9,6 +9,7 @@
  * for easy auditing and modification by clinical staff.
  */
 
+import { getYear } from 'date-fns';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 
 // =============================================================================
@@ -220,8 +221,7 @@ export function calculateBMI(
  * Calculate age from year of birth
  */
 export function calculateAge(yearOfBirth: number): number {
-  const currentYear = new Date().getFullYear();
-  return currentYear - yearOfBirth;
+  return getYear(new Date()) - yearOfBirth;
 }
 
 // =============================================================================
@@ -351,6 +351,8 @@ export function hasInsufficientSleepSyndrome(
   // Must NOT have narcolepsy or sleep apnea to be insufficient sleep
   const hasNarcolepsy =
     data.daytime.diagnosedNarcolepsy ||
+    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('narcolepsy') ||
+    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('hypersomnia') ||
     (data.daytime.weaknessWhenExcited.length > 0 && data.daytime.sleepParalysis);
 
   const hasApneaSymptoms =
@@ -775,6 +777,8 @@ export function determineChronotype(data: QuestionnaireFormData, metrics: SleepM
 export function screenNarcolepsy(data: QuestionnaireFormData): boolean {
   return (
     data.daytime.diagnosedNarcolepsy ||
+    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('narcolepsy') ||
+    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('hypersomnia') ||
     (data.daytime.weaknessWhenExcited.length > 0 && data.daytime.sleepParalysis)
   );
 }
