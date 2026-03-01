@@ -269,6 +269,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
     (data.restlessLegs.troubleLyingStill &&
     data.restlessLegs.urgeToMoveLegs &&
     data.restlessLegs.movementRelieves) ||
+    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('rls') ||
     data.sleepDisorderDiagnoses.diagnosedRLS;
   const hasNightmares = data.nightmares.nightmaresPerWeek && data.nightmares.nightmaresPerWeek >= 3;
   const hasPoorHygiene =
@@ -319,13 +320,21 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
     data.restlessLegs.legCramps &&
     (data.restlessLegs.legCrampsPerWeek ?? 0) >= 2;
 
+  // Derive diagnosed status from the checklist (primary source) or the legacy boolean fields
+  const hasDiagnosedOSA =
+    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('obstructive_sleep_apnea') ||
+    data.sleepDisorderDiagnoses.diagnosedOSA;
+  const hasDiagnosedRLS =
+    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('rls') ||
+    data.sleepDisorderDiagnoses.diagnosedRLS;
+
   // Treatment ineffectiveness
   const osaTreatmentIneffective =
-    data.sleepDisorderDiagnoses.diagnosedOSA &&
+    hasDiagnosedOSA &&
     data.sleepDisorderDiagnoses.osaTreated &&
     data.sleepDisorderDiagnoses.osaTreatmentEffective === false;
   const rlsTreatmentIneffective =
-    data.sleepDisorderDiagnoses.diagnosedRLS &&
+    hasDiagnosedRLS &&
     data.sleepDisorderDiagnoses.rlsTreated &&
     data.sleepDisorderDiagnoses.rlsTreatmentEffective === false;
 
@@ -1089,7 +1098,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
         </CardHeader>
         <CardContent className='pt-6'>
           <div className='space-y-3'>
-            {(hasOSA || data.sleepDisorderDiagnoses.diagnosedOSA) && (
+            {(hasOSA || hasDiagnosedOSA) && (
               <Alert className='alert-danger'>
                 <AlertCircle className='h-4 w-4 text-red-600' />
                 <AlertDescription className='text-red-900'>
