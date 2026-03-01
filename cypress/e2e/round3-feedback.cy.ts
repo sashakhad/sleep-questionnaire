@@ -26,19 +26,14 @@ describe('Round 3 Client Feedback Changes', () => {
     });
 
     it('should not have a standalone "Have you been diagnosed with restless legs syndrome" Yes/No question', () => {
-      cy.contains('Have you been diagnosed with restless legs syndrome (RLS) or periodic limb movement disorder?').should('not.exist');
+      cy.contains(
+        'Have you been diagnosed with restless legs syndrome (RLS) or periodic limb movement disorder?'
+      ).should('not.exist');
     });
 
-    it('should show OSA treatment details when OSA is checked in the disorder list', () => {
-      cy.contains('Obstructive Sleep Apnea Syndrome').click();
-      cy.contains('Sleep Apnea Treatment Details').should('be.visible');
-      cy.contains('How severe is your condition?').should('be.visible');
-    });
-
-    it('should show RLS treatment details when RLS is checked in the disorder list', () => {
-      cy.contains('Restless Legs Syndrome and/or Periodic Limb Movement Disorder').click();
-      cy.contains('Restless Legs Syndrome Treatment Details').should('be.visible');
-      cy.contains('Are you being treated for RLS?').should('be.visible');
+    it('should not show any treatment follow-up sections', () => {
+      cy.contains('Sleep Apnea Treatment Details').should('not.exist');
+      cy.contains('Restless Legs Syndrome Treatment Details').should('not.exist');
     });
   });
 
@@ -96,7 +91,9 @@ describe('Round 3 Client Feedback Changes', () => {
       cy.get('button[role="combobox"]').first().click();
       const expectedHours = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
       for (const hour of expectedHours) {
-        cy.get('[role="option"]').contains(new RegExp(`^${hour}$`)).should('exist');
+        cy.get('[role="option"]')
+          .contains(new RegExp(`^${hour}$`))
+          .should('exist');
       }
     });
   });
@@ -207,7 +204,9 @@ describe('Round 3 Client Feedback Changes', () => {
     });
 
     it('should not contain the word "personalized" in the report content', () => {
-      cy.get('main').invoke('text').should('not.match', /personalized/i);
+      cy.get('main')
+        .invoke('text')
+        .should('not.match', /personalized/i);
     });
   });
 
