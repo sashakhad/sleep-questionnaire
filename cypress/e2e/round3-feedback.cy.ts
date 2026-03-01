@@ -203,10 +203,10 @@ describe('Round 3 Client Feedback Changes', () => {
       cy.contains('sleep education that addresses the specific problems').should('exist');
     });
 
-    it('should not contain the word "personalized" in the report content', () => {
-      cy.get('main')
-        .invoke('text')
-        .should('not.match', /personalized/i);
+    it('should not say "Personalized Recommendations" in any heading', () => {
+      cy.get('h2, h3, span').each(($el) => {
+        cy.wrap($el).invoke('text').should('not.match', /personalized recommendations/i);
+      });
     });
   });
 

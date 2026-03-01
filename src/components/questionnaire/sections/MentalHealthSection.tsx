@@ -215,8 +215,8 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
             <br />
             It&apos;s likely that anxiety and worry are interfering with your ability to surrender to
             sleep at night. This creates a vicious cycle where worry about sleep prevents sleep,
-            which increases worry. In your report we will provide links to our website for
-            information on treatment options.
+            which increases worry. In your personalized report we will provide links to our website
+            for information on treatment options.
           </AlertDescription>
         </Alert>
       )}
@@ -229,8 +229,8 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
             <strong>Significant Sleep Impact on Daily Life</strong>
             <br />
             Based on your answers, your sleep difficulties are significantly impacting your daily
-            functioning. In your sleep report we will provide you with a probable diagnosis and
-            recommendations on next steps to address your sleep problems.
+            functioning. In your personalized sleep report we will provide you with a probable
+            diagnosis and recommendations on next step to address your sleep problems.
           </AlertDescription>
         </Alert>
       )}
@@ -275,8 +275,8 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
           If you&apos;re experiencing anxiety, depression, or other mental health concerns that
           affect your sleep, remember that help is available. Mental health professionals can
           provide evidence-based treatments that address both sleep and emotional well-being.
-          Don&apos;t hesitate to reach out for support when needed. We will provide a link to more
-          information in your report.
+          Don&apos;t hesitate to reach out for support when needed. We will provide link to more
+          information in your personalized report.
         </AlertDescription>
       </Alert>
     </div>

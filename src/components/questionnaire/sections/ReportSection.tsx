@@ -1155,7 +1155,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
             <p className='text-foreground/90 text-sm'>
               <strong className='text-primary'>SomnaHealth Services:</strong> Our team offers
               sleep education that addresses the specific problems that we have identified in this
-              report. We also have a staff of sleep coaches and board certified sleep doctors who
+              report. We also have a staff of sleep coaches and board certified sleep doctor who
               can support you with evidence based treatments including CBT-I and consultation
               regarding the best treatment approaches. Visit our website for more information about
               how we can help you achieve better sleep. You can also find board certified sleep
