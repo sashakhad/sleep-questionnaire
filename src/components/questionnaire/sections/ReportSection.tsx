@@ -4,6 +4,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
+  generateDiagnosisReport,
+  type DiagnosisReport,
+} from '@/lib/diagnosis-algorithms';
+import {
   Moon,
   Brain,
   Heart,
@@ -65,6 +69,16 @@ interface SleepMetrics {
   unscheduledWASO: number;
   midSleepScheduled: string;
   midSleepUnscheduled: string;
+  weeklyAvgTST: number; // Weighted weekly average (5x scheduled + 2x unscheduled) / 7
+  socialJetLag: number; // Difference in sleep duration between weekend and weekday (hours)
+  midSleepTimeChange: number; // Difference in mid-sleep time (hours)
+}
+
+// Helper to parse minute increment string to number
+function parseMinuteIncrement(value: string | null): number {
+  if (!value) {return 0;}
+  if (value === '>120') {return 130;} // Use 130 for "more than 120"
+  return parseInt(value, 10) || 0;
 }
 
 function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics {
@@ -84,6 +98,12 @@ function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics {
     return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
   };
 
+  // Parse minute increments from string values
+  const scheduledSOL = parseMinuteIncrement(data.scheduledSleep.minutesToFallAsleep);
+  const scheduledWASO = parseMinuteIncrement(data.scheduledSleep.minutesAwakeAtNight);
+  const unscheduledSOL = parseMinuteIncrement(data.unscheduledSleep.minutesToFallAsleep);
+  const unscheduledWASO = parseMinuteIncrement(data.unscheduledSleep.minutesAwakeAtNight);
+
   // Calculate for scheduled days
   const scheduledBedtime = timeToMinutes(data.scheduledSleep.lightsOutTime);
   const scheduledWaketime = timeToMinutes(data.scheduledSleep.wakeupTime);
@@ -92,15 +112,11 @@ function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics {
     scheduledTimeInBed += 1440;
   } // Handle crossing midnight
 
-  const scheduledTST =
-    scheduledTimeInBed -
-    data.scheduledSleep.minutesToFallAsleep -
-    data.scheduledSleep.minutesAwakeAtNight;
-  const scheduledSE = (scheduledTST / scheduledTimeInBed) * 100;
+  const scheduledTST = scheduledTimeInBed - scheduledSOL - scheduledWASO;
+  const scheduledSE = scheduledTimeInBed > 0 ? (scheduledTST / scheduledTimeInBed) * 100 : 0;
 
-  // Calculate mid-sleep time for scheduled days
-  const scheduledMidSleep =
-    scheduledBedtime + data.scheduledSleep.minutesToFallAsleep + scheduledTST / 2;
+  // Calculate mid-sleep time for scheduled days (TST/2 + fall asleep time)
+  const scheduledMidSleep = scheduledBedtime + scheduledSOL + scheduledTST / 2;
 
   // Calculate for unscheduled days
   const unscheduledBedtime = timeToMinutes(data.unscheduledSleep.lightsOutTime);
@@ -110,27 +126,43 @@ function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics {
     unscheduledTimeInBed += 1440;
   }
 
-  const unscheduledTST =
-    unscheduledTimeInBed -
-    data.unscheduledSleep.minutesToFallAsleep -
-    data.unscheduledSleep.minutesAwakeAtNight;
-  const unscheduledSE = (unscheduledTST / unscheduledTimeInBed) * 100;
+  const unscheduledTST = unscheduledTimeInBed - unscheduledSOL - unscheduledWASO;
+  const unscheduledSE = unscheduledTimeInBed > 0 ? (unscheduledTST / unscheduledTimeInBed) * 100 : 0;
 
   // Calculate mid-sleep time for unscheduled days
-  const unscheduledMidSleep =
-    unscheduledBedtime + data.unscheduledSleep.minutesToFallAsleep + unscheduledTST / 2;
+  const unscheduledMidSleep = unscheduledBedtime + unscheduledSOL + unscheduledTST / 2;
+
+  // Calculate weighted weekly average TST (5x workdays + 2x weekend days) / 7
+  const weeklyAvgTST = ((scheduledTST / 60) * 5 + (unscheduledTST / 60) * 2) / 7;
+
+  // Calculate Social Jet Lag (difference in sleep duration between weekend and weekday)
+  // Positive value means more sleep on weekends (catching up)
+  const socialJetLag = (unscheduledTST - scheduledTST) / 60; // in hours
+
+  // Calculate Mid-sleep Time Change (difference between unscheduled and scheduled mid-sleep)
+  // Need to handle crossing midnight properly
+  let midSleepDiff = unscheduledMidSleep - scheduledMidSleep;
+  if (midSleepDiff > 720) {
+    midSleepDiff -= 1440; // Adjust for crossing midnight
+  } else if (midSleepDiff < -720) {
+    midSleepDiff += 1440;
+  }
+  const midSleepTimeChange = midSleepDiff / 60; // in hours
 
   return {
     scheduledTST: scheduledTST / 60, // Convert to hours
     unscheduledTST: unscheduledTST / 60,
     scheduledSE,
     unscheduledSE,
-    scheduledSOL: data.scheduledSleep.minutesToFallAsleep,
-    unscheduledSOL: data.unscheduledSleep.minutesToFallAsleep,
-    scheduledWASO: data.scheduledSleep.minutesAwakeAtNight,
-    unscheduledWASO: data.unscheduledSleep.minutesAwakeAtNight,
+    scheduledSOL,
+    unscheduledSOL,
+    scheduledWASO,
+    unscheduledWASO,
     midSleepScheduled: minutesToTime(scheduledMidSleep % 1440),
     midSleepUnscheduled: minutesToTime(unscheduledMidSleep % 1440),
+    weeklyAvgTST,
+    socialJetLag,
+    midSleepTimeChange,
   };
 }
 
@@ -139,7 +171,7 @@ function getInsomniaSeverity(data: QuestionnaireFormData, metrics: SleepMetrics)
   const hasSMI = metrics.scheduledWASO > 40 || metrics.unscheduledWASO > 40;
   const hasEMA =
     data.scheduledSleep.earlyWakeupMinutes && data.scheduledSleep.earlyWakeupMinutes > 20;
-  const hasDaytimeImpairment = data.daytime.tirednessInterferes;
+  const hasDaytimeImpairment = data.daytime.sleepinessInterferes;
 
   if (!hasSOI && !hasSMI && !hasEMA) {
     return 'none';
@@ -158,22 +190,62 @@ function getInsomniaSeverity(data: QuestionnaireFormData, metrics: SleepMetrics)
   return 'mild';
 }
 
-function getChronotype(metrics: SleepMetrics, preference: string): string {
-  const midSleepHour = parseInt(metrics.midSleepScheduled.split(':')[0] ?? '0');
+function getChronotype(metrics: SleepMetrics, preference: string): { type: string; chronotypeLabel: string } {
+  const midSleepHour = parseInt(metrics.midSleepUnscheduled.split(':')[0] ?? '0');
+  const midSleepMinute = parseInt(metrics.midSleepUnscheduled.split(':')[1] ?? '0');
+  const midSleepTotalMinutes = midSleepHour * 60 + midSleepMinute;
+  
+  // Mid-sleep time analysis: When <12am (midnight) probable lark, when >5:00am probable owl
+  // Midnight = 0 minutes, 5am = 300 minutes
+  // But we need to handle times after midnight differently
+  // Adjust for times that cross midnight (e.g., 2am is hour 2, should be considered late)
+  const adjustedMidSleep = midSleepHour < 12 ? midSleepTotalMinutes + 1440 : midSleepTotalMinutes;
+  
+  let chronotypeLabel = 'Neutral';
+  if (adjustedMidSleep <= 1440) { // Before midnight (24:00 = 1440)
+    chronotypeLabel = 'Probable Lark (Morning Person)';
+  } else if (adjustedMidSleep >= 1740) { // After 5am (29:00 = 1740, i.e., 5:00 + 1440)
+    chronotypeLabel = 'Probable Owl (Night Person)';
+  } else {
+    chronotypeLabel = 'Intermediate';
+  }
 
-  if (preference === 'late' || midSleepHour >= 4) {
-    return 'delayed';
+  let type = 'normal';
+  if (preference === 'late' || adjustedMidSleep >= 1680) { // After 4am
+    type = 'delayed';
+  } else if (preference === 'early' || adjustedMidSleep <= 1500) { // Before 1am
+    type = 'advanced';
   }
-  if (preference === 'early' || midSleepHour <= 1) {
-    return 'advanced';
+  
+  return { type, chronotypeLabel };
+}
+
+// Helper to format metric values — shows "N/A" when no sleep data was entered
+function formatHours(hours: number): string {
+  if (!Number.isFinite(hours) || hours <= 0) {
+    return 'N/A';
   }
-  return 'normal';
+  return `${hours.toFixed(1)} hours`;
+}
+
+function formatPercent(pct: number): string {
+  if (!Number.isFinite(pct)) {
+    return 'N/A';
+  }
+  return `${pct.toFixed(0)}%`;
+}
+
+function formatMinutes(mins: number): string {
+  if (!Number.isFinite(mins)) {
+    return 'N/A';
+  }
+  return `${mins} minutes`;
 }
 
 export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
   const metrics = calculateSleepMetrics(data);
   const insomniaSeverity = getInsomniaSeverity(data, metrics);
-  const chronotype = getChronotype(metrics, data.chronotype.preference);
+  const { type: chronotype, chronotypeLabel } = getChronotype(metrics, data.chronotype.preference);
 
   // Calculate weighted EDS score
   const edsResult = calculateEDSScore(data.daytime.fallAsleepDuring);
@@ -181,45 +253,87 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
 
   // Identify major issues
   const hasInsomnia = insomniaSeverity !== 'none' && insomniaSeverity !== 'subclinical';
-  const hasEDSFromNaps =
-    data.daytime.plannedNaps.daysPerWeek >= 3 &&
-    data.daytime.plannedNaps.duration &&
-    ['30-90', '>90'].includes(data.daytime.plannedNaps.duration);
-  const hasEDS = hasEDSFromActivities || hasEDSFromNaps;
+  // Check for long naps (>= 60 minutes based on new 10-minute increments)
+  const napDurationNum = parseMinuteIncrement(data.daytime.plannedNaps.duration);
+  const hasEDSFromNaps = data.daytime.plannedNaps.daysPerWeek >= 3 && napDurationNum >= 60;
+  const hasEDSSymptoms = hasEDSFromActivities || hasEDSFromNaps;
+  // Per feedback: EDS (excessive daytime sleepiness) should only be shown when TST >= 7 hours
+  // If TST < 7 hours, it's more likely Insufficient Sleep Syndrome
+  const avgWeeklySleepForEDS = (metrics.scheduledTST * 5 + metrics.unscheduledTST * 2) / 7;
+  const hasEDS = hasEDSSymptoms && avgWeeklySleepForEDS >= 7;
   const hasOSA =
     data.breathingDisorders.stopsBreathing ||
     (data.breathingDisorders.snores && data.breathingDisorders.wakesWithDryMouth);
   const hasCOMISA = hasInsomnia && hasOSA; // Comorbid Insomnia and Sleep Apnea
   const hasRLS =
-    data.restlessLegs.troubleLyingStill &&
+    (data.restlessLegs.troubleLyingStill &&
     data.restlessLegs.urgeToMoveLegs &&
-    data.restlessLegs.movementRelieves;
+    data.restlessLegs.movementRelieves) ||
+    data.sleepDisorderDiagnoses.diagnosedRLS;
   const hasNightmares = data.nightmares.nightmaresPerWeek && data.nightmares.nightmaresPerWeek >= 3;
   const hasPoorHygiene =
     data.lifestyle.caffeinePerDay > 4 ||
     (data.lifestyle.lastCaffeineTime &&
       parseInt(data.lifestyle.lastCaffeineTime.split(':')[0] ?? '0') >= 14);
-  const hasSevereTiredness = (data.daytime.tirednessSeverity ?? 0) > 8;
+  const hasSevereTiredness = (data.daytime.sleepinessSeverity ?? 0) > 8;
+
+  // Safety warning flags
+  const hasParasomniaSafetyRisk =
+    data.parasomnia.hasInjuredOrLeftHome ||
+    (data.parasomnia.nightBehaviors.includes('walk') ||
+      data.parasomnia.nightBehaviors.includes('eating'));
+  const hasMedicationAlcoholRisk =
+    (data.sleepHygiene.prescriptionMeds.length > 0 && data.lifestyle.alcoholPerWeek > 7) ||
+    data.lifestyle.caffeinePerDay > 4 ||
+    data.lifestyle.alcoholPerWeek > 14;
 
   // Insufficient Sleep Syndrome detection
   // Criteria: < 7 hours sleep + daytime sleepiness/tiredness + not explained by other disorders
-  const avgWeeklySleep = (metrics.scheduledTST * 5 + metrics.unscheduledTST * 2) / 7;
+  // IMPORTANT: Maintenance insomnia (high WASO) takes precedence over insufficient sleep
+  const avgWeeklySleep = avgWeeklySleepForEDS; // Use same calculation
   const hasDaytimeSleepiness =
-    data.daytime.tirednessInterferes || hasEDS || data.daytime.fallAsleepDuring.length >= 3;
+    data.daytime.sleepinessInterferes || hasEDSSymptoms || data.daytime.fallAsleepDuring.length >= 3;
   const hasNarcolepsy =
     data.daytime.diagnosedNarcolepsy ||
     (data.daytime.weaknessWhenExcited.length > 0 && data.daytime.sleepParalysis);
   const hasInsufficientSleep =
-    avgWeeklySleep < 7 && hasDaytimeSleepiness && !hasNarcolepsy && !hasOSA;
+    avgWeeklySleep < 7 && hasDaytimeSleepiness && !hasNarcolepsy && !hasOSA && !hasInsomnia;
 
   // Chronic Fatigue / Fibromyalgia screening
-  // Criteria: non-restorative sleep + muscle/joint pain + tiredness interferes
+  // Criteria: non-restorative sleep + muscle/joint pain + sleepiness interferes
   const hasChronicFatigueSymptoms =
     data.daytime.nonRestorativeSleep &&
-    data.daytime.muscleJointPain &&
-    data.daytime.tirednessInterferes;
+    data.daytime.jointMusclePain &&
+    data.daytime.sleepinessInterferes;
   const hasPainAffectingSleep =
     data.daytime.painAffectsSleep && (data.daytime.painSeverity ?? 0) >= 5;
+
+  // Use centralized diagnosis algorithms for additional findings not covered by inline logic
+  const diagnosisReport: DiagnosisReport = generateDiagnosisReport(data);
+
+  const hasMildRespiratoryDisturbance =
+    !hasOSA && diagnosisReport.sleepApnea.hasMildRespiratoryDisturbance;
+
+  // Nocturnal leg cramps (frequency-based: ≥2 nights/week)
+  const hasLegCrampsConcern =
+    data.restlessLegs.legCramps &&
+    (data.restlessLegs.legCrampsPerWeek ?? 0) >= 2;
+
+  // Treatment ineffectiveness
+  const osaTreatmentIneffective =
+    data.sleepDisorderDiagnoses.diagnosedOSA &&
+    data.sleepDisorderDiagnoses.osaTreated &&
+    data.sleepDisorderDiagnoses.osaTreatmentEffective === false;
+  const rlsTreatmentIneffective =
+    data.sleepDisorderDiagnoses.diagnosedRLS &&
+    data.sleepDisorderDiagnoses.rlsTreated &&
+    data.sleepDisorderDiagnoses.rlsTreatmentEffective === false;
+
+  // Pain-related sleep disturbance (from centralized algorithm)
+  const hasPainRelatedSleepDisturbance = diagnosisReport.painRelated.hasCondition;
+
+  // Medication-related sleep disturbance (from centralized algorithm)
+  const hasMedicationRelatedSleepDisturbance = diagnosisReport.medicationRelated.hasCondition;
 
   const handlePrint = () => {
     window.print();
@@ -262,7 +376,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
           <AlertCircle className='h-5 w-5 text-red-600' />
           <AlertDescription className='text-red-900'>
             <strong className='mb-2 block text-lg'>Urgent Safety Warning</strong>
-            Your reported tiredness severity ({data.daytime.tirednessSeverity}/10) indicates a
+            Your reported sleepiness severity ({data.daytime.sleepinessSeverity}/10) indicates a
             significant safety concern. You should seek immediate help from a healthcare
             professional. Until you have done so, please consider avoiding potentially dangerous
             activities such as:
@@ -293,7 +407,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='space-y-2 text-sm'>
                 <div className='flex justify-between'>
                   <span>Average Sleep Duration:</span>
-                  <span className='font-medium'>{metrics.scheduledTST.toFixed(1)} hours</span>
+                  <span className='font-medium'>{formatHours(metrics.scheduledTST)}</span>
                 </div>
                 <div className='flex justify-between'>
                   <span>Sleep Efficiency:</span>
@@ -307,7 +421,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                           : 'text-red-600'
                     )}
                   >
-                    {metrics.scheduledSE.toFixed(0)}%
+                    {formatPercent(metrics.scheduledSE)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -318,7 +432,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                       metrics.scheduledSOL <= 30 ? 'text-green-600' : 'text-amber-600'
                     )}
                   >
-                    {metrics.scheduledSOL} minutes
+                    {formatMinutes(metrics.scheduledSOL)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -329,8 +443,12 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                       metrics.scheduledWASO <= 40 ? 'text-green-600' : 'text-amber-600'
                     )}
                   >
-                    {metrics.scheduledWASO} minutes
+                    {formatMinutes(metrics.scheduledWASO)}
                   </span>
+                </div>
+                <div className='flex justify-between'>
+                  <span>Mid-Sleep Time:</span>
+                  <span className='font-medium'>{metrics.midSleepScheduled}</span>
                 </div>
               </div>
             </div>
@@ -340,7 +458,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='space-y-2 text-sm'>
                 <div className='flex justify-between'>
                   <span>Average Sleep Duration:</span>
-                  <span className='font-medium'>{metrics.unscheduledTST.toFixed(1)} hours</span>
+                  <span className='font-medium'>{formatHours(metrics.unscheduledTST)}</span>
                 </div>
                 <div className='flex justify-between'>
                   <span>Sleep Efficiency:</span>
@@ -354,7 +472,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                           : 'text-red-600'
                     )}
                   >
-                    {metrics.unscheduledSE.toFixed(0)}%
+                    {formatPercent(metrics.unscheduledSE)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -365,7 +483,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                       metrics.unscheduledSOL <= 30 ? 'text-green-600' : 'text-amber-600'
                     )}
                   >
-                    {metrics.unscheduledSOL} minutes
+                    {formatMinutes(metrics.unscheduledSOL)}
                   </span>
                 </div>
                 <div className='flex justify-between'>
@@ -376,32 +494,67 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                       metrics.unscheduledWASO <= 40 ? 'text-green-600' : 'text-amber-600'
                     )}
                   >
-                    {metrics.unscheduledWASO} minutes
+                    {formatMinutes(metrics.unscheduledWASO)}
                   </span>
+                </div>
+                <div className='flex justify-between'>
+                  <span>Mid-Sleep Time:</span>
+                  <span className='font-medium'>{metrics.midSleepUnscheduled}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className='bg-primary/5 mt-6 rounded-xl p-4'>
+          <div className='bg-primary/5 mt-6 space-y-3 rounded-xl p-4'>
             <p className='text-foreground/80 text-sm'>
-              <strong className='text-foreground'>Sleep Pattern Analysis:</strong> You sleep an
-              average of{' '}
+              <strong className='text-foreground'>Weekly Average Sleep:</strong>{' '}
               <span className='text-primary font-semibold'>
-                {metrics.scheduledTST.toFixed(1)} hours
+                {formatHours(metrics.weeklyAvgTST)}
               </span>{' '}
-              on weekdays and{' '}
-              <span className='text-primary font-semibold'>
-                {metrics.unscheduledTST.toFixed(1)} hours
-              </span>{' '}
-              on weekends.
-              {Math.abs(metrics.scheduledTST - metrics.unscheduledTST) > 2 && (
+              (weighted: 5× workdays + 2× weekends)
+            </p>
+            <p className='text-foreground/80 text-sm'>
+              <strong className='text-foreground'>Social Jet Lag:</strong>{' '}
+              <span
+                className={cn(
+                  'font-semibold',
+                  Math.abs(metrics.socialJetLag) > 1.5 ? 'text-amber-600' : 'text-primary'
+                )}
+              >
+                {metrics.socialJetLag > 0 ? '+' : ''}
+                {metrics.socialJetLag.toFixed(1)} hours
+              </span>
+              {metrics.socialJetLag > 1.5 && (
                 <span className='text-amber-600'>
                   {' '}
-                  Your sleep varies significantly between weekdays and weekends, which may indicate
-                  social jet lag.
+                  — Catching up more than 1.5 hours on weekends suggests insufficient sleep during
+                  the week.
                 </span>
               )}
+            </p>
+            <p className='text-foreground/80 text-sm'>
+              <strong className='text-foreground'>Mid-Sleep Time Change:</strong>{' '}
+              <span
+                className={cn(
+                  'font-semibold',
+                  Math.abs(metrics.midSleepTimeChange) > 1 ? 'text-amber-600' : 'text-primary'
+                )}
+              >
+                {metrics.midSleepTimeChange > 0 ? '+' : ''}
+                {metrics.midSleepTimeChange.toFixed(1)} hours
+              </span>
+              {metrics.midSleepTimeChange > 1 && (
+                <span className='text-amber-600'>
+                  {' '}
+                  — Sleeping later on weekends suggests catch-up sleep and a propensity for a later
+                  chronotype.
+                </span>
+              )}
+            </p>
+            <p className='text-foreground/80 text-sm'>
+              <strong className='text-foreground'>Chronotype Assessment:</strong> Based on your
+              mid-sleep time ({metrics.midSleepUnscheduled} on free days), you are classified as:{' '}
+              <span className='text-primary font-semibold'>{chronotypeLabel}</span>
             </p>
           </div>
         </CardContent>
@@ -421,9 +574,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-red-500' />
                 <div>
-                  <h4 className='font-semibold'>Insomnia ({insomniaSeverity})</h4>
+                  <h4 className='font-semibold'>Symptoms of Insomnia Disorder ({insomniaSeverity})</h4>
                   <p className='text-muted-foreground text-sm'>
-                    Difficulty falling asleep and/or staying asleep with daytime impairment
+                    Difficulty falling asleep and/or staying asleep with daytime impairment. See our
+                    website for more information and guidance.
                   </p>
                 </div>
               </div>
@@ -468,9 +622,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-red-500' />
                 <div>
-                  <h4 className='font-semibold'>Possible Sleep Apnea</h4>
+                  <h4 className='font-semibold'>Symptoms of Sleep Apnea Disorder</h4>
                   <p className='text-muted-foreground text-sm'>
-                    Symptoms suggest sleep-disordered breathing requiring medical evaluation
+                    Your responses suggest sleep-disordered breathing requiring medical evaluation.
+                    See our website for more information and guidance.
                   </p>
                 </div>
               </div>
@@ -481,13 +636,13 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                 <XCircle className='mt-0.5 h-5 w-5 text-red-600' />
                 <div>
                   <h4 className='font-semibold text-red-700'>
-                    COMISA (Comorbid Insomnia and Sleep Apnea)
+                    Symptoms of COMISA (Comorbid Insomnia and Sleep Apnea)
                   </h4>
                   <p className='text-muted-foreground text-sm'>
-                    You show signs of both insomnia and sleep apnea occurring together. COMISA is a
-                    complex condition that affects approximately 30-50% of people with either
-                    disorder. Treatment requires addressing both conditions simultaneously for best
-                    results.
+                    You show symptoms of both insomnia and sleep apnea occurring together. COMISA is
+                    a complex condition that affects approximately 30-50% of people with either
+                    disorder. See our website for more information and guidance on treatment
+                    approaches.
                   </p>
                 </div>
               </div>
@@ -497,9 +652,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
-                  <h4 className='font-semibold'>Restless Legs Syndrome Symptoms</h4>
+                  <h4 className='font-semibold'>Symptoms of Restless Legs Syndrome</h4>
                   <p className='text-muted-foreground text-sm'>
-                    Leg discomfort affecting sleep onset
+                    Leg discomfort affecting sleep onset. See our website for more information and
+                    guidance.
                   </p>
                 </div>
               </div>
@@ -509,9 +665,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
-                  <h4 className='font-semibold'>Frequent Nightmares</h4>
+                  <h4 className='font-semibold'>Symptoms of Nightmare Disorder</h4>
                   <p className='text-muted-foreground text-sm'>
-                    Disturbing dreams affecting sleep quality
+                    Disturbing dreams affecting sleep quality. See our website for more information
+                    and guidance.
                   </p>
                 </div>
               </div>
@@ -521,9 +678,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='flex items-start space-x-3'>
                 <Info className='text-primary mt-0.5 h-5 w-5' />
                 <div>
-                  <h4 className='font-semibold'>Delayed Sleep Phase</h4>
+                  <h4 className='font-semibold'>Symptoms of Delayed Sleep Phase Disorder</h4>
                   <p className='text-muted-foreground text-sm'>
-                    Natural tendency to sleep and wake later than conventional times
+                    Natural tendency to sleep and wake later than conventional times. See our website
+                    for more information and guidance.
                   </p>
                 </div>
               </div>
@@ -545,11 +703,12 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
-                  <h4 className='font-semibold'>Insufficient Sleep Syndrome</h4>
+                  <h4 className='font-semibold'>Symptoms of Insufficient Sleep Syndrome</h4>
                   <p className='text-muted-foreground text-sm'>
                     Your average sleep time of {avgWeeklySleep.toFixed(1)} hours is below the
                     recommended 7+ hours. Combined with your daytime sleepiness, this suggests you
-                    are not getting enough sleep to meet your body&apos;s needs.
+                    are not getting enough sleep to meet your body&apos;s needs. See our website for
+                    more information and guidance.
                   </p>
                 </div>
               </div>
@@ -560,19 +719,36 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
                   <h4 className='font-semibold'>
-                    Possible Chronic Fatigue / Fibromyalgia Symptoms
+                    Symptoms of Chronic Fatigue / Fibromyalgia
                   </h4>
                   <p className='text-muted-foreground text-sm'>
                     You report non-restorative sleep, muscle/joint pain, and daytime tiredness that
                     interferes with activities. These symptoms may be associated with fibromyalgia,
                     chronic fatigue syndrome, post-viral illness (e.g., long COVID), or Lyme
-                    disease.
+                    disease. See our website for more information and guidance.
                   </p>
                 </div>
               </div>
             )}
 
-            {hasPainAffectingSleep && !hasChronicFatigueSymptoms && (
+            {hasPainRelatedSleepDisturbance && (
+              <div className='flex items-start space-x-3'>
+                <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>Pain-Related Sleep Disturbance</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    It is common for those who experience acute or chronic pain to have poor sleep
+                    quality. There is a bidirectional relationship between inadequate sleep and pain
+                    during the night and day. Addressing your sleep problems and adequate treatment
+                    of your pain is important. Please refer to our website for more information on
+                    this important relationship and discuss this finding with your primary medical
+                    provider.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {hasPainAffectingSleep && !hasChronicFatigueSymptoms && !hasPainRelatedSleepDisturbance && (
               <div className='flex items-start space-x-3'>
                 <Info className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
@@ -580,6 +756,83 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                   <p className='text-muted-foreground text-sm'>
                     Moderate to severe pain ({data.daytime.painSeverity}/10) is affecting your sleep
                     quality. Pain management should be addressed alongside sleep treatment.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {hasMedicationRelatedSleepDisturbance && (
+              <div className='flex items-start space-x-3'>
+                <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>Medication-Related Sleep Disturbance</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    The medications that you are currently taking can contribute to sleep disturbance
+                    and your sleepiness/tiredness or fatigue during the day. Please check out our
+                    website for more information and discuss the impact of your medications on your
+                    sleep with your medical provider. Do not discontinue prescription or over the
+                    counter medications that your medical providers have recommended.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {hasMildRespiratoryDisturbance && !hasCOMISA && (
+              <div className='flex items-start space-x-3'>
+                <Info className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>Mild Respiratory Disturbance</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    You have at least mild symptoms of sleep-related respiratory disturbance that may
+                    require more assessment. Both snoring and mouth breathing alone or together cause
+                    sleep disruption and may place a burden on your cardiovascular and respiratory
+                    system. Please see our website for more detailed information and discuss your
+                    symptoms with your medical provider or a sleep specialist.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {hasLegCrampsConcern && (
+              <div className='flex items-start space-x-3'>
+                <Info className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>Nocturnal Leg Cramps</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    Your nocturnal leg cramps can be sleep disruptors and can be a sign of age,
+                    muscle fatigue, an electrolyte or other imbalance. They can be more common during
+                    pregnancy. Since these occur on two or more nights a week, we suggest that you
+                    discuss these symptoms with your primary care provider.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {osaTreatmentIneffective && (
+              <div className='flex items-start space-x-3'>
+                <AlertCircle className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>Sleep Apnea Treatment Not Fully Effective</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    You indicated that despite being treated for sleep apnea, you are still having
+                    symptoms. Please see the section on our website related to your disorder and
+                    discuss with your primary care provider. You may benefit from a consultation with
+                    a sleep specialist.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {rlsTreatmentIneffective && (
+              <div className='flex items-start space-x-3'>
+                <AlertCircle className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>RLS Treatment Not Fully Effective</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    You indicated that despite being treated for restless legs syndrome, you are
+                    still having symptoms. Please see the section on our website related to your
+                    disorder and discuss with your primary care provider. You may benefit from a
+                    consultation with a sleep specialist.
                   </p>
                 </div>
               </div>
@@ -594,7 +847,13 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               !hasPoorHygiene &&
               !hasInsufficientSleep &&
               !hasChronicFatigueSymptoms &&
-              !hasPainAffectingSleep && (
+              !hasPainAffectingSleep &&
+              !hasPainRelatedSleepDisturbance &&
+              !hasMedicationRelatedSleepDisturbance &&
+              !hasMildRespiratoryDisturbance &&
+              !hasLegCrampsConcern &&
+              !osaTreatmentIneffective &&
+              !rlsTreatmentIneffective && (
                 <div className='flex items-start space-x-3'>
                   <CheckCircle className='mt-0.5 h-5 w-5 text-green-500' />
                   <div>
@@ -621,187 +880,224 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
           <div className='space-y-4'>
             {hasInsomnia && (
               <div>
-                <h4 className='mb-2 font-semibold'>For Your Insomnia:</h4>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Consider Cognitive Behavioral Therapy for Insomnia (CBT-I)</li>
-                  <li>Maintain consistent sleep and wake times, even on weekends</li>
-                  <li>Limit time in bed to actual sleep time (sleep restriction)</li>
-                  <li>Avoid screens 1-2 hours before bedtime</li>
-                  {data.mentalHealth.anxietyInBed && (
-                    <li>
-                      Practice relaxation techniques: deep breathing, progressive muscle relaxation
-                    </li>
-                  )}
-                </ul>
+                <h4 className='mb-2 font-semibold'>For Your Insomnia Symptoms:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Based on your responses, we recommend exploring treatment options for insomnia.
+                  Visit our website for detailed information on evidence-based treatments including
+                  Cognitive Behavioral Therapy for Insomnia (CBT-I) and other strategies.
+                </p>
               </div>
             )}
 
             {hasOSA && !hasCOMISA && (
               <div>
                 <h4 className='mb-2 font-semibold text-red-600'>
-                  ⚠️ Urgent: Sleep Apnea Evaluation
+                  ⚠️ Important: Sleep Apnea Evaluation Recommended
                 </h4>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Schedule a sleep study with a sleep specialist immediately</li>
-                  <li>Discuss CPAP therapy or other treatment options</li>
-                  <li>If overweight, weight loss can significantly improve symptoms</li>
-                  <li>Avoid alcohol and sedatives which worsen apnea</li>
-                  <li>Sleep on your side rather than your back</li>
-                </ul>
+                <p className='text-foreground/80 text-sm'>
+                  Based on your responses, we recommend evaluation for sleep apnea. This is an
+                  important health condition that warrants attention. Visit our website for detailed
+                  information on sleep studies, treatment options, and next steps.
+                </p>
               </div>
             )}
 
             {hasCOMISA && (
               <div>
-                <h4 className='mb-2 font-semibold text-red-600'>⚠️ Urgent: COMISA Treatment</h4>
-                <p className='text-foreground/80 mb-2 text-sm'>
-                  COMISA (Comorbid Insomnia and Sleep Apnea) requires coordinated treatment of both
-                  conditions. Research shows that treating only one condition often leaves patients
-                  with persistent symptoms.
+                <h4 className='mb-2 font-semibold text-red-600'>
+                  ⚠️ Important: COMISA Evaluation Recommended
+                </h4>
+                <p className='text-foreground/80 text-sm'>
+                  Your symptoms suggest COMISA (Comorbid Insomnia and Sleep Apnea), which requires
+                  coordinated treatment of both conditions. Visit our website for detailed
+                  information on comprehensive evaluation and treatment approaches.
                 </p>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Schedule a comprehensive sleep evaluation with a sleep specialist</li>
-                  <li>A sleep study is essential to diagnose and assess sleep apnea severity</li>
-                  <li>Consider combined therapy: CBT-I plus CPAP treatment</li>
-                  <li>
-                    Work with your sleep specialist to optimize CPAP settings and insomnia treatment
-                  </li>
-                  <li>Avoid sedative sleep medications which can worsen sleep apnea</li>
-                  <li>Weight management can improve both conditions</li>
-                  <li>Maintain consistent sleep schedules even while adjusting to CPAP</li>
-                </ul>
               </div>
             )}
 
             {hasRLS && (
               <div>
-                <h4 className='mb-2 font-semibold'>For Restless Legs Syndrome:</h4>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Have your ferritin levels checked by your doctor</li>
-                  <li>Consider iron supplementation if levels are below 75mcg/ml</li>
-                  <li>Reduce caffeine and alcohol consumption</li>
-                  <li>Gentle stretching or yoga before bed</li>
-                  <li>Maintain regular exercise routine</li>
-                </ul>
+                <h4 className='mb-2 font-semibold'>For Restless Legs Syndrome Symptoms:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Based on your responses, we recommend exploring treatment options for restless
+                  legs syndrome. Visit our website for detailed information on iron levels, lifestyle
+                  changes, and other treatments.
+                </p>
               </div>
             )}
 
             {hasInsufficientSleep && (
               <div>
                 <h4 className='mb-2 font-semibold text-amber-600'>
-                  For Insufficient Sleep Syndrome:
+                  For Insufficient Sleep Symptoms:
                 </h4>
-                <p className='text-foreground/80 mb-2 text-sm'>
+                <p className='text-foreground/80 text-sm'>
                   You&apos;re averaging {avgWeeklySleep.toFixed(1)} hours of sleep per night. Most
-                  adults need 7-9 hours for optimal health and functioning.
+                  adults need 7-9 hours for optimal health and functioning. Visit our website for
+                  strategies to improve your sleep duration and schedule.
                 </p>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Prioritize sleep by setting an earlier bedtime</li>
-                  <li>
-                    Calculate your target bedtime by counting back 7-8 hours from your wake time
-                  </li>
-                  <li>Reduce evening activities and screen time to allow for earlier sleep</li>
-                  <li>Consider your schedule - can any morning obligations be moved later?</li>
-                  <li>Avoid using caffeine to compensate for lack of sleep</li>
-                  <li>
-                    Track your sleep for 2 weeks to identify patterns and improvement opportunities
-                  </li>
-                </ul>
               </div>
             )}
 
             {hasChronicFatigueSymptoms && (
               <div>
                 <h4 className='mb-2 font-semibold text-amber-600'>For Chronic Fatigue Symptoms:</h4>
-                <p className='text-foreground/80 mb-2 text-sm'>
+                <p className='text-foreground/80 text-sm'>
                   Your combination of non-restorative sleep, pain, and fatigue warrants medical
-                  evaluation.
+                  evaluation. Visit our website for detailed information on evaluation options and
+                  management strategies.
                 </p>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Discuss symptoms with your primary care doctor</li>
-                  <li>Consider referral to a rheumatologist for fibromyalgia evaluation</li>
-                  <li>Request testing for thyroid function, vitamin D, iron/ferritin levels</li>
-                  <li>Consider evaluation for post-viral syndromes (long COVID, Lyme disease)</li>
-                  <li>Gentle exercise and pacing strategies may help manage symptoms</li>
-                  <li>Cognitive behavioral therapy can help with fatigue management</li>
-                  <li>Improving sleep quality is often the first step in treatment</li>
-                </ul>
               </div>
             )}
 
-            {hasPainAffectingSleep && (
+            {hasPainRelatedSleepDisturbance && (
               <div>
-                <h4 className='mb-2 font-semibold'>For Pain Management:</h4>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Discuss pain management options with your healthcare provider</li>
-                  <li>Consider physical therapy or stretching routines before bed</li>
-                  <li>Evaluate your sleep position and mattress for proper support</li>
-                  <li>Heat or cold therapy may help before bedtime</li>
-                  <li>Timing of pain medications may be optimized for sleep</li>
-                  <li>Relaxation techniques can help manage pain perception</li>
-                </ul>
+                <h4 className='mb-2 font-semibold'>For Pain-Related Sleep Disturbance:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Addressing both your sleep problems and pain is important for improving your
+                  quality of life. Visit our website for more information on the relationship
+                  between pain and sleep and discuss this finding with your primary medical provider.
+                </p>
+              </div>
+            )}
+
+            {hasPainAffectingSleep && !hasPainRelatedSleepDisturbance && (
+              <div>
+                <h4 className='mb-2 font-semibold'>For Pain Affecting Sleep:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Pain is affecting your sleep quality. Visit our website for information on pain
+                  management strategies and how to improve sleep when dealing with chronic pain.
+                </p>
+              </div>
+            )}
+
+            {hasMedicationRelatedSleepDisturbance && (
+              <div>
+                <h4 className='mb-2 font-semibold'>For Medication-Related Sleep Disturbance:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Your medications may be contributing to your sleep difficulties. Visit our website
+                  for more information and discuss the impact of your medications on your sleep with
+                  your medical provider. Do not discontinue any medications without consulting your
+                  prescribing provider.
+                </p>
+              </div>
+            )}
+
+            {hasMildRespiratoryDisturbance && !hasOSA && !hasCOMISA && (
+              <div>
+                <h4 className='mb-2 font-semibold'>For Respiratory Disturbance:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Your snoring and/or mouth breathing may be disrupting your sleep. Visit our
+                  website for more information and discuss your symptoms with your medical provider
+                  or a sleep specialist.
+                </p>
               </div>
             )}
 
             {chronotype === 'delayed' && (
               <div>
-                <h4 className='mb-2 font-semibold'>For Delayed Sleep Phase:</h4>
-                <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                  <li>Use bright light therapy in the morning (10,000 lux for 30 minutes)</li>
-                  <li>Avoid bright lights and screens in the evening</li>
-                  <li>Consider melatonin 3-5 hours before desired bedtime (consult doctor)</li>
-                  <li>Gradually shift bedtime earlier by 15-30 minutes every few days</li>
-                </ul>
+                <h4 className='mb-2 font-semibold'>For Delayed Sleep Phase Symptoms:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Your natural sleep timing is later than desired. Visit our website for information
+                  on light therapy, melatonin, and other strategies to shift your sleep schedule.
+                </p>
               </div>
             )}
 
             {/* Sleep Hygiene Recommendations */}
             <div>
               <h4 className='mb-2 font-semibold'>General Sleep Hygiene:</h4>
-              <ul className='text-foreground/80 list-inside list-disc space-y-1 text-sm'>
-                {data.lifestyle.caffeinePerDay > 2 && (
-                  <li>Reduce caffeine to 1-2 cups per day, none after noon</li>
-                )}
-                {data.lifestyle.alcoholPerWeek.wine + data.lifestyle.alcoholPerWeek.cocktails >
-                  7 && <li>Limit alcohol, especially within 3 hours of bedtime</li>}
-                {data.bedroom.dark < 7 && (
-                  <li>Make your bedroom darker with blackout curtains or eye mask</li>
-                )}
-                {data.bedroom.quiet < 7 && (
-                  <li>Reduce noise with earplugs, white noise, or soundproofing</li>
-                )}
-                {data.bedroom.comfortable < 7 && (
-                  <li>Evaluate your mattress and pillows for comfort</li>
-                )}
-                {data.lifestyle.exerciseDaysPerWeek < 3 && (
-                  <li>Add regular exercise, preferably in the morning or afternoon</li>
-                )}
-                <li>Keep bedroom temperature cool (60-67°F / 15-19°C)</li>
-                <li>Use your bed only for sleep and intimacy</li>
-              </ul>
+              <p className='text-foreground/80 text-sm'>
+                Good sleep hygiene is foundational to healthy sleep. Visit our website for
+                comprehensive information on bedroom environment, lifestyle factors, and sleep
+                habits that can improve your sleep quality.
+              </p>
             </div>
           </div>
         </CardContent>
       </Card>
+
+      {/* Safety Warnings */}
+      {(hasEDS || hasParasomniaSafetyRisk || hasMedicationAlcoholRisk) && (
+        <Card className='shadow-sleep overflow-hidden border-0 border-l-4 border-l-red-500'>
+          <CardHeader className='bg-red-50'>
+            <CardTitle className='flex items-center space-x-2 text-red-700'>
+              <AlertCircle className='h-5 w-5' />
+              <span>Important Safety Warnings</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='pt-6'>
+            <div className='space-y-4'>
+              {/* Daytime Sleepiness Warning */}
+              {hasEDS && edsResult.severity !== 'mild' && (
+                <Alert className='alert-danger'>
+                  <AlertCircle className='h-4 w-4 text-red-600' />
+                  <AlertDescription className='text-red-900'>
+                    <strong>Daytime Sleepiness Warning</strong>
+                    <br />
+                    Your daytime sleepiness symptoms are significant and we suggest that you exercise
+                    significant caution that might include avoiding driving, biking or other high
+                    risk activities until you are treated. More specific recommendations are on our
+                    website.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Parasomnia Warning */}
+              {hasParasomniaSafetyRisk && (
+                <Alert className='alert-danger'>
+                  <AlertCircle className='h-4 w-4 text-red-600' />
+                  <AlertDescription className='text-red-900'>
+                    <strong>Parasomnia Warning</strong>
+                    <br />
+                    Your parasomnias (sleepwalking, sleep eating, or night terrors) place you at
+                    significant risk of injury. We strongly recommend that someone in your home
+                    monitor your behavior at night and only wake you if you try to leave your home
+                    or are at risk of other injury. Please see more information about safety
+                    precautions on our website.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {/* Medication/Alcohol Warning */}
+              {hasMedicationAlcoholRisk && (
+                <Alert className='alert-warning'>
+                  <AlertCircle className='h-4 w-4 text-amber-600' />
+                  <AlertDescription className='text-amber-900'>
+                    <strong>Medication/Substance Warning</strong>
+                    <br />
+                    Your use of sedating medications, caffeine, and/or alcohol is significant and can
+                    lead to health risks and injury. We provide additional information on our
+                    website, but you should consult with your prescribing provider or other health
+                    professional before making changes as there can be side effects when you
+                    discontinue use.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* When to Seek Help */}
       <Card className='shadow-sleep overflow-hidden border-0'>
         <CardHeader className='bg-gradient-sleep-header text-white'>
           <CardTitle className='flex items-center space-x-2 text-white'>
             <Brain className='h-5 w-5' />
-            <span>When to Seek Professional Help</span>
+            <span>Next Steps</span>
           </CardTitle>
         </CardHeader>
         <CardContent className='pt-6'>
           <div className='space-y-3'>
-            {(hasOSA || data.breathingDisorders.diagnosed) && (
+            {(hasOSA || data.sleepDisorderDiagnoses.diagnosedOSA) && (
               <Alert className='alert-danger'>
                 <AlertCircle className='h-4 w-4 text-red-600' />
                 <AlertDescription className='text-red-900'>
-                  <strong>Immediate Medical Attention Recommended</strong>
+                  <strong>Sleep Apnea Evaluation Recommended</strong>
                   <br />
                   Your symptoms suggest sleep apnea, which can have serious health consequences.
-                  Please schedule an appointment with a sleep specialist as soon as possible.
+                  Visit our website for information on finding a sleep specialist and what to expect
+                  during evaluation.
                 </AlertDescription>
               </Alert>
             )}
@@ -810,10 +1106,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               <Alert className='alert-warning'>
                 <AlertCircle className='h-4 w-4 text-amber-600' />
                 <AlertDescription className='text-amber-900'>
-                  <strong>Professional Sleep Consultation Recommended</strong>
+                  <strong>Sleep Consultation Recommended</strong>
                   <br />
-                  Your insomnia is significantly impacting your daily life. Consider seeing a
-                  behavioral sleep medicine specialist for comprehensive treatment.
+                  Your insomnia symptoms are significantly impacting your daily life. Visit our
+                  website for information on finding a behavioral sleep medicine specialist.
                 </AlertDescription>
               </Alert>
             )}
@@ -824,8 +1120,8 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                 <AlertDescription>
                   <strong>Mental Health Support Available</strong>
                   <br />
-                  Trauma-related nightmares benefit from specialized therapy. Consider seeking a
-                  mental health professional who specializes in trauma treatment.
+                  Trauma-related nightmares benefit from specialized therapy. Visit our website for
+                  resources on finding appropriate mental health support.
                 </AlertDescription>
               </Alert>
             )}
@@ -833,140 +1129,16 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
         </CardContent>
       </Card>
 
-      {/* Resources and Links */}
+      {/* Resources */}
       <Card className='shadow-sleep overflow-hidden border-0'>
         <CardHeader className='bg-gradient-sleep-header text-white'>
           <CardTitle className='flex items-center space-x-2 text-white'>
             <Info className='h-5 w-5' />
-            <span>Resources &amp; Next Steps</span>
+            <span>Resources</span>
           </CardTitle>
         </CardHeader>
         <CardContent className='pt-6'>
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-            <div className='rounded-lg border p-4'>
-              <h4 className='mb-2 font-semibold'>Find a Sleep Specialist</h4>
-              <ul className='space-y-2 text-sm'>
-                <li>
-                  <a
-                    href='https://aasm.org/clinical-resources/patient-info/'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    AASM Sleep Centers →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>
-                    Find accredited sleep centers near you
-                  </p>
-                </li>
-                <li>
-                  <a
-                    href='https://www.absm.org/diplomates-directory/'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    ABSM Certified Specialists →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>
-                    Board-certified sleep medicine physicians
-                  </p>
-                </li>
-              </ul>
-            </div>
-
-            <div className='rounded-lg border p-4'>
-              <h4 className='mb-2 font-semibold'>Behavioral Sleep Medicine</h4>
-              <ul className='space-y-2 text-sm'>
-                <li>
-                  <a
-                    href='https://www.behavioralsleep.org/index.php/society-of-behavioral-sleep-medicine-providers'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    SBSM Provider Directory →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>
-                    CBT-I and behavioral sleep specialists
-                  </p>
-                </li>
-                <li>
-                  <a
-                    href='https://www.perelman.upenn.edu/cbt-i'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    CBT-I Therapist Directory →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>
-                    Cognitive behavioral therapy for insomnia
-                  </p>
-                </li>
-              </ul>
-            </div>
-
-            <div className='rounded-lg border p-4'>
-              <h4 className='mb-2 font-semibold'>Mental Health Resources</h4>
-              <ul className='space-y-2 text-sm'>
-                <li>
-                  <a
-                    href='https://locator.apa.org/'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    APA Psychologist Locator →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>Find mental health professionals</p>
-                </li>
-                <li>
-                  <a
-                    href='https://www.psychologytoday.com/us/therapists'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    Psychology Today Directory →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>
-                    Therapists specializing in sleep and anxiety
-                  </p>
-                </li>
-              </ul>
-            </div>
-
-            <div className='rounded-lg border p-4'>
-              <h4 className='mb-2 font-semibold'>Educational Resources</h4>
-              <ul className='space-y-2 text-sm'>
-                <li>
-                  <a
-                    href='https://sleepeducation.org/'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    Sleep Education (AASM) →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>Evidence-based sleep information</p>
-                </li>
-                <li>
-                  <a
-                    href='https://www.sleepfoundation.org/'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='text-primary hover:underline'
-                  >
-                    National Sleep Foundation →
-                  </a>
-                  <p className='text-muted-foreground text-xs'>Sleep health guides and tools</p>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className='border-primary/20 bg-primary/5 mt-6 rounded-xl border p-4'>
+          <div className='border-primary/20 bg-primary/5 rounded-xl border p-4'>
             <p className='text-foreground/90 text-sm'>
               <strong className='text-primary'>SomnaHealth Services:</strong> Our team offers
               personalized sleep consultations, CBT-I treatment, and ongoing support. Visit our

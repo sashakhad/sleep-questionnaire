@@ -1,65 +1,76 @@
 // Types for the Sleep Questionnaire
 
 export interface QuestionnaireData {
-  // Section 1: Daytime feelings
+  // Intro/consent
+  intro: {
+    acceptedDisclaimer: boolean;
+  };
+
+  // Demographics (collected early) - yearOfBirth, sex, zipcode are required
+  demographics: {
+    yearOfBirth: number; // Required
+    sex: 'male' | 'female' | 'transgender' | 'other' | 'prefer-not-to-say'; // Required
+    zipcode: string; // Required (min 5 chars)
+    weight: number | null;
+    height: number | null;
+  };
+
+  // Section 1: Daytime functioning
   daytime: {
     plannedNaps: {
       daysPerWeek: number;
-      duration: '0-10' | '15-30' | '30-90' | '>90' | null;
+      napsPerWeek: number; // max 21 for narcolepsy patients
+      duration: '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90' | '100' | '110' | '120' | '>120' | null;
     };
     fallAsleepDuring: string[];
-    tirednessInterferes: boolean;
-    tirednessSeverity: number | null; // 1-10 scale: 1=nuisance, 10=safety concern
+    sleepinessInterferes: boolean; // renamed from tirednessInterferes
+    sleepinessSeverity: number | null; // 1-10 scale: 1=nuisance, 10=safety concern
     tiredButCantSleep: 'everyday' | '5+days' | '3-5days' | '1-3days' | '<1day' | null;
-    dreamsWhileFallingAsleep: boolean;
     weaknessWhenExcited: string[];
     sleepParalysis: boolean;
     diagnosedNarcolepsy: boolean;
-    // Pain and chronic fatigue screening
+    // Sleep quality section (renamed from Pain and Energy Levels)
     painAffectsSleep: boolean;
     painSeverity: number | null; // 1-10 scale
-    muscleJointPain: boolean;
+    jointMusclePain: boolean; // renamed for first-person declarative
     nonRestorativeSleep: boolean;
+    // New rating scales
+    tirednessRating: number | null; // mild sleepiness, headache, heavy eyes
+    fatigueRating: number | null; // flu-like symptoms, poor motivation, aches
   };
 
-  // Section 2a: Scheduled/work/school days sleep
+  // Section 2a: Scheduled/work/school days sleep (Sunday-Thursday)
+  // Note: Napping questions consolidated into Daytime section
   scheduledSleep: {
     lightsOutTime: string;
-    lightsOutVaries: boolean;
-    minutesToFallAsleep: number;
+    lightsOutVaries: boolean; // varies more than 2 hours
+    preBedActivity: string[]; // what you do in bed >15min before lights out
+    minutesToFallAsleep: '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90' | '100' | '110' | '120' | '>120' | null;
     nightWakeups: number;
     wakeupReasons: string[];
-    minutesAwakeAtNight: number;
+    minutesAwakeAtNight: '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90' | '100' | '110' | '120' | '>120' | null;
     wakeupTime: string;
     getOutOfBedTime: string;
     earlyWakeupDays: number;
     earlyWakeupMinutes: number | null;
     usesAlarm: boolean;
-    plannedNapsPerWeek: number;
-    averageNapMinutes: number | null;
   };
 
   // Section 2b: Unscheduled/weekend days sleep
+  // Note: Napping questions consolidated into Daytime section
   unscheduledSleep: {
     lightsOutTime: string;
-    minutesToFallAsleep: number;
+    minutesToFallAsleep: '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90' | '100' | '110' | '120' | '>120' | null;
     nightWakeups: number;
     wakeupReasons: string[];
-    minutesAwakeAtNight: number;
+    minutesAwakeAtNight: '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90' | '100' | '110' | '120' | '>120' | null;
     wakeupTime: string;
     getOutOfBedTime: string;
-    earlyWakeupDays: number;
-    earlyWakeupMinutes: number | null;
     usesAlarm: boolean;
-    plannedNapsPerWeek: number;
-    averageNapMinutes: number | null;
   };
 
-  // Section 3: Sleep breathing disorders
+  // Section 3: Sleep breathing disorder symptoms
   breathingDisorders: {
-    diagnosed: boolean;
-    severity: 'mild' | 'moderate' | 'severe' | null;
-    treatment: string[];
     snores: boolean;
     stopsBreathing: boolean;
     mouthBreathes: boolean;
@@ -68,12 +79,12 @@ export interface QuestionnaireData {
 
   // Section 4: Restless legs syndrome
   restlessLegs: {
-    diagnosed: boolean;
-    treatment: string[];
     troubleLyingStill: boolean;
     urgeToMoveLegs: boolean;
     movementRelieves: boolean;
     daytimeDiscomfort: boolean;
+    legCramps: boolean;
+    legCrampsPerWeek: number | null; // Frequency of leg cramps (nights per week)
   };
 
   // Section 5: Parasomnia
@@ -81,6 +92,7 @@ export interface QuestionnaireData {
     nightBehaviors: string[];
     remembersEvents: boolean;
     actsOutDreams: boolean;
+    hasInjuredOrLeftHome: boolean;
     bedwetting: boolean;
     diagnosedParasomnia: boolean;
     parasomniaType: string;
@@ -88,16 +100,28 @@ export interface QuestionnaireData {
     treatmentType: string;
   };
 
-  // Section 6: Nightmares
+  // Section 6: Dreams and Nightmares
   nightmares: {
+    // Dream recall
+    remembersDreams: boolean;
+    // Bad dreams (disturbing content but no waking with distress)
+    hasBadDreams: boolean;
+    badDreamsPerWeek: number | null;
+    // Nightmares (waking feeling scared/panicked/upset)
     hasNightmares: boolean;
     nightmaresPerWeek: number | null;
     associatedWithTrauma: boolean;
+    // Contributing factors for nightmares
+    historyOfTBI: boolean;
+    takingMedicationsThatMayCause: boolean;
+    hasBehavioralHealthDiagnosis: boolean;
+    hasSleepAversion: boolean;
   };
 
   // Section 7: Chronotype preferences
   chronotype: {
     preference: 'early' | 'late' | 'flexible';
+    preferenceStrength: 'slight' | 'moderate' | 'strong' | null; // Extent of circadian preference
     shiftWork: boolean;
     shiftType: string;
     shiftDaysPerWeek: number | null;
@@ -109,7 +133,9 @@ export interface QuestionnaireData {
   // Section 8-15: Sleep hygiene and lifestyle
   sleepHygiene: {
     supplements: string[];
+    supplementsOther: string;
     prescriptionMeds: string[];
+    prescriptionMedsOther: string;
     stimulants: string;
     stimulantTime: string;
     smokesNicotine: boolean;
@@ -125,10 +151,7 @@ export interface QuestionnaireData {
   lifestyle: {
     caffeinePerDay: number;
     lastCaffeineTime: string;
-    alcoholPerWeek: {
-      wine: number;
-      cocktails: number;
-    };
+    alcoholPerWeek: number; // Combined beer/wine/cocktails
     exerciseDaysPerWeek: number;
     exerciseDuration: number | null;
     exerciseEndTime: string;
@@ -146,18 +169,28 @@ export interface QuestionnaireData {
     currentlyReceivingTreatment: boolean;
   };
 
-  // Demographics
-  demographics: {
-    yearOfBirth: number | null;
-    sex: 'male' | 'female' | 'other' | 'prefer-not-to-say' | null;
-    zipcode: string;
-    weight: number | null;
-    height: number | null;
+  // Sleep Disorder Diagnoses (moved to end)
+  sleepDisorderDiagnoses: {
+    // General diagnoses checklist
+    diagnosedDisorders: string[]; // Multi-select of diagnosed disorders
+    otherDiagnosisDescription: string; // Other write-in field
+    // Sleep Apnea (detailed follow-up)
+    diagnosedOSA: boolean;
+    osaSeverity: 'mild' | 'moderate' | 'severe' | null;
+    osaTreated: boolean;
+    osaTreatmentType: string[]; // CPAP, dental device, other
+    osaTreatmentEffective: boolean | null; // Is treatment effective?
+    // RLS (detailed follow-up)
+    diagnosedRLS: boolean;
+    rlsTreated: boolean;
+    rlsTreatment: string[];
+    rlsTreatmentEffective: boolean | null; // Is treatment effective?
   };
 }
 
 export type QuestionnaireSection =
   | 'intro'
+  | 'demographics' // Moved to after intro
   | 'daytime'
   | 'scheduled-sleep'
   | 'unscheduled-sleep'
@@ -170,7 +203,7 @@ export type QuestionnaireSection =
   | 'bedroom'
   | 'lifestyle'
   | 'mental-health'
-  | 'demographics'
+  | 'sleep-disorder-diagnoses' // New section at end for OSA/RLS diagnoses
   | 'report';
 
 export interface QuestionnaireProgress {

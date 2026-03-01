@@ -1,15 +1,7 @@
 import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { NumberField } from '../form-fields/NumberField';
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-  FormDescription,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { TimeField } from '../form-fields/TimeField';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Coffee, Wine, Activity, AlertCircle } from 'lucide-react';
 
@@ -20,11 +12,9 @@ interface LifestyleSectionProps {
 export function LifestyleSection({ form }: LifestyleSectionProps) {
   const caffeinePerDay = form.watch('lifestyle.caffeinePerDay');
   const lastCaffeineTime = form.watch('lifestyle.lastCaffeineTime');
-  const alcoholWine = form.watch('lifestyle.alcoholPerWeek.wine');
-  const alcoholCocktails = form.watch('lifestyle.alcoholPerWeek.cocktails');
+  const alcoholPerWeek = form.watch('lifestyle.alcoholPerWeek');
   const exerciseDaysPerWeek = form.watch('lifestyle.exerciseDaysPerWeek');
 
-  const totalAlcohol = alcoholWine + alcoholCocktails;
   const lateCaffeine = lastCaffeineTime && parseInt(lastCaffeineTime.split(':')[0] ?? '0') >= 14; // After 2 PM
 
   return (
@@ -32,7 +22,7 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
       <div className='text-lg font-medium'>Lifestyle Factors Affecting Sleep</div>
 
       <Alert className='alert-info'>
-        <Activity className='h-4 w-4 text-primary' />
+        <Activity className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
           Your daily habits including caffeine consumption, alcohol use, and exercise patterns can
           significantly impact your sleep quality and timing.
@@ -51,29 +41,19 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
         <NumberField
           control={form.control}
           name='lifestyle.caffeinePerDay'
-          label='How many cups of caffeinated beverages do you drink per day?'
-          placeholder='Number of cups'
+          label='How many servings of caffeinated food or beverages do you consume per day?'
+          placeholder='Number of servings'
           description='Include coffee, tea, iced tea, sodas, energy drinks, and chocolate'
           min={0}
           max={20}
         />
 
-        {caffeinePerDay > 0 && (
-          <FormField
+        {caffeinePerDay >= 1 && (
+          <TimeField
             control={form.control}
             name='lifestyle.lastCaffeineTime'
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>What time do you have your final caffeinated beverage?</FormLabel>
-                <FormControl>
-                  <Input type='time' {...field} className='max-w-xs' />
-                </FormControl>
-                <FormDescription>
-                  Caffeine can affect sleep for 6-8 hours after consumption
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+            label='What time do you have your final caffeinated food or beverage?'
+            description='Caffeine can affect sleep for 6-8 hours after consumption'
           />
         )}
       </div>
@@ -89,18 +69,10 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
 
         <NumberField
           control={form.control}
-          name='lifestyle.alcoholPerWeek.wine'
-          label='Glasses of wine per week'
-          placeholder='Number of glasses'
-          min={0}
-          max={50}
-        />
-
-        <NumberField
-          control={form.control}
-          name='lifestyle.alcoholPerWeek.cocktails'
-          label='Cocktails/beer per week'
+          name='lifestyle.alcoholPerWeek'
+          label='How many alcoholic drinks do you have per week?'
           placeholder='Number of drinks'
+          description='Include beer, wine, cocktails, and all other alcoholic beverages'
           min={0}
           max={50}
         />
@@ -136,19 +108,11 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
               max={300}
             />
 
-            <FormField
+            <TimeField
               control={form.control}
               name='lifestyle.exerciseEndTime'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>What time does your exercise typically end?</FormLabel>
-                  <FormControl>
-                    <Input type='time' {...field} className='max-w-xs' />
-                  </FormControl>
-                  <FormDescription>Late evening exercise can interfere with sleep</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
+              label='What time does your exercise typically end?'
+              description='Late evening exercise can interfere with sleep'
             />
           </>
         )}
@@ -162,8 +126,9 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
             <strong>High Caffeine Intake</strong>
             <br />
             You&apos;re consuming more than 4 caffeinated beverages per day. High caffeine intake
-            can lead to increased anxiety, disrupted sleep, and dependency. Consider gradually
-            reducing your intake, especially in the afternoon and evening.
+            can lead to increased anxiety, disrupted sleep, and dependency. In your personalized
+            report we will provide links to our website for information on managing caffeine
+            consumption.
           </AlertDescription>
         </Alert>
       )}
@@ -182,7 +147,7 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
       )}
 
       {/* Alcohol warnings */}
-      {totalAlcohol > 14 && (
+      {alcoholPerWeek > 14 && (
         <Alert className='alert-danger'>
           <Wine className='h-4 w-4 text-red-600' />
           <AlertDescription className='text-red-900'>
@@ -190,13 +155,15 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
             <br />
             You&apos;re consuming more than 14 alcoholic drinks per week. While alcohol may
             initially help you fall asleep, it significantly disrupts sleep architecture, reducing
-            REM sleep and causing frequent awakenings. Consider reducing alcohol intake, especially
-            within 3 hours of bedtime.
+            REM sleep and causing frequent awakenings. Recent evidence suggests that alcohol
+            consumption can contribute to cancer or other significant health complications. In your
+            personalized report we will provide links to our website for information on managing
+            alcohol consumption.
           </AlertDescription>
         </Alert>
       )}
 
-      {totalAlcohol > 7 && totalAlcohol <= 14 && (
+      {alcoholPerWeek > 7 && alcoholPerWeek <= 14 && (
         <Alert>
           <Wine className='h-4 w-4' />
           <AlertDescription>
@@ -215,8 +182,8 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
             <strong>No Regular Exercise</strong>
             <br />
             Regular exercise is one of the best ways to improve sleep quality. Even moderate
-            exercise like a 30-minute walk can significantly improve sleep. Try to incorporate some
-            physical activity into your daily routine, preferably in the morning or afternoon.
+            exercise like a 30-minute walk can significantly improve sleep. In your personalized
+            report we will provide links to our website for information on exercise and sleep.
           </AlertDescription>
         </Alert>
       )}

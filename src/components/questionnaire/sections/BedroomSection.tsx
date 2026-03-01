@@ -71,7 +71,7 @@ export function BedroomSection({ form }: BedroomSectionProps) {
       <div className='text-lg font-medium'>Bedroom Environment Assessment</div>
 
       <Alert className='alert-info'>
-        <Home className='h-4 w-4 text-primary' />
+        <Home className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
           Your bedroom environment plays a crucial role in sleep quality. Please rate your bedroom
           or the place where you typically sleep on a scale of 1-10, with 1 being worst and 10 being

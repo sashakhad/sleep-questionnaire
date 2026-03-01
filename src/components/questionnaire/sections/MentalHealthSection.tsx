@@ -20,11 +20,12 @@ interface MentalHealthSectionProps {
 
 // Medical conditions that can affect sleep
 const medicalConditions = [
-  { value: 'hypertension', label: 'High blood pressure' },
+  { value: 'hypertension', label: 'High blood pressure (Hypertension)' },
+  { value: 'stroke', label: 'Stroke (current or history)' },
   { value: 'heart_disease', label: 'Heart disease' },
   { value: 'diabetes', label: 'Diabetes' },
   { value: 'thyroid', label: 'Thyroid disorder' },
-  { value: 'gerd', label: 'GERD / Acid reflux' },
+  { value: 'gerd', label: 'GERD / Acid reflux / Reflux symptoms' },
   { value: 'asthma', label: 'Asthma / COPD' },
   { value: 'chronic_pain', label: 'Chronic pain condition' },
   { value: 'arthritis', label: 'Arthritis' },
@@ -62,7 +63,7 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
       <div className='text-lg font-medium'>Mental Health and Sleep</div>
 
       <Alert className='alert-info'>
-        <Brain className='h-4 w-4 text-primary' />
+        <Brain className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
           Mental health and sleep have a bidirectional relationship. Anxiety and worry can prevent
           sleep, while poor sleep can worsen mental health symptoms. Understanding this connection
@@ -74,14 +75,14 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
       <CheckboxField
         control={form.control}
         name='mentalHealth.worriesAffectSleep'
-        label='Do worries about the next day often contribute to difficulty falling asleep or extend your nighttime awakenings?'
+        label='Worries about the next day often contribute to my difficulty falling asleep or extend my nighttime awakenings'
       />
 
       {/* Anxiety in bed */}
       <CheckboxField
         control={form.control}
         name='mentalHealth.anxietyInBed'
-        label='Do you have anxiety or persistent rumination while in bed at night?'
+        label='I have anxiety or persistent rumination while in bed at night'
         description='Racing thoughts, worry loops, or inability to quiet your mind'
       />
 
@@ -89,7 +90,7 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
       <CheckboxField
         control={form.control}
         name='mentalHealth.timeInBedTrying'
-        label='Do you spend time in bed trying to sleep?'
+        label='I spend time in bed trying to sleep'
         description='Lying awake for extended periods hoping sleep will come'
       />
 
@@ -108,7 +109,7 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
       {/* Medical History Section */}
       <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
         <div className='flex items-center space-x-2'>
-          <Stethoscope className='h-5 w-5 text-primary' />
+          <Stethoscope className='text-primary h-5 w-5' />
           <h3 className='text-muted-foreground text-sm font-semibold tracking-wide uppercase'>
             Medical History
           </h3>
@@ -214,18 +215,8 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
             <br />
             It&apos;s likely that your anxiety related to sleep is interfering with your ability to
             surrender to sleep at night. This creates a vicious cycle where worry about sleep
-            prevents sleep, which increases worry. Consider these strategies:
-            <ul className='mt-2 list-inside list-disc space-y-1'>
-              <li>
-                Practice relaxation techniques before bed (deep breathing, progressive muscle
-                relaxation)
-              </li>
-              <li>
-                Keep a worry journal - write down concerns before bed to &quot;park&quot; them
-              </li>
-              <li>Limit time in bed when not sleeping (get up after 20 minutes if awake)</li>
-              <li>Consider Cognitive Behavioral Therapy for Insomnia (CBT-I)</li>
-            </ul>
+            prevents sleep, which increases worry. In your personalized report we will provide links
+            to our website for information on treatment options.
           </AlertDescription>
         </Alert>
       )}
@@ -239,8 +230,8 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
             <br />
             Your sleep difficulties are significantly impacting your daily functioning. This level
             of impairment suggests moderate to severe insomnia that warrants professional
-            evaluation. We strongly recommend consulting with a sleep specialist or mental health
-            professional who can provide targeted treatment.
+            evaluation. In your personalized report we will provide links to our website for
+            information on treatment options.
           </AlertDescription>
         </Alert>
       )}

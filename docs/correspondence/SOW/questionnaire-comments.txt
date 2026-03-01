@@ -1,0 +1,174 @@
+Somna Health Practical Sleep Questionnaire
+
+ SECTION 1: Daytime Sleepiness
+
+1.1 Do you take planned naps during the day?
+	•	How many days per week? _____
+	•	How long is your usual nap? ☐ 0–20 mins ☐ 21-45 mins ☐ 46-90 mins ☐ 90+ mins
+IF Formula:
+	•	IF naps ≥ 3 days/week AND ≥ 30 mins → Probable Excessive Daytime Sleepiness (EDS)
+	•	IF naps **>1 day/week AND ≥ 30 mins AND NOT EDS AND Insomnia → Poor Sleep Hygiene – eliminate naps
+Message for EDS: “Excessive Daytime Sleepiness (EDS) means you feel overly sleepy during the day, even if you think you sleep enough. This is different from daytime tiredness because you do not just feel the need for sleep, but you can actually fall asleep. It can impact focus, mood and quality of life. Frequent long naps suggest your nighttime sleep might not be restorative or you might have an underlying sleep disorder.  Your other symptoms suggest that you should be evaluated for______ .”
+	•	If symptoms of narcolepsy or hypersomnia – add above; if symptoms of  sleep apnea – add above; if insufficient sleep – add above.
+
+
+Message for Poor Sleep Hygiene when associated with insomnia: “Daytime naps might decrease your nighttime sleep drive and cause symptoms of insomnia. 
+You can visit our website for more information on napping and other optimal sleep hygiene habits associated with insomnia.
+
+1.2 Do you ever doze off when you shouldn’t? (Tick all that apply) ☐ At traffic lights+1 ☐ Meetings/lectures ☐ Working/studying ☐ Talking+2 ☐ Quiet activities in evening ☐ Eating a meal+2
+IF Formula:
+	•	IF 3–4 boxes ticked → Mild EDS (possible sleep debt)
+	•	If 5-6 boxes ticked → Moderate EDS (moderate sleep debt, insufficient sleep if sleep duration is <7.5 hours or snoring and possible sleep apnea syndrome or if sleep is 7.5 hours then mild hypersomnia.)
+	•	IF 7+ boxes ticked → Probable EDS; if sleep time is >7.5 hours then r/o -   Narcolepsy / Hypersomnia
+Message: “Falling asleep when you shouldn’t is a sign your sleep quality or sleep duration isn’t enough. It can be due to sleep debt or chronic insufficient sleep, or a sleep disorder like sleep apnea or narcolepsy.”
+
+1.3 Does tiredness interfere with daily activities? ☐ Yes ☐ No
+1.3a if yes how severe is the interference 1=a nuisance 10=a safety concner (e.g. I have had sleep related accidents)
+If 1.3a is >8 “you should see immediate helpf from a health care professional and until you have done so, you should consider avoiding potentially dangers activites such as driving, biking or have a job involving high risk activites such as construction, operating heavy equipment) .  The good news is that there are many fast acting and safe treatments for excessive daytime somnolen that may put you or others at risk of injury”)
+1.4 If yes — and <6, do you feel tired but can’t nap? How often? ☐ Everyday ☐ 5+ days/week ☐ 3–5 days/week ☐ 1–3 days/week ☐ Less than 1 day/week
+IF Formula:
+	•	IF tired but can’t nap >1 day/week → Contributes to Insomnia / OSA / Chronic Fatigue
+Message: “Feeling tired but unable to nap and your other symptoms of (either or both – taking more than 30 minutes to fall asleep and/or being up for more than 30 minutes in the middle of the night) suggests that you may have insomnia or another  sleep disorder.”
+
+1.5 Do you dream as you fall asleep or during naps? ☐ Yes ☐ No
+IF Formula:
+	•	IF yes → Possible Narcolepsy, Sleep Deprivation, Delayed Sleep Phase
+Message: “Dreaming right as you fall asleep can mean you have chronically insufficient sleep and are waking too early in the (or if sleeptime is >8  hours and other symptoms of narcoelpy) you may have narcolepsy, sleep apnea syndrome or another sleep disorder.”
+
+1.6 Do you feel weak or lose muscle control when laughing or excited? ☐ Yes ☐ No
+IF Formula:
+	•	IF yes → Probable Cataplexy → Narcolepsy
+Message:
+If EDS>7 and/or if for sleep paralysis, and/or dreams upon falling  “Sudden weakness triggered by emotion (cataplexy) is a classic narcolepsy symptom and you have other signs and symptom sof this disorder/(and – “you have already been diagnosed with narcolepsy)  We strongly recommend that you make an appointment with a sleep specialist or neurologist as soon as possible.  Aside from injury associated with falling asleep and drowsiness, narcolepsy causes impairment in daytime functioning.  The good news is that there are excellent and safe treatments.  These will follow an actual diagnosis which typically requires a sleep study..”
+
+If EDS >7 and no signs of narcolepys: You have unusually high level of daytime sleepiness which can be associated with a group of sleep disorders called hypersomnias.  These are diagnosed during a sleep study and there are safe and effective treatments.  Hypersomnia is often, idiopathic (unexplained) but can be caused by concussion, a history of viral illness.
+
+If EDS is <7 and daytime tiredness and nighttime sleep disruption (poor sleep quality and nighttime awakenings are a problem or non-restorative sleep and tiredness and low energy: “you have some symptoms of chronic fatigue syndrome.  Improving your sleep quality which includes treating your insomnia symptoms can improve symptoms (see X page of our website) and you  may want to ask your doctor  about diagnostis and treatment options. 
+
+When Pain is associated with probable chronic fatigue: You have endorsed symptoms of significant daytime tiredness, non-restorative sleep and muscle and joint pain.  These are all symptoms of fibromyalgia, chronic fatigue, post-viral illness (e.g. long COVID and Lymes Disease) and you should discuss your symptoms wth your primary care doctor who might refer you to a rheumatologist”.
+
+?May want to add – a question about rapid onset sleep disruption symmptoms;   “You have reported having symptoms of insomnia and/or no-restorative sleep that can be associated with other underlying health conditions.  We suggest that you talk to your doctor about these sudden symptoms and request a work up for other underlyng disorders”.
+
+
+1.7 Do you ever wake up and feel paralysed? ☐ Yes ☐ No
+IF Formula:
+	•	IF yes → Possible Narcolepsy or normal sleep paralysis
+Message: “Sleep paralysis is relatively common and temporary.  It can be very scarry, but lasts for a short period and represents no risks.,  If you have frequent sleep paralysis can be caused by narcolepsy. c
+
+1.8 Have you ever been diagnosed with Narcolepsy or Hypersomnia? ☐ Yes ☐ No
+
+ SECTION 2: Night-Time Sleep
+
+2.1 On the typicaly weeknight, (work/schoolday)  what time do you turn out the lights and try to fall asleep? ____ : ____ am/pm
+2.1a  What time do you get into bed?
+If 2.1a-2.1 is >30 – what do you do in bed before you turn out the light to fall alsleep
+2.1a Does this vary by more than 1.5 from night to night? hours (aside from the the occasional late weekend night) ? ☐ Yes ☐ No
+IF Formula:
+	•	IF bedtime varies >1.5 hours on weeknights→ Possible Circadian Rhythm Disorder (Non-24)
+2.11b On the typicaly weeked night (free day or vacation day), what time do you turn out the lights and try to fall asleep? ____ : ____ am/pm
+2.1a  What time do you get into bed?
+If 2.1a-2.1 is >30 – what do you do in bed before you turn out the light to fall alsleep
+2.1a Does this vary by more than 1.5 from night to night? hours (aside from the the occasional late weekend night) ? ☐ Yes ☐ No
+
+Calculate total sleep hours/week ((weekday x 5)+(weekend x 2)/7)) – time awake during the night= total sleep time/week.  
+
+If less then 6, insufficient sleep; 6-7 without EDS= short sleeper; 9+= long sleeper.  <7 with EDS and/or tiredness – insufficient sleep syndrome.
+	•	
+Message: “Large shifts in bedtime can be a sign of having a circadian rhythm disorder which is a preference for later bedtimes (evening chronotype) or early arly bedtimes and early waketimes (morning chronotype) That result in decreased sleep or interference with school or work.  If you have trouble shifting your sleep schedule or your sleep schedule interferes with your daytime activities, we suggest that you complete a sleep log (see page on our website) and the “morningness evenigngness scale on our website and puruse an appointment with a sleep specialist)”
+
+2.2 How long does it take to fall asleep? ____ mins
+IF Formula:
+	•	IF >30 mins AND ≥3 nights/week → Sleep Onset Insomnia
+Message : “Taking more than 30 minutes to fall asleep regularly is a sign of insomnia and/or a circadian rhythm disorders (if sleep in past 9:30 am on work/weekdays or 11:00 am on weekends.”
+
+2.3 How many times do you wake up in the night? ___ 2.3a How many nights a week do you wake up more than 2 times?
+2.3c What wakes you? ☐ Need to pee ☐ Pain ☐ Noise/Light ☐ Don’t know
+IF Formula:
+	•	IF >2 wake-ups → Find cause: Pee (see doctor and our webpage X with information about urination at night), Pain (see doctor and our webpage X about pain during sleep)), Noise (adjust bedroom – refer to our healthy bedrooms webpage), Don’t know → likely insomnia.
+Message: “Frequent wake-ups are a signe of insomnia, your bedroom/home environment, pain,  or other underlying medical problems or sleep disorders (see sleep apnea syndrome and restless legs syndrome) Knowing why helps you fix it.”
+
+2.4 How many total minutes are you awake during the night? ____ mins
+IF Formula:
+	•	IF >40 mins AND ≥3 nights/week →  and in bed for <9 hours/night. Sleep Maintenance Insomnia
+	•	If IF >40 mins AND ≥3 nights/week →  and in bed for >9.5 and/or sleep time >8 hours/night. Possible inadequqate sleep hygiene, too long in bed.
+Message: “Long awake times during the night point to sleep maintenance insomnia.”
+“You tend to sleep for an adequate period of time and spend a good deal of awake time in bed.  This may lead to some of your extended nighttime awakenings. 
+
+2.5 What time do you wake up on weekdays? ____ : ____ am/pm
+2.5a What time do you wake up on weekends? ____:____am/pm
+ 2.6 What time do you get out of bed on weekdays? ____ : ____ am/pm
+2.6a What time do you get out of bed on weekends? ____ : ____ am/pm
+
+Calculatins:  
+	•	Lights out-wake up – time to fall asleep and wake time in the middle of the night. = total sleep time.
+	•	Bedtime  - out of bed time - -  time in bed.
+	•	Total sleep time/time in bed = sleep efficiency: <85% Insomnia
+	•	Total sleep time/2 + lights out = mid-sleep time. ? >6:00am phase delay; <12am phase advance
+	•	Mid sleep time weekdays versus weekends >1.5 hours= phase delay or Social Jetlag-irregular sleep schedule and weekend catchup with phase delay propensity.
+
+
+
+
+
+2.7 How many days/week do you wake earlier than planned? ____ How many mins early? ____ mins
+>30 minues = sleep maintenance insomnia
+IF Formula:
+	•	IF >2 days/week & >20 mins early → Early Morning Awakening Insomnia
+Message: “Waking up too early often is another form of insomnia.”
+
+2.8 Do you use an alarm clock? ☐ Yes ☐ No
+2.9 How many planned naps a week? ____ How long? ____ mins
+IF Formula:
+	•	Same as Section 1 for naps — revisit EDS / sleep hygiene checks.
+
+Sleep Calculations for You:  Time In Bed (TIB) = Wake Time – Lights Out  Total Sleep Time (TST) = TIB – (SOL + WASO)  Sleep Efficiency = TST ÷ TIB → IF <85% → Possible Insomnia  Mid-Sleep Time = (TST ÷ 2) + Lights Out → >4am → DSPD, <1am → ASPD  Weekend vs Weekday Mid-Sleep >2 hrs → Circadian issue
+
+ SECTION 3: Breathing Issues
+
+3.1 Diagnosed with sleep apnea or sleep-related breathing disorder? ☐ Mild ☐ Moderate ☐ Severe ☐ CPAP/other treatment?
+3.2 Do you snore, stop breathing, gasp or snort during sleep? ☐ Yes ☐ No
+3.3 Mouth breathing or dry mouth? ☐ Yes ☐ No
+IF Formula:
+	•	IF yes → Possible Sleep Apnea
+Message: “Breathing problems at night could be sleep apnea. Treating it can boost energy and long-term health.”
+
+ SECTION 4: Restless Legs
+
+4.1 Trouble lying still when trying to sleep? ☐ Yes ☐ No 4.2 Urge to move legs at night? ☐ Yes ☐ No 4.3 Does moving help? ☐ Yes ☐ No 4.4 Leg discomfort during the day? ☐ Yes ☐ No
+IF Formula:
+	•	IF yes to several → Possible Restless Legs Syndrome (RLS)
+Message: “Restless Legs Syndrome makes it hard to settle down for sleep. It’s common and treatable.”
+
+ SECTION 5: Parasomnias
+
+5.1 Do you ever: ☐ Walk, talk, appear confused, upset at night? ☐ Act out dreams? ☐ Wet the bed more than once a month?
+5.2 Do you remember these events? ☐ Yes ☐ No 5.3 Diagnosed with parasomnia? ☐ Yes ☐ No Which one? ______ Treatment? ☐ Yes ☐ No
+IF Formula:
+	•	IF yes → Possible Parasomnia / REM Behaviour Disorder
+Message: “Unusual behaviours in sleep can sometimes be harmless but might need treatment to keep you and others safe.”
+
+ SECTION 6: Nightmares
+
+6.1 Do you have nightmares? ☐ Yes ☐ No How many nights/week? ____ 6.2 Linked to trauma/PTSD? ☐ Yes ☐ No
+IF Formula:
+	•	IF ≥3 nights/week or linked to trauma → Needs treatment
+Message: “Frequent nightmares affect sleep and mental health. If linked to trauma, specialised help is available.”
+
+ SECTION 7: Body Clock & Shift Work
+
+7.1 Do you prefer: ☐ Bed early/wake early ☐ Bed late/wake late ☐ Flexible
+7.2 Do you do shift work? Type: ______ Days/week: ____ **7.3 Done shift work before? Years: ____ 7.4 Cross time zones monthly? ☐ Yes ☐ No
+IF Formula:
+	•	Bed late + SOL >30 + Mid-Sleep >4am → Probable DSPD
+	•	Bed early + waking early + tired → Possible ASPD
+	•	Shift work or frequent travel → Circadian Rhythm Disorder
+Message: “Your body clock affects when you naturally feel sleepy. Sometimes work or travel throws this off, but it can be managed.”
+
+ SECTION 8: Sleep Aids & Lifestyle
+
+8.1 Supplements or medications for sleep? Which? __________ **8.2 Rate your bedroom: Relaxing ___ Bed/bedding ___ Dark ___ Quiet ___ **8.3 Daily caffeine? ____ cups. Last one at ____ **8.4 Alcohol per week: Wine ___ Cocktails ___ **8.5 Exercise: Days/week ___ How long ___ Time ___
+IF Formula:
+	•	High caffeine/alcohol, poor bedroom → Poor Sleep Hygiene
+Message: “Your sleep space, caffeine and alcohol all affect sleep. Small tweaks here can really help.”
+ 
+

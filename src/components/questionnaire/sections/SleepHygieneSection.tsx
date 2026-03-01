@@ -35,7 +35,7 @@ const prescriptionMedOptions = [
   { value: 'z_drugs', label: 'Z-drugs (Ambien/zolpidem, Lunesta/eszopiclone, Sonata/zaleplon)' },
   { value: 'orexin', label: 'Orexin blockers (Quviviq, Dayvigo, Belsomra)' },
   { value: 'antidepressants', label: 'Sedating antidepressants (Trazodone, Mirtazapine, Doxepin, Amitriptyline)' },
-  { value: 'melatonin_agonist', label: 'Melatonin agonists (Rozerem/ramelteon)' },
+  { value: 'melatonin_agonist', label: 'Melatonin agonists (Rozerem/Ramelteon)' },
   { value: 'antipsychotic', label: 'Antipsychotic (Seroquel, Zyprexa, Risperdal)' },
 ]
 
@@ -96,6 +96,21 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
         )}
       />
 
+      {/* Other supplements */}
+      <FormField
+        control={form.control}
+        name="sleepHygiene.supplementsOther"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Other supplements or OTC medications for sleep</FormLabel>
+            <FormControl>
+              <Input placeholder="Enter any other supplements..." {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       {/* Prescription medications */}
       <FormField
         control={form.control}
@@ -134,6 +149,21 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
         )}
       />
 
+      {/* Other prescription medications */}
+      <FormField
+        control={form.control}
+        name="sleepHygiene.prescriptionMedsOther"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Other prescription sleep medications</FormLabel>
+            <FormControl>
+              <Input placeholder="Enter any other prescriptions..." {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       {/* Stimulants */}
       <FormField
         control={form.control}
@@ -143,12 +173,12 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
             <FormLabel>Are you prescribed stimulants?</FormLabel>
             <FormControl>
               <Input
-                placeholder="e.g., Adderall, Ritalin, Vyvanse..."
+                placeholder="e.g., Adderall, Ritalin, Vyvanse, Provigil/Nuvigil, Wakix, methylphenidate..."
                 {...field}
               />
             </FormControl>
             <FormDescription>
-              If yes, please specify the medication name
+              If yes, please specify the medication name. Common stimulants include: Adderall, Ritalin, Vyvanse, Provigil/Nuvigil, Wakix, amphetamines, methylphenidate
             </FormDescription>
             <FormMessage />
           </FormItem>
@@ -183,7 +213,7 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
       <CheckboxField
         control={form.control}
         name="sleepHygiene.smokesNicotine"
-        label="Do you smoke cigarettes or use nicotine patches?"
+        label="I smoke cigarettes or use nicotine patches"
         description="Nicotine can significantly impact sleep quality"
       />
 
@@ -195,9 +225,8 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
             <strong>Prescription Sleep Medications</strong>
             <br />
             Long-term use of sleep medications can lead to dependence and may mask underlying 
-            sleep disorders. If you&apos;ve been using sleep medications for more than a few weeks, 
-            consider discussing alternative treatments like Cognitive Behavioral Therapy for 
-            Insomnia (CBT-I) with your healthcare provider.
+            sleep disorders. Your sleep report will include links and next steps for healthy 
+            management of these medications.
           </AlertDescription>
         </Alert>
       )}
@@ -211,9 +240,8 @@ export function SleepHygieneSection({ form }: SleepHygieneSectionProps) {
             <strong>Multiple Sleep Aids Detected</strong>
             <br />
             You&apos;re using multiple sleep aids, which may indicate significant sleep difficulties. 
-            This combination approach can lead to interactions and side effects. We strongly 
-            recommend consulting with a sleep specialist to address the underlying causes of 
-            your sleep problems rather than relying on multiple medications.
+            This combination approach can lead to interactions and side effects. Your sleep report 
+            will include links and next steps for healthy management of these medications.
           </AlertDescription>
         </Alert>
       )}

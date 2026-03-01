@@ -3,13 +3,13 @@ import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { CheckboxField } from '../form-fields/CheckboxField';
 import { RadioGroupField } from '../form-fields/RadioGroupField';
 import { NumberField } from '../form-fields/NumberField';
+import { TimeField } from '../form-fields/TimeField';
 import {
   FormField,
   FormItem,
   FormLabel,
   FormControl,
   FormMessage,
-  FormDescription,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -26,10 +26,10 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
 
   return (
     <div className='space-y-6'>
-      <div className='text-lg font-medium'>Sleep Preferences and Schedule</div>
+      <div className='text-lg font-medium'>Sleep Schedule Preferences</div>
 
       <Alert className='alert-info'>
-        <Clock className='h-4 w-4 text-primary' />
+        <Clock className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
           Your natural sleep preferences (chronotype) can significantly impact your sleep quality
           when they don&apos;t align with your work or school schedule.
@@ -48,14 +48,30 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
         ]}
       />
 
+      {/* Preference strength - only show if early or late preference */}
+      {(preference === 'early' || preference === 'late') && (
+        <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
+          <RadioGroupField
+            control={form.control}
+            name='chronotype.preferenceStrength'
+            label={`How strong is your ${preference === 'early' ? 'morning' : 'night owl'} preference?`}
+            options={[
+              { value: 'slight', label: 'Slight - I have a mild preference' },
+              { value: 'moderate', label: 'Moderate - It affects my daily schedule' },
+              { value: 'strong', label: 'Strong - It significantly impacts my lifestyle' },
+            ]}
+          />
+        </div>
+      )}
+
       {/* Shift work */}
       <CheckboxField
         control={form.control}
         name='chronotype.shiftWork'
-        label='Does your job require you to do shift work?'
+        label='My job requires me to do shift work'
       />
 
-      {/* Shift work details */}
+      {/* Shift work details - nested under shift work checkbox */}
       {shiftWork && (
         <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
           <FormField
@@ -83,7 +99,7 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
         </div>
       )}
 
-      {/* Past shift work */}
+      {/* Past shift work - only show if NOT currently doing shift work */}
       {!shiftWork && (
         <NumberField
           control={form.control}
@@ -100,26 +116,16 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
       <CheckboxField
         control={form.control}
         name='chronotype.frequentTimeZoneTravel'
-        label='Do you travel across time zones more than 1 time a month?'
+        label='I travel across time zones more than 1 time a month'
         description='Frequent jet lag can disrupt your circadian rhythm'
       />
 
       {/* Work/school schedule */}
-      <FormField
+      <TimeField
         control={form.control}
         name='chronotype.workSchoolTime'
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>
-              On scheduled/work/school days, what time do you have to be at work/school?
-            </FormLabel>
-            <FormControl>
-              <Input type='time' {...field} className='max-w-xs' />
-            </FormControl>
-            <FormDescription>Leave blank if your schedule varies significantly</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
+        label='On scheduled/work/school days, what time do you have to be at work/school?'
+        description='Leave blank if your schedule varies significantly'
       />
 
       {/* Delayed Sleep Phase Syndrome warning */}
@@ -129,11 +135,12 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
           <AlertDescription className='text-amber-900'>
             <strong>Night Owl Chronotype</strong>
             <br />
-            You have a late chronotype preference. If you&apos;re experiencing difficulty waking in
-            the morning, daytime tiredness when your work/school schedule requires early wake times,
-            or difficulty falling asleep, you may have symptoms of Delayed Sleep Phase Syndrome.
+            You have a late chronotype preference. Difficulty waking in the morning, daytime
+            tiredness and difficulty falling asleep are symptoms of Delayed Sleep Phase Syndrome.
             This is particularly common between ages 12-25 but can affect all ages. Consider
-            consulting with a sleep specialist if these issues impact your daily functioning.
+            consulting with a sleep specialist if these issues impact your daily functioning. More
+            details will be provided in the report with links to education and recommendations on
+            our website.
           </AlertDescription>
         </Alert>
       )}
@@ -145,11 +152,10 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
           <AlertDescription>
             <strong>Morning Person Chronotype</strong>
             <br />
-            You have an early chronotype preference. If you&apos;re waking earlier than desired and
-            experiencing evening sleepiness that interferes with activities, you may have symptoms
-            of Advanced Sleep Phase Syndrome. This becomes increasingly common after age 70. If
-            you&apos;re struggling with your current sleep schedule, consider consulting with a
-            behavioral sleep specialist.
+            You have an early chronotype preference. Waking earlier than desired and experiencing
+            evening sleepiness that interferes with activities are symptoms of Advanced Sleep Phase
+            Syndrome. These may increase after the age of 55. More details will be provided in the
+            report with links to education and recommendations on our website.
           </AlertDescription>
         </Alert>
       )}

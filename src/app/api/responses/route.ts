@@ -16,8 +16,8 @@ export async function POST(request: NextRequest) {
     const response = await prisma.questionnaireResponse.create({
       data: {
         rawData: validatedData as unknown as object,
-        yearOfBirth: demographics.yearOfBirth ?? null,
-        sex: demographics.sex ?? null,
+        yearOfBirth: demographics.yearOfBirth,
+        sex: demographics.sex,
         zipcode: demographics.zipcode || null,
         weight: demographics.weight ?? null,
         height: demographics.height ?? null,

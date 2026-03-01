@@ -14,71 +14,75 @@ import { Download, TestTube } from 'lucide-react';
 
 // Mock data for pre-filling in development
 const MOCK_DATA: Partial<QuestionnaireFormData> = {
+  intro: {
+    acceptedDisclaimer: true,
+  },
+  demographics: {
+    yearOfBirth: 1990,
+    sex: 'male',
+    zipcode: '10001',
+    weight: 165, // pounds
+    height: 70, // inches (5'10")
+  },
   daytime: {
-    plannedNaps: { daysPerWeek: 2, duration: '15-30' },
-    fallAsleepDuring: ['meetings', 'quiet-activity'],
-    tirednessInterferes: true,
-    tirednessSeverity: 5,
+    plannedNaps: { daysPerWeek: 2, napsPerWeek: 3, duration: '30' },
+    fallAsleepDuring: ['lectures', 'evening'],
+    sleepinessInterferes: true,
+    sleepinessSeverity: 5,
     tiredButCantSleep: '3-5days',
-    dreamsWhileFallingAsleep: false,
     weaknessWhenExcited: [],
     sleepParalysis: false,
     diagnosedNarcolepsy: false,
     painAffectsSleep: false,
     painSeverity: null,
-    muscleJointPain: false,
+    jointMusclePain: false,
     nonRestorativeSleep: true,
+    tirednessRating: 5,
+    fatigueRating: 3,
   },
   scheduledSleep: {
     lightsOutTime: '23:00',
     lightsOutVaries: false,
-    minutesToFallAsleep: 25,
+    preBedActivity: [],
+    minutesToFallAsleep: '30',
     nightWakeups: 2,
     wakeupReasons: ['urinate', 'noise'],
-    minutesAwakeAtNight: 30,
+    minutesAwakeAtNight: '30',
     wakeupTime: '07:00',
     getOutOfBedTime: '07:15',
     earlyWakeupDays: 1,
     earlyWakeupMinutes: 15,
     usesAlarm: true,
-    plannedNapsPerWeek: 0,
-    averageNapMinutes: 0,
   },
   unscheduledSleep: {
     lightsOutTime: '00:30',
-    minutesToFallAsleep: 20,
+    minutesToFallAsleep: '20',
     nightWakeups: 1,
     wakeupReasons: ['urinate'],
-    minutesAwakeAtNight: 15,
+    minutesAwakeAtNight: '20',
     wakeupTime: '09:00',
     getOutOfBedTime: '09:30',
-    earlyWakeupDays: 0,
-    earlyWakeupMinutes: 0,
     usesAlarm: false,
-    plannedNapsPerWeek: 1,
-    averageNapMinutes: 30,
   },
   breathingDisorders: {
-    diagnosed: false,
-    severity: null,
-    treatment: [],
     snores: true,
     stopsBreathing: false,
     mouthBreathes: true,
     wakesWithDryMouth: true,
   },
   restlessLegs: {
-    diagnosed: false,
-    treatment: [],
     troubleLyingStill: false,
     urgeToMoveLegs: false,
     movementRelieves: false,
     daytimeDiscomfort: false,
+    legCramps: false,
+    legCrampsPerWeek: null,
   },
   parasomnia: {
     nightBehaviors: [],
     remembersEvents: false,
     actsOutDreams: false,
+    hasInjuredOrLeftHome: false,
     bedwetting: false,
     diagnosedParasomnia: false,
     parasomniaType: '',
@@ -86,12 +90,20 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     treatmentType: '',
   },
   nightmares: {
+    remembersDreams: true,
+    hasBadDreams: false,
+    badDreamsPerWeek: null,
     hasNightmares: true,
     nightmaresPerWeek: 1,
     associatedWithTrauma: false,
+    historyOfTBI: false,
+    takingMedicationsThatMayCause: false,
+    hasBehavioralHealthDiagnosis: false,
+    hasSleepAversion: false,
   },
   chronotype: {
     preference: 'late',
+    preferenceStrength: 'moderate',
     shiftWork: false,
     shiftType: '',
     shiftDaysPerWeek: 0,
@@ -101,7 +113,9 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
   },
   sleepHygiene: {
     supplements: ['melatonin'],
+    supplementsOther: '',
     prescriptionMeds: [],
+    prescriptionMedsOther: '',
     stimulants: '',
     stimulantTime: '',
     smokesNicotine: false,
@@ -115,10 +129,7 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
   lifestyle: {
     caffeinePerDay: 2,
     lastCaffeineTime: '14:00',
-    alcoholPerWeek: {
-      wine: 2,
-      cocktails: 1,
-    },
+    alcoholPerWeek: 3,
     exerciseDaysPerWeek: 3,
     exerciseDuration: 45,
     exerciseEndTime: '18:00',
@@ -132,17 +143,24 @@ const MOCK_DATA: Partial<QuestionnaireFormData> = {
     diagnosedMentalHealthConditions: ['anxiety'],
     currentlyReceivingTreatment: false,
   },
-  demographics: {
-    yearOfBirth: 1990,
-    sex: 'male',
-    zipcode: '10001',
-    weight: 70,
-    height: 175,
+  sleepDisorderDiagnoses: {
+    diagnosedDisorders: [],
+    otherDiagnosisDescription: '',
+    diagnosedOSA: false,
+    osaSeverity: null,
+    osaTreated: false,
+    osaTreatmentType: [],
+    osaTreatmentEffective: null,
+    diagnosedRLS: false,
+    rlsTreated: false,
+    rlsTreatment: [],
+    rlsTreatmentEffective: null,
   },
 };
 
 // Import section components
 import { IntroSection } from './sections/IntroSection';
+import { DemographicsSection } from './sections/DemographicsSection';
 import { DaytimeSection } from './sections/DaytimeSection';
 import { ScheduledSleepSection } from './sections/ScheduledSleepSection';
 import { UnscheduledSleepSection } from './sections/UnscheduledSleepSection';
@@ -155,11 +173,13 @@ import { SleepHygieneSection } from './sections/SleepHygieneSection';
 import { BedroomSection } from './sections/BedroomSection';
 import { LifestyleSection } from './sections/LifestyleSection';
 import { MentalHealthSection } from './sections/MentalHealthSection';
-import { DemographicsSection } from './sections/DemographicsSection';
+import { SleepDisorderDiagnosesSection } from './sections/SleepDisorderDiagnosesSection';
 import { ReportSection } from './sections/ReportSection';
 
 const sections: QuestionnaireSection[] = [
   'intro',
+  'demographics',
+  'sleep-disorder-diagnoses', // Moved to beginning per round 2 feedback
   'daytime',
   'scheduled-sleep',
   'unscheduled-sleep',
@@ -172,14 +192,14 @@ const sections: QuestionnaireSection[] = [
   'bedroom',
   'lifestyle',
   'mental-health',
-  'demographics',
   'report',
 ];
 
 const sectionTitles: Record<QuestionnaireSection, string> = {
   intro: 'Welcome',
-  daytime: 'Daytime Feelings',
-  'scheduled-sleep': 'Sleep on Work/School Days',
+  demographics: 'About You',
+  daytime: 'Daytime Functioning',
+  'scheduled-sleep': 'Sleep on Work/School Nights',
   'unscheduled-sleep': 'Sleep on Weekends/Free Days',
   'breathing-disorders': 'Sleep Breathing',
   'restless-legs': 'Restless Legs',
@@ -190,7 +210,7 @@ const sectionTitles: Record<QuestionnaireSection, string> = {
   bedroom: 'Bedroom Environment',
   lifestyle: 'Lifestyle Factors',
   'mental-health': 'Mental Health & Sleep',
-  demographics: 'About You',
+  'sleep-disorder-diagnoses': 'Sleep Disorder History',
   report: 'Your Sleep Report',
 };
 
@@ -204,71 +224,75 @@ export function QuestionnaireForm() {
     resolver: zodResolver(questionnaireSchema),
     mode: 'onChange',
     defaultValues: {
+      intro: {
+        acceptedDisclaimer: false,
+      },
+      demographics: {
+        yearOfBirth: undefined as unknown as number, // Required - will trigger validation
+        sex: undefined as unknown as 'male' | 'female' | 'transgender' | 'other' | 'prefer-not-to-say', // Required
+        zipcode: '', // Required - min 5 chars
+        weight: null,
+        height: null,
+      },
       daytime: {
-        plannedNaps: { daysPerWeek: 0, duration: null },
+        plannedNaps: { daysPerWeek: 0, napsPerWeek: 0, duration: null },
         fallAsleepDuring: [],
-        tirednessInterferes: false,
-        tirednessSeverity: null,
+        sleepinessInterferes: false,
+        sleepinessSeverity: null,
         tiredButCantSleep: null,
-        dreamsWhileFallingAsleep: false,
         weaknessWhenExcited: [],
         sleepParalysis: false,
         diagnosedNarcolepsy: false,
         painAffectsSleep: false,
         painSeverity: null,
-        muscleJointPain: false,
+        jointMusclePain: false,
         nonRestorativeSleep: false,
+        tirednessRating: null,
+        fatigueRating: null,
       },
       scheduledSleep: {
         lightsOutTime: '',
         lightsOutVaries: false,
-        minutesToFallAsleep: 0,
+        preBedActivity: [],
+        minutesToFallAsleep: null,
         nightWakeups: 0,
         wakeupReasons: [],
-        minutesAwakeAtNight: 0,
+        minutesAwakeAtNight: null,
         wakeupTime: '',
         getOutOfBedTime: '',
         earlyWakeupDays: 0,
         earlyWakeupMinutes: null,
         usesAlarm: false,
-        plannedNapsPerWeek: 0,
-        averageNapMinutes: null,
       },
       unscheduledSleep: {
         lightsOutTime: '',
-        minutesToFallAsleep: 0,
+        minutesToFallAsleep: null,
         nightWakeups: 0,
         wakeupReasons: [],
-        minutesAwakeAtNight: 0,
+        minutesAwakeAtNight: null,
         wakeupTime: '',
         getOutOfBedTime: '',
-        earlyWakeupDays: 0,
-        earlyWakeupMinutes: null,
         usesAlarm: false,
-        plannedNapsPerWeek: 0,
-        averageNapMinutes: null,
       },
       breathingDisorders: {
-        diagnosed: false,
-        severity: null,
-        treatment: [],
         snores: false,
         stopsBreathing: false,
         mouthBreathes: false,
         wakesWithDryMouth: false,
       },
       restlessLegs: {
-        diagnosed: false,
-        treatment: [],
         troubleLyingStill: false,
         urgeToMoveLegs: false,
         movementRelieves: false,
         daytimeDiscomfort: false,
+        legCramps: false,
+        legCrampsPerWeek: null,
       },
       parasomnia: {
         nightBehaviors: [],
         remembersEvents: false,
         actsOutDreams: false,
+        hasInjuredOrLeftHome: false,
         bedwetting: false,
         diagnosedParasomnia: false,
         parasomniaType: '',
@@ -276,12 +300,20 @@ export function QuestionnaireForm() {
         treatmentType: '',
       },
       nightmares: {
+        remembersDreams: false,
+        hasBadDreams: false,
+        badDreamsPerWeek: null,
         hasNightmares: false,
         nightmaresPerWeek: null,
         associatedWithTrauma: false,
+        historyOfTBI: false,
+        takingMedicationsThatMayCause: false,
+        hasBehavioralHealthDiagnosis: false,
+        hasSleepAversion: false,
       },
       chronotype: {
         preference: 'flexible',
+        preferenceStrength: null,
         shiftWork: false,
         shiftType: '',
         shiftDaysPerWeek: null,
@@ -291,7 +323,9 @@ export function QuestionnaireForm() {
       },
       sleepHygiene: {
         supplements: [],
+        supplementsOther: '',
         prescriptionMeds: [],
+        prescriptionMedsOther: '',
         stimulants: '',
         stimulantTime: '',
         smokesNicotine: false,
@@ -305,7 +339,7 @@ export function QuestionnaireForm() {
       lifestyle: {
         caffeinePerDay: 0,
         lastCaffeineTime: '',
-        alcoholPerWeek: { wine: 0, cocktails: 0 },
+        alcoholPerWeek: 0,
         exerciseDaysPerWeek: 0,
         exerciseDuration: null,
         exerciseEndTime: '',
@@ -319,12 +353,18 @@ export function QuestionnaireForm() {
         diagnosedMentalHealthConditions: [],
         currentlyReceivingTreatment: false,
       },
-      demographics: {
-        yearOfBirth: null,
-        sex: null,
-        zipcode: '',
-        weight: null,
-        height: null,
+      sleepDisorderDiagnoses: {
+        diagnosedDisorders: [],
+        otherDiagnosisDescription: '',
+        diagnosedOSA: false,
+        osaSeverity: null,
+        osaTreated: false,
+        osaTreatmentType: [],
+        osaTreatmentEffective: null,
+        diagnosedRLS: false,
+        rlsTreated: false,
+        rlsTreatment: [],
+        rlsTreatmentEffective: null,
       },
     },
   });
@@ -343,7 +383,9 @@ export function QuestionnaireForm() {
     }
   }
 
-  async function onSubmit(data: QuestionnaireFormData) {
+  async function handleGenerateReport() {
+    const data = form.getValues();
+
     try {
       // Save to database
       const response = await fetch('/api/responses', {
@@ -356,11 +398,9 @@ export function QuestionnaireForm() {
 
       if (!response.ok) {
         console.error('Failed to save questionnaire response');
-        // Still proceed to report even if save fails
       }
     } catch (error) {
       console.error('Error saving questionnaire response:', error);
-      // Still proceed to report even if save fails
     }
 
     handleNext();
@@ -412,7 +452,9 @@ export function QuestionnaireForm() {
   const renderSection = () => {
     switch (currentSection) {
       case 'intro':
-        return <IntroSection />;
+        return <IntroSection form={form} />;
+      case 'demographics':
+        return <DemographicsSection form={form} />;
       case 'daytime':
         return <DaytimeSection form={form} />;
       case 'scheduled-sleep':
@@ -437,8 +479,8 @@ export function QuestionnaireForm() {
         return <LifestyleSection form={form} />;
       case 'mental-health':
         return <MentalHealthSection form={form} />;
-      case 'demographics':
-        return <DemographicsSection form={form} />;
+      case 'sleep-disorder-diagnoses':
+        return <SleepDisorderDiagnosesSection form={form} />;
       case 'report':
         return <ReportSection data={form.getValues()} onDownloadPDF={handleGeneratePDF} />;
       default:
@@ -449,6 +491,24 @@ export function QuestionnaireForm() {
   const isFirstSection = currentSectionIndex === 0;
   const isLastSection = currentSection === 'report';
   const isSecondToLast = currentSectionIndex === sections.length - 2;
+
+  // Watch fields for section-specific validation
+  const acceptedDisclaimer = form.watch('intro.acceptedDisclaimer');
+  const yearOfBirth = form.watch('demographics.yearOfBirth');
+  const sex = form.watch('demographics.sex');
+  const zipcode = form.watch('demographics.zipcode');
+
+  // Determine if Continue should be disabled based on current section
+  const isContinueDisabled = (() => {
+    if (currentSection === 'intro') {
+      return !acceptedDisclaimer;
+    }
+    if (currentSection === 'demographics') {
+      // Require yearOfBirth, sex, and zipcode (min 5 chars)
+      return !yearOfBirth || !sex || !zipcode || zipcode.length < 5;
+    }
+    return false;
+  })();
 
   return (
     <div className='bg-gradient-sleep relative min-h-screen py-8 md:py-12'>
@@ -525,6 +585,26 @@ export function QuestionnaireForm() {
               </svg>
             </div>
             <div className='relative'>
+              {/* Previous button at top of header */}
+              {!isFirstSection && (
+                <Button
+                  type='button'
+                  variant='ghost'
+                  onClick={handlePrevious}
+                  className='-ml-2 mb-2 gap-2 text-white/80 hover:bg-white/10 hover:text-white'
+                  size='sm'
+                >
+                  <svg className='h-4 w-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                    <path
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                      strokeWidth={2}
+                      d='M15 19l-7-7 7-7'
+                    />
+                  </svg>
+                  Previous
+                </Button>
+              )}
               <CardTitle className='text-2xl font-semibold tracking-tight md:text-3xl'>
                 {sectionTitles[currentSection]}
               </CardTitle>
@@ -537,7 +617,7 @@ export function QuestionnaireForm() {
           </CardHeader>
           <CardContent className='px-6 py-8 md:px-8'>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-8'>
+              <form onSubmit={(e) => e.preventDefault()} className='space-y-8'>
                 {renderSection()}
 
                 {/* PDF Download Button - Only show on report section */}
@@ -579,7 +659,7 @@ export function QuestionnaireForm() {
                   </Button>
 
                   {isSecondToLast ? (
-                    <Button type='submit' size='lg' className='ml-auto gap-2 px-6 shadow-md'>
+                    <Button type='button' onClick={handleGenerateReport} size='lg' className='ml-auto gap-2 px-6 shadow-md'>
                       Generate Report
                       <svg
                         className='h-4 w-4'
@@ -600,6 +680,7 @@ export function QuestionnaireForm() {
                       type='button'
                       onClick={handleNext}
                       size='lg'
+                      disabled={isContinueDisabled}
                       className='ml-auto gap-2 px-6 shadow-md'
                     >
                       Continue

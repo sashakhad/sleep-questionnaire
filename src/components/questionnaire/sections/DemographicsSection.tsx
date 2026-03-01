@@ -2,6 +2,8 @@ import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { NumberField } from '../form-fields/NumberField';
 import { SelectField } from '../form-fields/SelectField';
+import { YearComboboxField } from '../form-fields/YearComboboxField';
+import { HeightField } from '../form-fields/HeightField';
 import {
   FormField,
   FormItem,
@@ -22,14 +24,21 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
   const weight = form.watch('demographics.weight');
   const height = form.watch('demographics.height');
   const yearOfBirth = form.watch('demographics.yearOfBirth');
+  const sex = form.watch('demographics.sex');
 
-  // Calculate age from year of birth
+  // Calculate age from year of birth (only if it's a reasonable 4-digit year)
   const currentYear = new Date().getFullYear();
-  const age = yearOfBirth ? currentYear - yearOfBirth : null;
+  const isValidYear = yearOfBirth && yearOfBirth >= 1900 && yearOfBirth <= currentYear;
+  const age = isValidYear ? currentYear - yearOfBirth : null;
 
-  // Calculate BMI if we have both weight and height
-  let bmi = null;
-  if (weight && height && weight > 0 && height > 0) {
+  // Calculate BMI only when both values are in reasonable ranges
+  // This prevents showing nonsense BMI while user is still typing
+  // Minimum reasonable values: height >= 36 inches (3 feet), weight >= 50 lbs
+  const isReasonableHeight = height && height >= 36 && height <= 96;
+  const isReasonableWeight = weight && weight >= 50 && weight <= 500;
+  
+  let bmi: number | null = null;
+  if (isReasonableWeight && isReasonableHeight) {
     // Convert height from inches to meters, weight from lbs to kg
     const heightInMeters = height * 0.0254;
     const weightInKg = weight * 0.453592;
@@ -38,8 +47,6 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
 
   return (
     <div className='space-y-6'>
-      <div className='text-lg font-medium'>About You</div>
-
       <Alert className='alert-info'>
         <User className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
@@ -49,13 +56,13 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
       </Alert>
 
       {/* Year of Birth */}
-      <NumberField
+      <YearComboboxField
         control={form.control}
         name='demographics.yearOfBirth'
         label='What year were you born?'
-        placeholder='e.g., 1990'
-        min={1900}
-        max={new Date().getFullYear()}
+        placeholder='Select your birth year...'
+        minYear={1920}
+        maxYear={new Date().getFullYear()}
         description='Your birth year helps us understand age-related sleep patterns'
       />
 
@@ -68,6 +75,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
         options={[
           { value: 'male', label: 'Male' },
           { value: 'female', label: 'Female' },
+          { value: 'transgender', label: 'Transgender' },
           { value: 'other', label: 'Other' },
           { value: 'prefer-not-to-say', label: 'Prefer not to say' },
         ]}
@@ -79,21 +87,15 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
         <NumberField
           control={form.control}
           name='demographics.weight'
-          label='Weight'
-          placeholder='Pounds'
-          min={0}
-          max={500}
-          description='In pounds (lbs)'
+          label='Weight (lbs)'
+          placeholder='e.g., 150'
+          min={50}
+          max={600}
         />
 
-        <NumberField
+        <HeightField
           control={form.control}
           name='demographics.height'
-          label='Height'
-          placeholder='Inches'
-          min={0}
-          max={96}
-          description="In inches (e.g., 70 for 5'10)"
         />
       </div>
 
@@ -153,21 +155,20 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
       )}
 
       {/* Age-related sleep info */}
-      {age && age >= 65 && (
+      {age && age >= 55 && (
         <Alert>
           <User className='h-4 w-4' />
           <AlertDescription>
             <strong>Age-Related Sleep Changes</strong>
             <br />
-            Sleep patterns naturally change with age. After 65, it&apos;s common to experience:
+            Sleep naturally changes with age. After 55, it&apos;s common to experience:
             <ul className='mt-2 list-inside list-disc space-y-1'>
-              <li>Earlier bedtimes and wake times (advanced sleep phase)</li>
+              <li>Increasingly earlier bedtimes and wake times</li>
               <li>More frequent nighttime awakenings</li>
-              <li>Lighter sleep with less deep sleep</li>
-              <li>Increased daytime napping</li>
+              <li>Perceiving sleep as lighter and more disrupted</li>
             </ul>
-            These changes are normal, but if they significantly impact your quality of life,
-            treatments are available.
+            These changes are normal and you will receive personalized guidance in the sleep report
+            to improve your sleep health and quality of life.
           </AlertDescription>
         </Alert>
       )}
@@ -179,25 +180,29 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
           <AlertDescription>
             <strong>Sleep in Adolescents and Young Adults</strong>
             <br />
-            Your age group commonly experiences delayed sleep phase, preferring to stay up late and
-            wake up late. This biological tendency often conflicts with school or work schedules. If
-            you&apos;re struggling with early morning obligations, you may benefit from light
-            therapy and sleep schedule adjustments.
+            Prior to the age of 25 there is a biological tendency for a delayed sleep phase, a
+            preference to stay up late and wake up late. This may conflict with school or work
+            schedules. If you&apos;re struggling with early morning obligations, you can shift your
+            schedule. In your sleep report you will receive guidance on next steps to maintain a
+            healthy schedule that does not interfere with your daily activities and improves your
+            sleep health and quality of life.
           </AlertDescription>
         </Alert>
       )}
 
-      {/* Completion message */}
-      <Alert className='alert-success'>
-        <Info className='h-4 w-4 text-green-600' />
-        <AlertDescription className='text-green-900'>
-          <strong>Almost Done!</strong>
-          <br />
-          Thank you for providing this information. After you click &quot;Generate Report&quot;
-          below, we&apos;ll analyze your responses and create a personalized sleep health report
-          with specific recommendations based on your unique situation.
-        </AlertDescription>
-      </Alert>
+      {/* Women >45 perimenopausal info */}
+      {age && age >= 45 && sex === 'female' && (
+        <Alert>
+          <User className='h-4 w-4' />
+          <AlertDescription>
+            <strong>Sleep and Hormonal Changes</strong>
+            <br />
+            Sleep disturbance in women in your age group is often related to pre- and perimenopausal
+            hormone-related changes. We will provide you with specific information and guidance
+            regarding these changes in your sleep report.
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }

@@ -2,14 +2,14 @@ import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { NumberField } from '../form-fields/NumberField';
 import { CheckboxField } from '../form-fields/CheckboxField';
-import { Input } from '@/components/ui/input';
+import { SelectField } from '../form-fields/SelectField';
+import { TimeField } from '../form-fields/TimeField';
 import {
   FormField,
   FormItem,
   FormLabel,
   FormControl,
   FormMessage,
-  FormDescription,
 } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -24,10 +24,25 @@ const wakeupReasons = [
   { value: 'unknown', label: "Don't know" },
 ];
 
+// 10-minute increment options ending with >120
+const minuteIncrementOptions = [
+  { value: '10', label: '10 minutes' },
+  { value: '20', label: '20 minutes' },
+  { value: '30', label: '30 minutes' },
+  { value: '40', label: '40 minutes' },
+  { value: '50', label: '50 minutes' },
+  { value: '60', label: '60 minutes' },
+  { value: '70', label: '70 minutes' },
+  { value: '80', label: '80 minutes' },
+  { value: '90', label: '90 minutes' },
+  { value: '100', label: '100 minutes' },
+  { value: '110', label: '110 minutes' },
+  { value: '120', label: '120 minutes' },
+  { value: '>120', label: 'More than 120 minutes' },
+];
+
 export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) {
   const nightWakeups = form.watch('unscheduledSleep.nightWakeups');
-  const earlyWakeupDays = form.watch('unscheduledSleep.earlyWakeupDays');
-  const plannedNapsPerWeek = form.watch('unscheduledSleep.plannedNapsPerWeek');
 
   return (
     <div className='space-y-6'>
@@ -41,29 +56,19 @@ export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) 
       </div>
 
       {/* Lights out time */}
-      <FormField
+      <TimeField
         control={form.control}
         name='unscheduledSleep.lightsOutTime'
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>What time do you turn out the lights and try to fall asleep?</FormLabel>
-            <FormControl>
-              <Input type='time' {...field} className='max-w-xs' />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+        label='What time do you turn out the lights and try to fall asleep?'
       />
 
-      {/* Time to fall asleep */}
-      <NumberField
+      {/* Time to fall asleep - now as select with 10-minute increments */}
+      <SelectField
         control={form.control}
         name='unscheduledSleep.minutesToFallAsleep'
         label='After you turn out the lights, about how long does it take you to fall asleep?'
-        placeholder='Minutes'
-        description='Enter the number of minutes'
-        min={0}
-        max={180}
+        placeholder='Select time'
+        options={minuteIncrementOptions}
       />
 
       {/* Night wakeups */}
@@ -117,101 +122,38 @@ export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) 
         </div>
       )}
 
-      {/* Minutes awake at night */}
-      <NumberField
+      {/* Minutes awake at night - now as select with 10-minute increments */}
+      <SelectField
         control={form.control}
         name='unscheduledSleep.minutesAwakeAtNight'
         label='About how many minutes total are you awake during the night?'
-        placeholder='Minutes'
+        placeholder='Select time'
         description='Total time awake after initially falling asleep'
-        min={0}
-        max={480}
+        options={minuteIncrementOptions}
       />
 
       {/* Wake up time */}
-      <FormField
+      <TimeField
         control={form.control}
         name='unscheduledSleep.wakeupTime'
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>What time do you wake up?</FormLabel>
-            <FormControl>
-              <Input type='time' {...field} className='max-w-xs' />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
+        label='What time do you wake up?'
       />
 
       {/* Get out of bed time */}
-      <FormField
+      <TimeField
         control={form.control}
         name='unscheduledSleep.getOutOfBedTime'
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>What time do you get out of bed?</FormLabel>
-            <FormControl>
-              <Input type='time' {...field} className='max-w-xs' />
-            </FormControl>
-            <FormDescription>This may be different from your wake up time</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
+        label='What time do you get out of bed?'
+        description='This may be different from your wake up time'
       />
-
-      {/* Early wakeup days */}
-      <NumberField
-        control={form.control}
-        name='unscheduledSleep.earlyWakeupDays'
-        label='How many days a week do you wake up earlier than planned?'
-        placeholder='Days per week'
-        min={0}
-        max={7}
-      />
-
-      {/* Early wakeup minutes - only show if they wake up early more than 2 days */}
-      {earlyWakeupDays > 2 && (
-        <NumberField
-          control={form.control}
-          name='unscheduledSleep.earlyWakeupMinutes'
-          label='How many minutes earlier do you typically wake up?'
-          placeholder='Minutes'
-          description='Average number of minutes earlier than planned'
-          min={0}
-          max={180}
-        />
-      )}
 
       {/* Alarm clock */}
       <CheckboxField
         control={form.control}
         name='unscheduledSleep.usesAlarm'
-        label='Do you use an alarm clock to wake up in the morning?'
+        label='I use an alarm clock to wake up in the morning'
         description='On weekends/free days'
       />
-
-      {/* Planned naps */}
-      <NumberField
-        control={form.control}
-        name='unscheduledSleep.plannedNapsPerWeek'
-        label='How many planned naps do you take on weekends?'
-        placeholder='Number of naps'
-        min={0}
-        max={14}
-      />
-
-      {/* Average nap duration - only show if they take more than 2 naps */}
-      {plannedNapsPerWeek > 2 && (
-        <NumberField
-          control={form.control}
-          name='unscheduledSleep.averageNapMinutes'
-          label='How long is your average nap?'
-          placeholder='Minutes'
-          description='Average duration in minutes'
-          min={0}
-          max={180}
-        />
-      )}
     </div>
   );
 }
