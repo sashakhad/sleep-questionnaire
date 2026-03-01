@@ -15,14 +15,6 @@ function DevPageContent() {
     router.replace(`/dev?section=${section}`, { scroll: false });
   }
 
-  if (process.env.NODE_ENV === 'production') {
-    return (
-      <div className='flex min-h-screen items-center justify-center'>
-        <p className='text-muted-foreground'>Dev tools are not available in production.</p>
-      </div>
-    );
-  }
-
   return (
     <div className='flex min-h-screen'>
       <nav className='bg-card fixed top-0 left-0 z-50 h-full w-56 overflow-y-auto border-r p-3'>
