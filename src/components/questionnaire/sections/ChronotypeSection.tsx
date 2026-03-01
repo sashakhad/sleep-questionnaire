@@ -164,7 +164,7 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
       )}
 
       {/* Shift work warning */}
-      {(shiftWork || (pastShiftWorkYears && pastShiftWorkYears > 0)) && (
+      {(shiftWork || (pastShiftWorkYears != null && pastShiftWorkYears > 0)) && (
         <Alert className='alert-warning'>
           <Clock className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
