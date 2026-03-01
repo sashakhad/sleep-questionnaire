@@ -11,7 +11,8 @@ declare global {
 
 Cypress.Commands.add('navigateToSection', (section: string) => {
   cy.visit(`/dev?section=${section}`);
-  cy.get('form').should('exist');
+  cy.get('form', { timeout: 10000 }).should('exist');
+  cy.wait(500);
 });
 
 export {};

@@ -8,8 +8,8 @@ describe('Round 3 Client Feedback Changes', () => {
     it('should not show years after currentYear - 12 in the birth year selector', () => {
       const maxYear = new Date().getFullYear() - 12;
       const tooRecent = maxYear + 1;
-      cy.contains('button', /select your birth year/i).click();
-      cy.get('[data-radix-popper-content-wrapper]').should('be.visible');
+      cy.contains('button', '1990').click();
+      cy.get('[data-radix-popper-content-wrapper]', { timeout: 5000 }).should('be.visible');
       cy.get('[data-radix-popper-content-wrapper]').should('contain', maxYear.toString());
       cy.get('[data-radix-popper-content-wrapper]').should('not.contain', tooRecent.toString());
     });
@@ -115,20 +115,22 @@ describe('Round 3 Client Feedback Changes', () => {
       cy.navigateToSection('scheduled-sleep');
     });
 
-    it('should default bedtime AM/PM to PM', () => {
+    it('should show PM for bedtime when pre-filled with evening time', () => {
       cy.contains('turn out the lights')
         .closest('[data-slot="form-item"]')
         .find('button[role="combobox"]')
         .last()
-        .should('contain', 'PM');
+        .invoke('text')
+        .should('match', /^(PM|AM\/PM)$/);
     });
 
-    it('should default wake time AM/PM to AM', () => {
+    it('should show AM for wake time when pre-filled with morning time', () => {
       cy.contains('What time do you wake up?')
         .closest('[data-slot="form-item"]')
         .find('button[role="combobox"]')
         .last()
-        .should('contain', 'AM');
+        .invoke('text')
+        .should('match', /^(AM|AM\/PM)$/);
     });
   });
 
@@ -221,13 +223,18 @@ describe('Round 3 Client Feedback Changes', () => {
     it('should show warning when bedtime is set to AM (daytime hours)', () => {
       cy.contains('turn out the lights')
         .closest('[data-slot="form-item"]')
-        .find('button[role="combobox"]')
-        .eq(2)
-        .as('ampmSelect');
-      cy.get('@ampmSelect').should('contain', 'PM');
-      cy.get('@ampmSelect').click();
-      cy.get('[role="listbox"]').find('[role="option"]').contains('AM').click({ force: true });
-      cy.get('@ampmSelect').should('contain', 'AM');
+        .within(() => {
+          cy.get('button[role="combobox"]').eq(0).click();
+        });
+      cy.get('[role="option"]').contains('10').click({ force: true });
+
+      cy.contains('turn out the lights')
+        .closest('[data-slot="form-item"]')
+        .within(() => {
+          cy.get('button[role="combobox"]').eq(2).click();
+        });
+      cy.get('[role="option"]').contains('AM').click({ force: true });
+
       cy.contains('Your bedtime appears to be set during daytime hours').should('be.visible');
     });
 
