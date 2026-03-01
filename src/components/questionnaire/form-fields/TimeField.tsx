@@ -26,9 +26,9 @@ interface TimeFieldProps<T extends FieldValues> {
 }
 
 // Convert 24-hour time string (HH:MM) to 12-hour format parts
-function parseTime(time: string, defaultPeriod: 'AM' | 'PM' = 'PM'): { hour: string; minute: string; period: 'AM' | 'PM' } {
+function parseTime(time: string): { hour: string; minute: string; period: string } | null {
   if (!time) {
-    return { hour: '12', minute: '00', period: defaultPeriod }
+    return null
   }
   const [h, m] = time.split(':').map(Number)
   const hour24 = h ?? 0
@@ -73,26 +73,17 @@ export function TimeField<T extends FieldValues>({
       control={control}
       name={name}
       render={({ field }) => {
-        const parsed = parseTime(field.value as string, defaultPeriod)
+        const parsed = parseTime(field.value as string)
         
         const handleChange = (
           type: 'hour' | 'minute' | 'period',
           value: string
         ) => {
-          const current = parseTime(field.value as string, defaultPeriod)
-          const newParsed = { ...current }
+          const hour = type === 'hour' ? value : (parsed?.hour ?? '12')
+          const minute = type === 'minute' ? value : (parsed?.minute ?? '00')
+          const period = type === 'period' ? value : (parsed?.period ?? defaultPeriod)
           
-          if (type === 'hour') {
-            newParsed.hour = value
-          }
-          if (type === 'minute') {
-            newParsed.minute = value
-          }
-          if (type === 'period') {
-            newParsed.period = value as 'AM' | 'PM'
-          }
-          
-          const newTime = formatTime(newParsed.hour, newParsed.minute, newParsed.period)
+          const newTime = formatTime(hour, minute, period as 'AM' | 'PM')
           field.onChange(newTime)
         }
         
@@ -102,7 +93,7 @@ export function TimeField<T extends FieldValues>({
             <div className="flex items-center gap-2">
               <FormControl>
                 <Select
-                  value={parsed.hour}
+                  value={parsed?.hour ?? ''}
                   onValueChange={(value) => handleChange('hour', value)}
                 >
                   <SelectTrigger className="w-20">
@@ -120,7 +111,7 @@ export function TimeField<T extends FieldValues>({
               <span className="text-muted-foreground">:</span>
               <FormControl>
                 <Select
-                  value={parsed.minute}
+                  value={parsed?.minute ?? ''}
                   onValueChange={(value) => handleChange('minute', value)}
                 >
                   <SelectTrigger className="w-20">
@@ -137,11 +128,11 @@ export function TimeField<T extends FieldValues>({
               </FormControl>
               <FormControl>
                 <Select
-                  value={parsed.period}
+                  value={parsed?.period ?? ''}
                   onValueChange={(value) => handleChange('period', value)}
                 >
                   <SelectTrigger className="w-20">
-                    <SelectValue placeholder="AM/PM" />
+                    <SelectValue placeholder={defaultPeriod} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="AM">AM</SelectItem>
