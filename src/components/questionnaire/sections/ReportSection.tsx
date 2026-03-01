@@ -296,6 +296,8 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
     data.daytime.sleepinessInterferes || hasEDSSymptoms || data.daytime.fallAsleepDuring.length >= 3;
   const hasNarcolepsy =
     data.daytime.diagnosedNarcolepsy ||
+    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('narcolepsy') ||
+    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('hypersomnia') ||
     (data.daytime.weaknessWhenExcited.length > 0 && data.daytime.sleepParalysis);
   const hasInsufficientSleep =
     avgWeeklySleep < 7 && hasDaytimeSleepiness && !hasNarcolepsy && !hasOSA && !hasInsomnia;

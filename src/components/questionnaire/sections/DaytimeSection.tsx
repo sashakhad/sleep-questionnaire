@@ -299,13 +299,6 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
             />
           </div>
 
-          {/* Diagnosed narcolepsy - first person declarative */}
-          <CheckboxField
-            control={form.control}
-            name='daytime.diagnosedNarcolepsy'
-            label='I have been diagnosed with narcolepsy or hypersomnia'
-            description='E.g., idiopathic, post viral, post concussion'
-          />
         </>
       )}
 

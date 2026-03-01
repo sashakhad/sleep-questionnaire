@@ -351,6 +351,8 @@ export function hasInsufficientSleepSyndrome(
   // Must NOT have narcolepsy or sleep apnea to be insufficient sleep
   const hasNarcolepsy =
     data.daytime.diagnosedNarcolepsy ||
+    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('narcolepsy') ||
+    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('hypersomnia') ||
     (data.daytime.weaknessWhenExcited.length > 0 && data.daytime.sleepParalysis);
 
   const hasApneaSymptoms =
@@ -775,6 +777,8 @@ export function determineChronotype(data: QuestionnaireFormData, metrics: SleepM
 export function screenNarcolepsy(data: QuestionnaireFormData): boolean {
   return (
     data.daytime.diagnosedNarcolepsy ||
+    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('narcolepsy') ||
+    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('hypersomnia') ||
     (data.daytime.weaknessWhenExcited.length > 0 && data.daytime.sleepParalysis)
   );
 }
