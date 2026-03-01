@@ -9,6 +9,7 @@
  * for easy auditing and modification by clinical staff.
  */
 
+import { getYear } from 'date-fns';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 
 // =============================================================================
@@ -220,8 +221,7 @@ export function calculateBMI(
  * Calculate age from year of birth
  */
 export function calculateAge(yearOfBirth: number): number {
-  const currentYear = new Date().getFullYear();
-  return currentYear - yearOfBirth;
+  return getYear(new Date()) - yearOfBirth;
 }
 
 // =============================================================================

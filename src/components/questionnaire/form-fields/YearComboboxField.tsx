@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
+import { getYear } from 'date-fns';
 import { Control, FieldValues, Path } from 'react-hook-form';
 import { Check, ChevronsUpDown, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -33,7 +34,7 @@ export function YearComboboxField<TFieldValues extends FieldValues = FieldValues
   placeholder = 'Select year...',
   description,
   minYear = 1920,
-  maxYear = new Date().getFullYear(),
+  maxYear = getYear(new Date()),
 }: YearComboboxFieldProps<TFieldValues>) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');

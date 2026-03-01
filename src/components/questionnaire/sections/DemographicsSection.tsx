@@ -1,4 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
+import { getYear } from 'date-fns';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { NumberField } from '../form-fields/NumberField';
 import { SelectField } from '../form-fields/SelectField';
@@ -26,8 +27,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
   const yearOfBirth = form.watch('demographics.yearOfBirth');
   const sex = form.watch('demographics.sex');
 
-  // Calculate age from year of birth (only if it's a reasonable 4-digit year)
-  const currentYear = new Date().getFullYear();
+  const currentYear = getYear(new Date());
   const isValidYear = yearOfBirth && yearOfBirth >= 1900 && yearOfBirth <= currentYear;
   const age = isValidYear ? currentYear - yearOfBirth : null;
 
@@ -62,7 +62,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
         label='What year were you born?'
         placeholder='Select your birth year...'
         minYear={1920}
-        maxYear={new Date().getFullYear()}
+        maxYear={currentYear - 12}
         description='Your birth year helps us understand age-related sleep patterns'
       />
 
