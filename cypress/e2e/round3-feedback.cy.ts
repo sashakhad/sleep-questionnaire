@@ -204,8 +204,10 @@ describe('Round 3 Client Feedback Changes', () => {
     });
 
     it('should not say "Personalized Recommendations" in any heading', () => {
-      cy.get('h2, h3, span').each(($el) => {
-        cy.wrap($el).invoke('text').should('not.match', /personalized recommendations/i);
+      cy.get('h2, h3, span').each($el => {
+        cy.wrap($el)
+          .invoke('text')
+          .should('not.match', /personalized recommendations/i);
       });
     });
   });

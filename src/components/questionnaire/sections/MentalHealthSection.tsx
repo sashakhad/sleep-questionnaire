@@ -213,8 +213,8 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
           <AlertDescription className='text-amber-900'>
             <strong>Sleep-Related Anxiety Detected</strong>
             <br />
-            It&apos;s likely that anxiety and worry are interfering with your ability to surrender to
-            sleep at night. This creates a vicious cycle where worry about sleep prevents sleep,
+            It&apos;s likely that anxiety and worry are interfering with your ability to surrender
+            to sleep at night. This creates a vicious cycle where worry about sleep prevents sleep,
             which increases worry. In your personalized report we will provide links to our website
             for information on treatment options.
           </AlertDescription>
@@ -243,8 +243,7 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
             <strong>Sleep Effort Paradox</strong>
             <br />
             The harder you try to sleep, the more elusive it becomes. Sleep is a passive process
-            that cannot be forced. We will provide you with some free tips to fall asleep with
-            ease.
+            that cannot be forced. We will provide you with some free tips to fall asleep with ease.
           </AlertDescription>
         </Alert>
       )}

@@ -4,13 +4,7 @@ import { CheckboxField } from '../form-fields/CheckboxField';
 import { RadioGroupField } from '../form-fields/RadioGroupField';
 import { NumberField } from '../form-fields/NumberField';
 import { TimeField } from '../form-fields/TimeField';
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-} from '@/components/ui/form';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Clock, Info } from 'lucide-react';
@@ -164,7 +158,7 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
       )}
 
       {/* Shift work warning */}
-      {(shiftWork || (pastShiftWorkYears != null && pastShiftWorkYears > 0)) && (
+      {(shiftWork || (pastShiftWorkYears !== null && pastShiftWorkYears !== undefined && pastShiftWorkYears > 0)) && (
         <Alert className='alert-warning'>
           <Clock className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
