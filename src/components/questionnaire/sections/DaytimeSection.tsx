@@ -97,16 +97,6 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
 
         {form.watch('daytime.plannedNaps.daysPerWeek') > 0 && (
           <>
-            <NumberField
-              control={form.control}
-              name='daytime.plannedNaps.napsPerWeek'
-              label='I take how many planned naps per week total?'
-              min={0}
-              max={21}
-              placeholder='0-21'
-              description='Some people with narcolepsy take multiple planned naps per day'
-            />
-
             <SelectField
               control={form.control}
               name='daytime.plannedNaps.duration'
