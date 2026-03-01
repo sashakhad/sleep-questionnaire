@@ -50,7 +50,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
       <Alert className='alert-info'>
         <User className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
-          This information helps us provide more personalized recommendations. Age and body
+          This information helps us provide more accurate recommendations. Age and body
           measurements can influence sleep patterns and the likelihood of certain sleep disorders.
         </AlertDescription>
       </Alert>
@@ -167,7 +167,7 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
               <li>More frequent nighttime awakenings</li>
               <li>Perceiving sleep as lighter and more disrupted</li>
             </ul>
-            These changes are normal and you will receive personalized guidance in the sleep report
+            These changes are normal and you will receive guidance in the sleep report
             to improve your sleep health and quality of life.
           </AlertDescription>
         </Alert>

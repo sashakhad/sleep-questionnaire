@@ -195,7 +195,7 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
           <Text style={styles.infoText}>
             Thank you for completing the SomnaHealth comprehensive sleep questionnaire. With more
             than 4 decades of collective experience, our team created this questionnaire and
-            personalized report to provide you with guidance on improving your sleep health.
+            report to provide you with guidance on improving your sleep health.
           </Text>
         </View>
 
@@ -740,7 +740,7 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
           <View style={styles.resourceBox}>
             <Text style={styles.resourceTitle}>SomnaHealth Services</Text>
             <Text style={styles.text}>
-              Our team offers personalized sleep consultations, CBT-I treatment, and ongoing support.
+              Our team offers sleep education that addresses the specific problems identified in this report.
               Visit our website for more information about how we can help you achieve better sleep,
               find a sleep specialist in your area, and access educational resources about your
               specific sleep concerns.

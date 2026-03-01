@@ -213,10 +213,10 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
           <AlertDescription className='text-amber-900'>
             <strong>Sleep-Related Anxiety Detected</strong>
             <br />
-            It&apos;s likely that your anxiety related to sleep is interfering with your ability to
-            surrender to sleep at night. This creates a vicious cycle where worry about sleep
-            prevents sleep, which increases worry. In your personalized report we will provide links
-            to our website for information on treatment options.
+            It&apos;s likely that anxiety and worry are interfering with your ability to surrender to
+            sleep at night. This creates a vicious cycle where worry about sleep prevents sleep,
+            which increases worry. In your report we will provide links to our website for
+            information on treatment options.
           </AlertDescription>
         </Alert>
       )}
@@ -228,10 +228,9 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
           <AlertDescription className='text-red-900'>
             <strong>Significant Sleep Impact on Daily Life</strong>
             <br />
-            Your sleep difficulties are significantly impacting your daily functioning. This level
-            of impairment suggests moderate to severe insomnia that warrants professional
-            evaluation. In your personalized report we will provide links to our website for
-            information on treatment options.
+            Based on your answers, your sleep difficulties are significantly impacting your daily
+            functioning. In your sleep report we will provide you with a probable diagnosis and
+            recommendations on next steps to address your sleep problems.
           </AlertDescription>
         </Alert>
       )}
@@ -244,13 +243,8 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
             <strong>Sleep Effort Paradox</strong>
             <br />
             The harder you try to sleep, the more elusive it becomes. Sleep is a passive process
-            that cannot be forced. Instead of &quot;trying&quot; to sleep:
-            <ul className='mt-2 list-inside list-disc space-y-1'>
-              <li>Focus on relaxation rather than sleep</li>
-              <li>If not asleep within 20 minutes, get up and do a quiet activity</li>
-              <li>Return to bed only when genuinely sleepy</li>
-              <li>Use your bed only for sleep and intimacy, not for worrying</li>
-            </ul>
+            that cannot be forced. We will provide you with some free tips to fall asleep with
+            ease.
           </AlertDescription>
         </Alert>
       )}
@@ -281,7 +275,8 @@ export function MentalHealthSection({ form }: MentalHealthSectionProps) {
           If you&apos;re experiencing anxiety, depression, or other mental health concerns that
           affect your sleep, remember that help is available. Mental health professionals can
           provide evidence-based treatments that address both sleep and emotional well-being.
-          Don&apos;t hesitate to reach out for support when needed.
+          Don&apos;t hesitate to reach out for support when needed. We will provide a link to more
+          information in your report.
         </AlertDescription>
       </Alert>
     </div>

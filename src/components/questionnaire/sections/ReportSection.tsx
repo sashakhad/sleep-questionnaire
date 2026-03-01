@@ -376,8 +376,8 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
         <Heart className='text-primary h-4 w-4' />
         <AlertDescription className='text-foreground/90'>
           Thank you for completing the SomnaHealth comprehensive sleep questionnaire. With more than
-          4 decades of collective experience, our team created this questionnaire and personalized
-          report to provide you with guidance on improving your sleep health.
+          4 decades of collective experience, our team created this questionnaire and report to
+          provide you with guidance on improving your sleep health.
         </AlertDescription>
       </Alert>
 
@@ -884,7 +884,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
         <CardHeader className='bg-gradient-sleep-header text-white'>
           <CardTitle className='flex items-center space-x-2 text-white'>
             <Heart className='h-5 w-5' />
-            <span>Personalized Recommendations</span>
+            <span>Recommendations</span>
           </CardTitle>
         </CardHeader>
         <CardContent className='pt-6'>
@@ -1131,8 +1131,10 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                 <AlertDescription>
                   <strong>Mental Health Support Available</strong>
                   <br />
-                  Trauma-related nightmares benefit from specialized therapy. Visit our website for
-                  resources on finding appropriate mental health support.
+                  Your nightmares may be related to trauma and you endorsed symptoms of anxiety.
+                  Trauma-related nightmares improve with specialized therapy. Visit our website for
+                  resources on finding appropriate mental health support for nightmares and other
+                  mental health challenges.
                 </AlertDescription>
               </Alert>
             )}
@@ -1152,8 +1154,13 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
           <div className='border-primary/20 bg-primary/5 rounded-xl border p-4'>
             <p className='text-foreground/90 text-sm'>
               <strong className='text-primary'>SomnaHealth Services:</strong> Our team offers
-              personalized sleep consultations, CBT-I treatment, and ongoing support. Visit our
-              website for more information about how we can help you achieve better sleep.
+              sleep education that addresses the specific problems that we have identified in this
+              report. We also have a staff of sleep coaches and board certified sleep doctors who
+              can support you with evidence based treatments including CBT-I and consultation
+              regarding the best treatment approaches. Visit our website for more information about
+              how we can help you achieve better sleep. You can also find board certified sleep
+              specialists near where you live. On our website we provide you with links to help you
+              find a sleep specialist or other health care professional.
             </p>
           </div>
         </CardContent>
