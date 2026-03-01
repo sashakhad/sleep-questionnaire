@@ -13,6 +13,22 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
+
+function isUnusualBedtime(time: string | undefined): boolean {
+  if (!time) {return false;}
+  const parts = time.split(':');
+  const hour = parseInt(parts[0] ?? '0', 10);
+  return hour >= 4 && hour < 18;
+}
+
+function isUnusualWakeTime(time: string | undefined): boolean {
+  if (!time) {return false;}
+  const parts = time.split(':');
+  const hour = parseInt(parts[0] ?? '0', 10);
+  return hour >= 14 || hour < 2;
+}
 
 interface ScheduledSleepSectionProps {
   form: UseFormReturn<QuestionnaireFormData>;
@@ -54,6 +70,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
   const nightWakeups = form.watch('scheduledSleep.nightWakeups');
   const earlyWakeupDays = form.watch('scheduledSleep.earlyWakeupDays');
   const lightsOutTime = form.watch('scheduledSleep.lightsOutTime');
+  const wakeupTime = form.watch('scheduledSleep.wakeupTime');
   const getOutOfBedTime = form.watch('scheduledSleep.getOutOfBedTime');
 
   // Calculate if there's >15 minutes before lights out
@@ -77,6 +94,16 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
         label='What time do you turn out the lights and try to fall asleep?'
         defaultPeriod='PM'
       />
+
+      {isUnusualBedtime(lightsOutTime) && (
+        <Alert className='alert-warning'>
+          <AlertCircle className='h-4 w-4 text-amber-600' />
+          <AlertDescription className='text-amber-900'>
+            Your bedtime appears to be set during daytime hours. Please double-check the AM/PM
+            selection — most people go to bed between 8:00 PM and 2:00 AM.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Lights out varies */}
       <YesNoRadioField
@@ -207,6 +234,16 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
         label='What time do you wake up?'
         defaultPeriod='AM'
       />
+
+      {isUnusualWakeTime(wakeupTime) && (
+        <Alert className='alert-warning'>
+          <AlertCircle className='h-4 w-4 text-amber-600' />
+          <AlertDescription className='text-amber-900'>
+            Your wake time appears to be set during evening/nighttime hours. Please double-check
+            the AM/PM selection — most people wake up between 4:00 AM and 12:00 PM.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Get out of bed time */}
       <TimeField
