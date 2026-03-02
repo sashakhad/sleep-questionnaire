@@ -19,7 +19,7 @@ describe('Report & Diagnosis Verification', () => {
 
     it('should show Recommendations section (not "Personalized Recommendations")', () => {
       cy.contains('Recommendations').should('exist');
-      cy.get('body').then(($body) => {
+      cy.get('body').then($body => {
         const text = $body.text();
         expect(text).to.not.match(/Personalized Recommendations/i);
       });
@@ -32,9 +32,10 @@ describe('Report & Diagnosis Verification', () => {
 
   describe('Diagnosis Results (with mock data)', () => {
     it('should display a findings/diagnosis section', () => {
-      cy.get('body').then(($body) => {
+      cy.get('body').then($body => {
         const text = $body.text().toLowerCase();
-        const hasFindings = text.includes('findings') ||
+        const hasFindings =
+          text.includes('findings') ||
           text.includes('symptoms') ||
           text.includes('assessment') ||
           text.includes('results');
@@ -43,9 +44,10 @@ describe('Report & Diagnosis Verification', () => {
     });
 
     it('should display sleep breathing assessment for snoring + mouth breathing user', () => {
-      cy.get('body').then(($body) => {
+      cy.get('body').then($body => {
         const text = $body.text().toLowerCase();
-        const hasBreathing = text.includes('respiratory') ||
+        const hasBreathing =
+          text.includes('respiratory') ||
           text.includes('snoring') ||
           text.includes('breathing') ||
           text.includes('apnea') ||
@@ -55,9 +57,10 @@ describe('Report & Diagnosis Verification', () => {
     });
 
     it('should show chronotype or sleep timing assessment', () => {
-      cy.get('body').then(($body) => {
+      cy.get('body').then($body => {
         const text = $body.text().toLowerCase();
-        const hasChronotype = text.includes('chronotype') ||
+        const hasChronotype =
+          text.includes('chronotype') ||
           text.includes('night owl') ||
           text.includes('evening') ||
           text.includes('morning') ||
@@ -67,9 +70,10 @@ describe('Report & Diagnosis Verification', () => {
     });
 
     it('should show next steps or resources section', () => {
-      cy.get('body').then(($body) => {
+      cy.get('body').then($body => {
         const text = $body.text().toLowerCase();
-        const hasNextSteps = text.includes('next steps') ||
+        const hasNextSteps =
+          text.includes('next steps') ||
           text.includes('resources') ||
           text.includes('recommendations') ||
           text.includes('website');
@@ -88,7 +92,7 @@ describe('Report & Diagnosis Verification', () => {
     });
 
     it('should mention evidence-based treatments', () => {
-      cy.get('body').then(($body) => {
+      cy.get('body').then($body => {
         const text = $body.text();
         const hasCBTI = text.includes('CBT-I') || text.includes('evidence based treatments');
         expect(hasCBTI).to.be.true;
@@ -96,9 +100,10 @@ describe('Report & Diagnosis Verification', () => {
     });
 
     it('should show anxiety-related messaging when anxiety is present', () => {
-      cy.get('body').then(($body) => {
+      cy.get('body').then($body => {
         const text = $body.text().toLowerCase();
-        const hasAnxietyMsg = text.includes('anxiety') ||
+        const hasAnxietyMsg =
+          text.includes('anxiety') ||
           text.includes('worry') ||
           text.includes('mental health') ||
           text.includes('surrender to sleep');
@@ -117,7 +122,7 @@ describe('Report & Diagnosis Verification', () => {
     });
 
     it('should display sleep efficiency percentages', () => {
-      cy.get('body').then(($body) => {
+      cy.get('body').then($body => {
         const text = $body.text();
         const hasPercentage = /%/.test(text);
         expect(hasPercentage).to.be.true;

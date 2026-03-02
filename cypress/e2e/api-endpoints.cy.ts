@@ -1,13 +1,13 @@
 describe('API Endpoints', () => {
   describe('POST /api/responses', () => {
     it('should accept valid questionnaire data', () => {
-      cy.fixture('mock-questionnaire').then((data) => {
+      cy.fixture('mock-questionnaire').then(data => {
         cy.request({
           method: 'POST',
           url: '/api/responses',
           body: data,
           failOnStatusCode: false,
-        }).then((response) => {
+        }).then(response => {
           expect(response.status).to.eq(200);
           expect(response.body).to.have.property('success', true);
           expect(response.body).to.have.property('id');
@@ -21,7 +21,7 @@ describe('API Endpoints', () => {
         url: '/api/responses',
         body: { invalid: 'data' },
         failOnStatusCode: false,
-      }).then((response) => {
+      }).then(response => {
         expect(response.status).to.eq(400);
         expect(response.body).to.have.property('error');
       });
@@ -34,7 +34,7 @@ describe('API Endpoints', () => {
         method: 'GET',
         url: '/api/responses',
         failOnStatusCode: false,
-      }).then((response) => {
+      }).then(response => {
         expect(response.status).to.eq(401);
         expect(response.body).to.have.property('error', 'Unauthorized');
       });
@@ -45,13 +45,13 @@ describe('API Endpoints', () => {
         method: 'POST',
         url: '/api/admin/login',
         body: { password: 'sleepwell' },
-      }).then((loginResponse) => {
+      }).then(loginResponse => {
         expect(loginResponse.status).to.eq(200);
 
         cy.request({
           method: 'GET',
           url: '/api/responses?page=1&limit=10',
-        }).then((response) => {
+        }).then(response => {
           expect(response.status).to.eq(200);
           expect(response.body).to.have.property('responses');
           expect(response.body).to.have.property('pagination');
@@ -70,7 +70,7 @@ describe('API Endpoints', () => {
         method: 'GET',
         url: '/api/responses/csv',
         failOnStatusCode: false,
-      }).then((response) => {
+      }).then(response => {
         expect(response.status).to.eq(401);
       });
     });
@@ -84,7 +84,7 @@ describe('API Endpoints', () => {
         cy.request({
           method: 'GET',
           url: '/api/responses/csv',
-        }).then((response) => {
+        }).then(response => {
           expect(response.status).to.eq(200);
           expect(response.headers['content-type']).to.include('text/csv');
           expect(response.headers['content-disposition']).to.include('attachment');
@@ -102,7 +102,7 @@ describe('API Endpoints', () => {
         cy.request({
           method: 'GET',
           url: '/api/responses/csv',
-        }).then((response) => {
+        }).then(response => {
           const firstLine = response.body.split('\n')[0];
           expect(firstLine).to.include('id');
           expect(firstLine).to.include('year_of_birth');
@@ -122,7 +122,7 @@ describe('API Endpoints', () => {
         cy.request({
           method: 'GET',
           url: '/api/responses/csv?limit=1',
-        }).then((response) => {
+        }).then(response => {
           const lines = response.body.trim().split('\n');
           // Header + at most 1 data row
           expect(lines.length).to.be.at.most(2);
@@ -133,13 +133,13 @@ describe('API Endpoints', () => {
 
   describe('POST /api/generate-pdf', () => {
     it('should return PDF with correct content-type', () => {
-      cy.fixture('mock-questionnaire').then((data) => {
+      cy.fixture('mock-questionnaire').then(data => {
         cy.request({
           method: 'POST',
           url: '/api/generate-pdf',
           body: { data, userName: 'Test Patient' },
           encoding: 'binary',
-        }).then((response) => {
+        }).then(response => {
           expect(response.status).to.eq(200);
           expect(response.headers['content-type']).to.include('application/pdf');
           expect(response.headers['content-disposition']).to.include('attachment');
@@ -154,7 +154,7 @@ describe('API Endpoints', () => {
         url: '/api/generate-pdf',
         body: { data: { invalid: true }, userName: 'Test' },
         failOnStatusCode: false,
-      }).then((response) => {
+      }).then(response => {
         expect(response.status).to.eq(500);
       });
     });
@@ -167,7 +167,7 @@ describe('API Endpoints', () => {
         url: '/api/admin/login',
         body: { password: 'wrongpassword' },
         failOnStatusCode: false,
-      }).then((response) => {
+      }).then(response => {
         expect(response.status).to.eq(401);
         expect(response.body).to.have.property('error', 'Invalid password');
       });
@@ -178,7 +178,7 @@ describe('API Endpoints', () => {
         method: 'POST',
         url: '/api/admin/login',
         body: { password: 'sleepwell' },
-      }).then((response) => {
+      }).then(response => {
         expect(response.status).to.eq(200);
         expect(response.body).to.have.property('success', true);
       });
@@ -190,7 +190,7 @@ describe('API Endpoints', () => {
         url: '/api/admin/login',
         body: { password: '' },
         failOnStatusCode: false,
-      }).then((response) => {
+      }).then(response => {
         expect(response.status).to.eq(401);
       });
     });

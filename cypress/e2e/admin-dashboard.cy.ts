@@ -42,9 +42,10 @@ describe('Admin Dashboard', () => {
     });
 
     it('should show response count or table', () => {
-      cy.get('body').then(($body) => {
+      cy.get('body').then($body => {
         const text = $body.text().toLowerCase();
-        const hasDashboard = text.includes('response') ||
+        const hasDashboard =
+          text.includes('response') ||
           text.includes('questionnaire') ||
           text.includes('total') ||
           text.includes('export');
@@ -53,19 +54,19 @@ describe('Admin Dashboard', () => {
     });
 
     it('should have CSV export functionality', () => {
-      cy.get('body').then(($body) => {
+      cy.get('body').then($body => {
         const text = $body.text().toLowerCase();
-        const hasExport = text.includes('csv') ||
-          text.includes('export') ||
-          text.includes('download');
+        const hasExport =
+          text.includes('csv') || text.includes('export') || text.includes('download');
         expect(hasExport).to.be.true;
       });
     });
 
     it('should have logout functionality', () => {
-      cy.get('body').then(($body) => {
+      cy.get('body').then($body => {
         const text = $body.text().toLowerCase();
-        const hasLogout = text.includes('log out') || text.includes('logout') || text.includes('sign out');
+        const hasLogout =
+          text.includes('log out') || text.includes('logout') || text.includes('sign out');
         expect(hasLogout).to.be.true;
       });
     });
