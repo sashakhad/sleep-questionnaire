@@ -30,18 +30,24 @@ Cypress.Commands.add('clickRadio', (value: string) => {
   cy.get(`button[role="radio"][value="${value}"]`).click({ force: true });
 });
 
+function isChecked($el: JQuery): boolean {
+  return $el.prop('checked') === true ||
+    $el.attr('aria-checked') === 'true' ||
+    $el.attr('data-state') === 'checked';
+}
+
 Cypress.Commands.add('checkCheckbox', (label: string) => {
   cy.contains('label', label).then(($label) => {
     const forAttr = $label.attr('for');
     if (forAttr) {
-      cy.get(`#${forAttr}`).then(($checkbox) => {
-        if (!$checkbox.prop('checked')) {
-          cy.wrap($checkbox).click({ force: true });
+      cy.get(`#${forAttr}`).then(($el) => {
+        if (!isChecked($el)) {
+          cy.wrap($el).click({ force: true });
         }
       });
     } else {
       cy.wrap($label).siblings('button[role="checkbox"]').then(($btn) => {
-        if ($btn.attr('aria-checked') !== 'true') {
+        if (!isChecked($btn)) {
           cy.wrap($btn).click({ force: true });
         }
       });
@@ -53,14 +59,14 @@ Cypress.Commands.add('uncheckCheckbox', (label: string) => {
   cy.contains('label', label).then(($label) => {
     const forAttr = $label.attr('for');
     if (forAttr) {
-      cy.get(`#${forAttr}`).then(($checkbox) => {
-        if ($checkbox.prop('checked')) {
-          cy.wrap($checkbox).click({ force: true });
+      cy.get(`#${forAttr}`).then(($el) => {
+        if (isChecked($el)) {
+          cy.wrap($el).click({ force: true });
         }
       });
     } else {
       cy.wrap($label).siblings('button[role="checkbox"]').then(($btn) => {
-        if ($btn.attr('aria-checked') === 'true') {
+        if (isChecked($btn)) {
           cy.wrap($btn).click({ force: true });
         }
       });
