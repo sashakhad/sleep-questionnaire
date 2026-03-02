@@ -46,7 +46,7 @@
 ## Security Considerations
 
 **Admin password stored in plain `.env`:**
-- Risk: `.env` file contains `ADMIN_PASSWORD="sleepwell"` — a weak, guessable password
+- Risk: `.env` file contains `ADMIN_PASSWORD="[REDACTED]"` — a weak, guessable password
 - Files: `.env`
 - Current mitigation: `.env` is gitignored
 - Recommendations: Use a strong password in production; consider environment-specific `.env` files
