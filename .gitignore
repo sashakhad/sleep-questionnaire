@@ -42,3 +42,6 @@ next-env.d.ts
 
 *storybook.log
 storybook-static
+
+# Cursor agent planning artifacts (transient scaffolding, not project docs)
+.planning/
