@@ -1,6 +1,7 @@
 import {
   SECTION_TITLES,
   TOTAL_SECTIONS,
+  SECTIONS,
 } from '../support/test-data';
 import {
   assertSectionVisible,
@@ -68,6 +69,41 @@ describe('Questionnaire Navigation', () => {
       // daytime is index 3 — Step 4 of 16
       cy.navigateToSection('daytime');
       assertStepIndicator(4, TOTAL_SECTIONS);
+    });
+  });
+
+  describe('Dev sidebar navigation', () => {
+    it('should display all 16 sections in the sidebar', () => {
+      cy.visit('/dev');
+      cy.get('nav').find('button').should('have.length', SECTIONS.length);
+    });
+
+    it('should highlight the active section in the sidebar', () => {
+      cy.visit('/dev?section=daytime');
+      cy.get('nav')
+        .contains('button', SECTION_TITLES['daytime'])
+        .should('have.class', 'bg-primary/10');
+    });
+
+    it('should navigate to a section when sidebar item is clicked', () => {
+      cy.visit('/dev');
+      cy.get('nav').contains('button', SECTION_TITLES['parasomnia']).click();
+      cy.url().should('include', 'section=parasomnia');
+      cy.get('[data-slot="card-title"]', { timeout: 10000 }).should(
+        'contain.text',
+        SECTION_TITLES['parasomnia']
+      );
+    });
+
+    it('should update the form content when jumping between sections', () => {
+      cy.visit('/dev?section=demographics');
+      cy.get('[data-slot="card-title"]').should('contain.text', SECTION_TITLES['demographics']);
+      cy.get('nav').contains('button', SECTION_TITLES['breathing-disorders']).click();
+      cy.url().should('include', 'section=breathing-disorders');
+      cy.get('[data-slot="card-title"]', { timeout: 10000 }).should(
+        'contain.text',
+        SECTION_TITLES['breathing-disorders']
+      );
     });
   });
 });
