@@ -12,7 +12,7 @@ declare global {
 Cypress.Commands.add('navigateToSection', (section: string) => {
   cy.visit(`/dev?section=${section}`);
   cy.get('form', { timeout: 10000 }).should('exist');
-  cy.wait(500);
+  cy.get('[data-slot="card-title"]', { timeout: 10000 }).should('be.visible');
 });
 
 export {};
