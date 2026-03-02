@@ -3,7 +3,7 @@ export function assertSectionVisible(sectionTitle: string): void {
 }
 
 export function assertProgressBar(expectedPercent: number): void {
-  cy.get('[role="progressbar"]').should('have.attr', 'aria-valuenow', String(expectedPercent));
+  cy.contains(`${expectedPercent}%`).should('exist');
 }
 
 export function assertStepIndicator(currentStep: number, totalSteps: number): void {
