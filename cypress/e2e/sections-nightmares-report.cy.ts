@@ -11,8 +11,9 @@ describe('Nightmares section', () => {
   });
 
   it('should display dream recall checkbox as checked', () => {
-    cy.contains('label', 'I remember my dreams at least a few nights a week')
-      .siblings('button[role="checkbox"]')
+    cy.contains('I remember my dreams at least a few nights a week')
+      .closest('[data-slot="form-item"]')
+      .find('button[role="checkbox"]')
       .should('have.attr', 'data-state', 'checked');
   });
 
@@ -58,8 +59,9 @@ describe('Chronotype section', () => {
   });
 
   it('should display shift work checkbox as unchecked', () => {
-    cy.contains('label', 'My job requires me to do shift work')
-      .siblings('button[role="checkbox"]')
+    cy.contains('My job requires me to do shift work')
+      .closest('[data-slot="form-item"]')
+      .find('button[role="checkbox"]')
       .should('have.attr', 'data-state', 'unchecked');
   });
 

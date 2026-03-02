@@ -93,15 +93,17 @@ describe('Breathing Disorders section', () => {
   });
 
   it('should show snoring as checked with mock data', () => {
-    cy.contains('label', 'I have been told that I snore')
-      .siblings('button[role="checkbox"]')
+    cy.contains('I have been told that I snore')
+      .closest('[data-slot="form-item"]')
+      .find('button[role="checkbox"]')
       .should('have.attr', 'data-state', 'checked');
   });
 
   it('should show dry mouth checkbox when mouth breathing is checked', () => {
     cy.contains('I frequently wake up with a dry mouth').should('be.visible');
-    cy.contains('label', 'I frequently wake up with a dry mouth')
-      .siblings('button[role="checkbox"]')
+    cy.contains('I frequently wake up with a dry mouth')
+      .closest('[data-slot="form-item"]')
+      .find('button[role="checkbox"]')
       .should('have.attr', 'data-state', 'checked');
   });
 
