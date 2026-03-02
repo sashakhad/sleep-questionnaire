@@ -1,6 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
-import { EDS_WEIGHTS } from '@/lib/diagnosis-algorithms';
 import { CheckboxField } from '../form-fields/CheckboxField';
 import { NumberField } from '../form-fields/NumberField';
 import { RadioGroupField } from '../form-fields/RadioGroupField';
@@ -23,12 +22,12 @@ interface DaytimeSectionProps {
 }
 
 const fallAsleepOptions = [
-  { value: 'stoplight', label: 'Stopped at a stop light', weight: 2 },
-  { value: 'lectures', label: 'During lectures or work meetings', weight: 1 },
-  { value: 'working', label: 'While working or studying', weight: 1 },
-  { value: 'conversation', label: 'During a conversation', weight: 2 },
-  { value: 'evening', label: 'While engaged in a quiet activity during the evening', weight: 1 },
-  { value: 'meal', label: 'While eating a meal', weight: 2 },
+  { value: 'stoplight', label: 'Stopped at a stop light' },
+  { value: 'lectures', label: 'During lectures or work meetings' },
+  { value: 'working', label: 'While working or studying' },
+  { value: 'conversation', label: 'During a conversation' },
+  { value: 'evening', label: 'While engaged in a quiet activity during the evening' },
+  { value: 'meal', label: 'While eating a meal' },
 ];
 
 const weaknessOptions = [
@@ -43,16 +42,10 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
   const sleepinessInterferes = form.watch('daytime.sleepinessInterferes');
   const weaknessWhenExcited = form.watch('daytime.weaknessWhenExcited');
 
-  // Calculate EDS dozing score for narcolepsy/cataplexy popup trigger
-  let edsDozingScore = 0;
-  for (const activity of fallAsleepDuring ?? []) {
-    edsDozingScore += EDS_WEIGHTS[activity] ?? 1;
-  }
-
   // Show narcolepsy/cataplexy alert when ANY cataplexy symptom is endorsed
-  // OR when falling asleep dozing score > 6
+  // OR when falling asleep during 4 or more activities (count-based heuristic for UI only)
   const showNarcolepsyCataplexAlert =
-    (weaknessWhenExcited?.length ?? 0) > 0 || edsDozingScore > 6;
+    (weaknessWhenExcited?.length ?? 0) > 0 || (fallAsleepDuring?.length ?? 0) >= 4;
 
   // Show narcolepsy/hypersomnia questions only if fall asleep during activities AND sleepiness interferes
   const showNarcolepsyQuestions =
@@ -298,7 +291,6 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
               )}
             />
           </div>
-
         </>
       )}
 
@@ -309,8 +301,8 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
           <AlertDescription className='text-red-900'>
             <strong className='mb-2 block text-red-700'>Important Notice</strong>
             You have signs and symptoms of excessive daytime sleepiness, narcolepsy or idiopathic
-            hypersomnia. We will provide guidance on next steps in your report. Please be aware
-            that these disorders can increase risk of injuries and car accidents.
+            hypersomnia. We will provide guidance on next steps in your report. Please be aware that
+            these disorders can increase risk of injuries and car accidents.
           </AlertDescription>
         </Alert>
       )}
