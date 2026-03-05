@@ -11,6 +11,7 @@ import { questionnaireSchema, type QuestionnaireFormData } from '@/validations/q
 import { type QuestionnaireSection } from '@/types/questionnaire';
 import { cn } from '@/lib/utils';
 import { Download, TestTube } from 'lucide-react';
+import type { FullReportResult } from '@/lib/diagnosis-algorithms';
 
 // Mock data for pre-filling in development
 const MOCK_DATA: Partial<QuestionnaireFormData> = {
@@ -220,10 +221,19 @@ interface QuestionnaireFormProps {
   onSectionChange?: ((section: QuestionnaireSection, index: number) => void) | undefined;
 }
 
-export function QuestionnaireForm({ initialSection, prefill, onSectionChange }: QuestionnaireFormProps = {}) {
+export function QuestionnaireForm({
+  initialSection,
+  prefill,
+  onSectionChange,
+}: QuestionnaireFormProps = {}) {
   const initialIndex = initialSection ? sections.indexOf(initialSection) : 0;
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(initialIndex >= 0 ? initialIndex : 0);
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(
+    initialIndex >= 0 ? initialIndex : 0
+  );
   const currentSection = sections[currentSectionIndex]!;
+  const [reportData, setReportData] = useState<FullReportResult | null>(null);
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
   // Progress: 0% on intro, 100% on report (last section)
   const progress = (currentSectionIndex / (sections.length - 1)) * 100;
 
@@ -236,7 +246,12 @@ export function QuestionnaireForm({ initialSection, prefill, onSectionChange }: 
       },
       demographics: {
         yearOfBirth: undefined as unknown as number, // Required - will trigger validation
-        sex: undefined as unknown as 'male' | 'female' | 'transgender' | 'other' | 'prefer-not-to-say', // Required
+        sex: undefined as unknown as
+          | 'male'
+          | 'female'
+          | 'transgender'
+          | 'other'
+          | 'prefer-not-to-say', // Required
         zipcode: '', // Required - min 5 chars
         weight: null,
         height: null,
@@ -382,14 +397,24 @@ export function QuestionnaireForm({ initialSection, prefill, onSectionChange }: 
     }
   }, [prefill, form]);
 
-  const navigateToSection = useCallback((index: number) => {
-    setCurrentSectionIndex(index);
-    const section = sections[index];
-    if (section && onSectionChange) {
-      onSectionChange(section, index);
+  useEffect(() => {
+    if (currentSection === 'report' && !reportData && !reportLoading && !reportError && prefill) {
+      handleGenerateReport();
     }
-    window.scrollTo(0, 0);
-  }, [onSectionChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSection, prefill]);
+
+  const navigateToSection = useCallback(
+    (index: number) => {
+      setCurrentSectionIndex(index);
+      const section = sections[index];
+      if (section && onSectionChange) {
+        onSectionChange(section, index);
+      }
+      window.scrollTo(0, 0);
+    },
+    [onSectionChange]
+  );
 
   function handleNext() {
     if (currentSectionIndex < sections.length - 1) {
@@ -405,22 +430,35 @@ export function QuestionnaireForm({ initialSection, prefill, onSectionChange }: 
 
   async function handleGenerateReport() {
     const data = form.getValues();
+    setReportLoading(true);
+    setReportError(null);
+
+    // Save response to database (fire-and-forget — non-blocking)
+    fetch('/api/responses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    }).catch(err => console.error('Error saving questionnaire response:', err));
 
     try {
-      // Save to database
-      const response = await fetch('/api/responses', {
+      const response = await fetch('/api/diagnose', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        console.error('Failed to save questionnaire response');
+        throw new Error('Diagnosis request failed');
       }
+
+      const result: FullReportResult = await response.json();
+      setReportData(result);
     } catch (error) {
-      console.error('Error saving questionnaire response:', error);
+      console.error('Error generating diagnosis:', error);
+      setReportError('Unable to generate your report. Please try again.');
+      return;
+    } finally {
+      setReportLoading(false);
     }
 
     handleNext();
@@ -500,7 +538,34 @@ export function QuestionnaireForm({ initialSection, prefill, onSectionChange }: 
       case 'sleep-disorder-diagnoses':
         return <SleepDisorderDiagnosesSection form={form} />;
       case 'report':
-        return <ReportSection data={form.getValues()} onDownloadPDF={handleGeneratePDF} />;
+        if (reportLoading) {
+          return (
+            <div className='flex flex-col items-center justify-center space-y-4 py-16'>
+              <div className='border-primary h-12 w-12 animate-spin rounded-full border-b-2' />
+              <p className='text-muted-foreground text-sm'>Generating your sleep report…</p>
+            </div>
+          );
+        }
+        if (reportError) {
+          return (
+            <div className='flex flex-col items-center justify-center space-y-4 py-16'>
+              <p className='text-sm text-red-600'>{reportError}</p>
+              <Button onClick={handleGenerateReport} variant='outline' size='sm'>
+                Try Again
+              </Button>
+            </div>
+          );
+        }
+        if (!reportData) {
+          return null;
+        }
+        return (
+          <ReportSection
+            data={form.getValues()}
+            report={reportData}
+            onDownloadPDF={handleGeneratePDF}
+          />
+        );
       default:
         return null;
     }
@@ -609,7 +674,7 @@ export function QuestionnaireForm({ initialSection, prefill, onSectionChange }: 
                   type='button'
                   variant='ghost'
                   onClick={handlePrevious}
-                  className='-ml-2 mb-2 gap-2 text-white/80 hover:bg-white/10 hover:text-white'
+                  className='mb-2 -ml-2 gap-2 text-white/80 hover:bg-white/10 hover:text-white'
                   size='sm'
                 >
                   <svg className='h-4 w-4' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
@@ -635,7 +700,7 @@ export function QuestionnaireForm({ initialSection, prefill, onSectionChange }: 
           </CardHeader>
           <CardContent className='px-6 py-8 md:px-8'>
             <Form {...form}>
-              <form onSubmit={(e) => e.preventDefault()} className='space-y-8'>
+              <form onSubmit={e => e.preventDefault()} className='space-y-8'>
                 {renderSection()}
 
                 {/* PDF Download Button - Only show on report section */}
@@ -677,7 +742,12 @@ export function QuestionnaireForm({ initialSection, prefill, onSectionChange }: 
                   </Button>
 
                   {isSecondToLast ? (
-                    <Button type='button' onClick={handleGenerateReport} size='lg' className='ml-auto gap-2 px-6 shadow-md'>
+                    <Button
+                      type='button'
+                      onClick={handleGenerateReport}
+                      size='lg'
+                      className='ml-auto gap-2 px-6 shadow-md'
+                    >
                       Generate Report
                       <svg
                         className='h-4 w-4'

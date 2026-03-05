@@ -1,0 +1,144 @@
+{
+  "intro": {
+    "acceptedDisclaimer": true
+  },
+  "demographics": {
+    "yearOfBirth": 1990,
+    "sex": "male",
+    "zipcode": "10001",
+    "weight": 165,
+    "height": 70
+  },
+  "daytime": {
+    "plannedNaps": { "daysPerWeek": 2, "napsPerWeek": 3, "duration": "30" },
+    "fallAsleepDuring": ["lectures", "evening"],
+    "sleepinessInterferes": true,
+    "sleepinessSeverity": 5,
+    "tiredButCantSleep": "3-5days",
+    "weaknessWhenExcited": [],
+    "sleepParalysis": false,
+    "diagnosedNarcolepsy": false,
+    "painAffectsSleep": false,
+    "painSeverity": null,
+    "jointMusclePain": false,
+    "nonRestorativeSleep": true,
+    "tirednessRating": 5,
+    "fatigueRating": 3
+  },
+  "scheduledSleep": {
+    "lightsOutTime": "23:00",
+    "lightsOutVaries": false,
+    "preBedActivity": [],
+    "minutesToFallAsleep": "30",
+    "nightWakeups": 2,
+    "wakeupReasons": ["urinate", "noise"],
+    "minutesAwakeAtNight": "30",
+    "wakeupTime": "07:00",
+    "getOutOfBedTime": "07:15",
+    "earlyWakeupDays": 1,
+    "earlyWakeupMinutes": 15,
+    "usesAlarm": true
+  },
+  "unscheduledSleep": {
+    "lightsOutTime": "00:30",
+    "minutesToFallAsleep": "20",
+    "nightWakeups": 1,
+    "wakeupReasons": ["urinate"],
+    "minutesAwakeAtNight": "20",
+    "wakeupTime": "09:00",
+    "getOutOfBedTime": "09:30",
+    "usesAlarm": false
+  },
+  "breathingDisorders": {
+    "snores": true,
+    "stopsBreathing": false,
+    "mouthBreathes": true,
+    "wakesWithDryMouth": true
+  },
+  "restlessLegs": {
+    "troubleLyingStill": false,
+    "urgeToMoveLegs": false,
+    "movementRelieves": false,
+    "daytimeDiscomfort": false,
+    "legCramps": false,
+    "legCrampsPerWeek": null
+  },
+  "parasomnia": {
+    "nightBehaviors": [],
+    "remembersEvents": false,
+    "actsOutDreams": false,
+    "hasInjuredOrLeftHome": false,
+    "bedwetting": false,
+    "diagnosedParasomnia": false,
+    "parasomniaType": "",
+    "receivedTreatment": false,
+    "treatmentType": ""
+  },
+  "nightmares": {
+    "remembersDreams": true,
+    "hasBadDreams": false,
+    "badDreamsPerWeek": null,
+    "hasNightmares": true,
+    "nightmaresPerWeek": 1,
+    "associatedWithTrauma": false,
+    "historyOfTBI": false,
+    "takingMedicationsThatMayCause": false,
+    "hasBehavioralHealthDiagnosis": false,
+    "hasSleepAversion": false
+  },
+  "chronotype": {
+    "preference": "late",
+    "preferenceStrength": "moderate",
+    "shiftWork": false,
+    "shiftType": "",
+    "shiftDaysPerWeek": 0,
+    "pastShiftWorkYears": 0,
+    "frequentTimeZoneTravel": false,
+    "workSchoolTime": "09:00"
+  },
+  "sleepHygiene": {
+    "supplements": ["melatonin"],
+    "supplementsOther": "",
+    "prescriptionMeds": [],
+    "prescriptionMedsOther": "",
+    "stimulants": "",
+    "stimulantTime": "",
+    "smokesNicotine": false
+  },
+  "bedroom": {
+    "relaxing": 7,
+    "comfortable": 8,
+    "dark": 6,
+    "quiet": 7
+  },
+  "lifestyle": {
+    "caffeinePerDay": 2,
+    "lastCaffeineTime": "14:00",
+    "alcoholPerWeek": 3,
+    "exerciseDaysPerWeek": 3,
+    "exerciseDuration": 45,
+    "exerciseEndTime": "18:00"
+  },
+  "mentalHealth": {
+    "worriesAffectSleep": true,
+    "anxietyInBed": true,
+    "timeInBedTrying": true,
+    "cancelsAfterPoorSleep": "1-2week",
+    "diagnosedMedicalConditions": [],
+    "diagnosedMentalHealthConditions": ["anxiety"],
+    "currentlyReceivingTreatment": false
+  },
+  "sleepDisorderDiagnoses": {
+    "diagnosedDisorders": [],
+    "otherDiagnosisDescription": "",
+    "diagnosedOSA": false,
+    "osaSeverity": null,
+    "osaTreated": false,
+    "osaTreatmentType": [],
+    "osaTreatmentEffective": null,
+    "diagnosedRLS": false,
+    "rlsTreated": false,
+    "rlsTreatment": [],
+    "rlsTreatmentEffective": null
+  }
+}

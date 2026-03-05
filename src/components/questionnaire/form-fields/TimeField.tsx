@@ -1,6 +1,7 @@
 'use client'
 
-import { Control, FieldValues, Path } from 'react-hook-form'
+import { useRef, useEffect } from 'react'
+import { Control, ControllerRenderProps, FieldValues, Path } from 'react-hook-form'
 import {
   FormField,
   FormItem,
@@ -25,7 +26,6 @@ interface TimeFieldProps<T extends FieldValues> {
   defaultPeriod?: 'AM' | 'PM'
 }
 
-// Convert 24-hour time string (HH:MM) to 12-hour format parts
 function parseTime(time: string): { hour: string; minute: string; period: string } | null {
   if (!time) {
     return null
@@ -47,7 +47,6 @@ function parseTime(time: string): { hour: string; minute: string; period: string
   }
 }
 
-// Convert 12-hour format parts to 24-hour time string (HH:MM)
 function formatTime(hour: string, minute: string, period: 'AM' | 'PM'): string {
   let hour24 = parseInt(hour, 10)
   if (period === 'AM' && hour24 === 12) {
@@ -61,6 +60,95 @@ function formatTime(hour: string, minute: string, period: 'AM' | 'PM'): string {
 const hours = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
 const minutes = ['00', '15', '30', '45']
 
+interface TimeFieldInnerProps {
+  field: ControllerRenderProps<FieldValues, string>
+  defaultPeriod: 'AM' | 'PM'
+  label: string
+  description?: string | undefined
+}
+
+function TimeFieldInner({ field, defaultPeriod, label, description }: TimeFieldInnerProps) {
+  const parsed = parseTime(field.value as string)
+  const mountedRef = useRef(false)
+
+  useEffect(() => {
+    const id = requestAnimationFrame(() => { mountedRef.current = true })
+    return () => cancelAnimationFrame(id)
+  }, [])
+
+  function handleChange(type: 'hour' | 'minute' | 'period', value: string) {
+    if (!mountedRef.current) {
+      return
+    }
+
+    const hour = type === 'hour' ? value : (parsed?.hour ?? '12')
+    const minute = type === 'minute' ? value : (parsed?.minute ?? '00')
+    const period = type === 'period' ? value : (parsed?.period ?? defaultPeriod)
+
+    const newTime = formatTime(hour, minute, period as 'AM' | 'PM')
+    field.onChange(newTime)
+  }
+
+  return (
+    <FormItem>
+      <FormLabel>{label}</FormLabel>
+      <div className="flex items-center gap-2">
+        <FormControl>
+          <Select
+            value={parsed?.hour ?? ''}
+            onValueChange={(value) => handleChange('hour', value)}
+          >
+            <SelectTrigger className="w-20">
+              <SelectValue placeholder="Hour" />
+            </SelectTrigger>
+            <SelectContent>
+              {hours.map((h) => (
+                <SelectItem key={h} value={h}>
+                  {h}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FormControl>
+        <span className="text-muted-foreground">:</span>
+        <FormControl>
+          <Select
+            value={parsed?.minute ?? ''}
+            onValueChange={(value) => handleChange('minute', value)}
+          >
+            <SelectTrigger className="w-20">
+              <SelectValue placeholder="Min" />
+            </SelectTrigger>
+            <SelectContent>
+              {minutes.map((m) => (
+                <SelectItem key={m} value={m}>
+                  {m}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FormControl>
+        <FormControl>
+          <Select
+            value={parsed?.period ?? ''}
+            onValueChange={(value) => handleChange('period', value)}
+          >
+            <SelectTrigger className="w-20">
+              <SelectValue placeholder={defaultPeriod} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="AM">AM</SelectItem>
+              <SelectItem value="PM">PM</SelectItem>
+            </SelectContent>
+          </Select>
+        </FormControl>
+      </div>
+      {description && <FormDescription>{description}</FormDescription>}
+      <FormMessage />
+    </FormItem>
+  )
+}
+
 export function TimeField<T extends FieldValues>({
   control,
   name,
@@ -72,80 +160,14 @@ export function TimeField<T extends FieldValues>({
     <FormField
       control={control}
       name={name}
-      render={({ field }) => {
-        const parsed = parseTime(field.value as string)
-        
-        const handleChange = (
-          type: 'hour' | 'minute' | 'period',
-          value: string
-        ) => {
-          const hour = type === 'hour' ? value : (parsed?.hour ?? '12')
-          const minute = type === 'minute' ? value : (parsed?.minute ?? '00')
-          const period = type === 'period' ? value : (parsed?.period ?? defaultPeriod)
-          
-          const newTime = formatTime(hour, minute, period as 'AM' | 'PM')
-          field.onChange(newTime)
-        }
-        
-        return (
-          <FormItem>
-            <FormLabel>{label}</FormLabel>
-            <div className="flex items-center gap-2">
-              <FormControl>
-                <Select
-                  value={parsed?.hour ?? ''}
-                  onValueChange={(value) => handleChange('hour', value)}
-                >
-                  <SelectTrigger className="w-20">
-                    <SelectValue placeholder="Hour" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {hours.map((h) => (
-                      <SelectItem key={h} value={h}>
-                        {h}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <span className="text-muted-foreground">:</span>
-              <FormControl>
-                <Select
-                  value={parsed?.minute ?? ''}
-                  onValueChange={(value) => handleChange('minute', value)}
-                >
-                  <SelectTrigger className="w-20">
-                    <SelectValue placeholder="Min" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {minutes.map((m) => (
-                      <SelectItem key={m} value={m}>
-                        {m}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormControl>
-                <Select
-                  value={parsed?.period ?? ''}
-                  onValueChange={(value) => handleChange('period', value)}
-                >
-                  <SelectTrigger className="w-20">
-                    <SelectValue placeholder={defaultPeriod} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="AM">AM</SelectItem>
-                    <SelectItem value="PM">PM</SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-            </div>
-            {description && <FormDescription>{description}</FormDescription>}
-            <FormMessage />
-          </FormItem>
-        )
-      }}
+      render={({ field }) => (
+        <TimeFieldInner
+          field={field as unknown as ControllerRenderProps<FieldValues, string>}
+          defaultPeriod={defaultPeriod}
+          label={label}
+          description={description}
+        />
+      )}
     />
   )
 }
