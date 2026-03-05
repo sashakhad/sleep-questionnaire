@@ -23,17 +23,23 @@ interface ReportSectionProps {
 }
 
 function formatHours(hours: number): string {
-  if (!Number.isFinite(hours) || hours <= 0) return 'N/A';
+  if (!Number.isFinite(hours) || hours <= 0) {
+    return 'N/A';
+  }
   return `${hours.toFixed(1)} hours`;
 }
 
 function formatPercent(pct: number): string {
-  if (!Number.isFinite(pct)) return 'N/A';
+  if (!Number.isFinite(pct)) {
+    return 'N/A';
+  }
   return `${pct.toFixed(0)}%`;
 }
 
 function formatMinutes(mins: number): string {
-  if (!Number.isFinite(mins)) return 'N/A';
+  if (!Number.isFinite(mins)) {
+    return 'N/A';
+  }
   return `${mins} minutes`;
 }
 

@@ -865,7 +865,9 @@ function calculateReportDisplayMetrics(data: QuestionnaireFormData): ReportDispl
   const scheduledBedtime = toMins(data.scheduledSleep.lightsOutTime);
   const scheduledWaketime = toMins(data.scheduledSleep.wakeupTime);
   let scheduledTimeInBed = scheduledWaketime - scheduledBedtime;
-  if (scheduledTimeInBed < 0) scheduledTimeInBed += 1440;
+  if (scheduledTimeInBed < 0) {
+    scheduledTimeInBed += 1440;
+  }
 
   const scheduledSOL = parseMinuteIncrement(data.scheduledSleep.minutesToFallAsleep);
   const scheduledWASO = parseMinuteIncrement(data.scheduledSleep.minutesAwakeAtNight);
@@ -876,7 +878,9 @@ function calculateReportDisplayMetrics(data: QuestionnaireFormData): ReportDispl
   const unscheduledBedtime = toMins(data.unscheduledSleep.lightsOutTime);
   const unscheduledWaketime = toMins(data.unscheduledSleep.wakeupTime);
   let unscheduledTimeInBed = unscheduledWaketime - unscheduledBedtime;
-  if (unscheduledTimeInBed < 0) unscheduledTimeInBed += 1440;
+  if (unscheduledTimeInBed < 0) {
+    unscheduledTimeInBed += 1440;
+  }
 
   const unscheduledSOL = parseMinuteIncrement(data.unscheduledSleep.minutesToFallAsleep);
   const unscheduledWASO = parseMinuteIncrement(data.unscheduledSleep.minutesAwakeAtNight);
@@ -889,8 +893,11 @@ function calculateReportDisplayMetrics(data: QuestionnaireFormData): ReportDispl
   const socialJetLag = (unscheduledTSTMins - scheduledTSTMins) / 60;
 
   let midSleepDiff = unscheduledMidSleep - scheduledMidSleep;
-  if (midSleepDiff > 720) midSleepDiff -= 1440;
-  else if (midSleepDiff < -720) midSleepDiff += 1440;
+  if (midSleepDiff > 720) {
+    midSleepDiff -= 1440;
+  } else if (midSleepDiff < -720) {
+    midSleepDiff += 1440;
+  }
   const midSleepTimeChange = midSleepDiff / 60;
 
   return {
@@ -917,15 +924,23 @@ function getReportInsomniaSeverity(
   const hasSOI = metrics.scheduledSOL > 30 || metrics.unscheduledSOL > 30;
   const hasSMI = metrics.scheduledWASO > 40 || metrics.unscheduledWASO > 40;
   const hasEMA =
-    data.scheduledSleep.earlyWakeupMinutes != null && data.scheduledSleep.earlyWakeupMinutes > 20;
+    data.scheduledSleep.earlyWakeupMinutes !== null && data.scheduledSleep.earlyWakeupMinutes > 20;
   const hasDaytimeImpairment = data.daytime.sleepinessInterferes;
 
-  if (!hasSOI && !hasSMI && !hasEMA) return 'none';
-  if (!hasDaytimeImpairment) return 'subclinical';
+  if (!hasSOI && !hasSMI && !hasEMA) {
+    return 'none';
+  }
+  if (!hasDaytimeImpairment) {
+    return 'subclinical';
+  }
 
   const cancels = data.mentalHealth.cancelsAfterPoorSleep;
-  if (cancels === '3+week') return 'severe';
-  if (cancels === '1-2week') return 'moderate';
+  if (cancels === '3+week') {
+    return 'severe';
+  }
+  if (cancels === '1-2week') {
+    return 'moderate';
+  }
   return 'mild';
 }
 
@@ -978,9 +993,13 @@ function calculateReportEDSScore(fallAsleepDuring: string[]): {
   }
 
   let severity: SeverityLevel = 'none';
-  if (score >= 7) severity = 'severe';
-  else if (score >= 5) severity = 'moderate';
-  else if (score >= 3) severity = 'mild'; // Display threshold: 3 (clinical threshold is EDS_SCORE_MIN=2)
+  if (score >= 7) {
+    severity = 'severe';
+  } else if (score >= 5) {
+    severity = 'moderate';
+  } else if (score >= 3) {
+    severity = 'mild';
+  }
 
   return { score, severity };
 }
