@@ -1,6 +1,7 @@
 describe('Report & Diagnosis Verification', () => {
   beforeEach(() => {
     cy.navigateToSection('report');
+    cy.contains('Sleep Metrics', { timeout: 15000 }).should('exist');
   });
 
   describe('Report Structure', () => {
