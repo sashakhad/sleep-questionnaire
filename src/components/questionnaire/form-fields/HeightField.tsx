@@ -40,19 +40,18 @@ export function HeightField<TFieldValues extends FieldValues = FieldValues>({
     : null;
 
   const [pendingFeet, setPendingFeet] = useState<number | null>(null);
-  const suppressRef = useRef(false);
+  const mountedRef = useRef(false);
 
   useEffect(() => {
-    suppressRef.current = true;
-    const id = requestAnimationFrame(() => { suppressRef.current = false; });
+    const id = requestAnimationFrame(() => { mountedRef.current = true; });
     return () => cancelAnimationFrame(id);
-  }, [field.value]);
+  }, []);
 
   const displayFeet = derivedFeet ?? pendingFeet;
   const displayInches = derivedInches;
 
   function handleFeetChange(newFeet: number | null) {
-    if (suppressRef.current) {
+    if (!mountedRef.current) {
       return;
     }
     if (newFeet === null) {
@@ -69,7 +68,7 @@ export function HeightField<TFieldValues extends FieldValues = FieldValues>({
   }
 
   function handleInchesChange(newInches: number | null) {
-    if (suppressRef.current) {
+    if (!mountedRef.current) {
       return;
     }
     const currentFeet = derivedFeet ?? pendingFeet;

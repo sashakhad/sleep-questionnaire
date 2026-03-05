@@ -36,16 +36,15 @@ interface SelectFieldInnerProps {
 }
 
 function SelectFieldInner({ field, placeholder, description, label, options }: SelectFieldInnerProps) {
-  const suppressRef = useRef(false);
+  const mountedRef = useRef(false);
 
   useEffect(() => {
-    suppressRef.current = true;
-    const id = requestAnimationFrame(() => { suppressRef.current = false; });
+    const id = requestAnimationFrame(() => { mountedRef.current = true; });
     return () => cancelAnimationFrame(id);
-  }, [field.value]);
+  }, []);
 
   function handleValueChange(value: string) {
-    if (suppressRef.current) {
+    if (!mountedRef.current) {
       return;
     }
     field.onChange(value === '' ? null : value);

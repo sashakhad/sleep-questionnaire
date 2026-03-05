@@ -69,18 +69,18 @@ interface TimeFieldInnerProps {
 
 function TimeFieldInner({ field, defaultPeriod, label, description }: TimeFieldInnerProps) {
   const parsed = parseTime(field.value as string)
-  const suppressRef = useRef(false)
+  const mountedRef = useRef(false)
 
   useEffect(() => {
-    suppressRef.current = true
-    const id = requestAnimationFrame(() => { suppressRef.current = false })
+    const id = requestAnimationFrame(() => { mountedRef.current = true })
     return () => cancelAnimationFrame(id)
-  }, [field.value])
+  }, [])
 
   function handleChange(type: 'hour' | 'minute' | 'period', value: string) {
-    if (suppressRef.current) {
+    if (!mountedRef.current) {
       return
     }
+
     const hour = type === 'hour' ? value : (parsed?.hour ?? '12')
     const minute = type === 'minute' ? value : (parsed?.minute ?? '00')
     const period = type === 'period' ? value : (parsed?.period ?? defaultPeriod)
