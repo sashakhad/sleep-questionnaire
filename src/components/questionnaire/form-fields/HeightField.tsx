@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Control, FieldValues, Path, useController } from 'react-hook-form';
 import {
   FormDescription,
@@ -20,7 +20,7 @@ interface HeightFieldProps<TFieldValues extends FieldValues = FieldValues> {
   control: Control<TFieldValues>;
   name: Path<TFieldValues>;
   label?: string;
-  description?: string;
+  description?: string | undefined;
 }
 
 export function HeightField<TFieldValues extends FieldValues = FieldValues>({
@@ -31,10 +31,6 @@ export function HeightField<TFieldValues extends FieldValues = FieldValues>({
 }: HeightFieldProps<TFieldValues>) {
   const { field, fieldState } = useController({ control, name });
 
-  // Derive feet/inches directly from the form value (single source of truth).
-  // Local "partial" state is only used when the user has picked feet but not
-  // yet picked inches, so we can show the feet selection without writing a
-  // partial value back to the form.
   const totalInches = field.value as number | null;
   const derivedFeet = (totalInches !== null && totalInches !== undefined)
     ? Math.floor(totalInches / 12)
@@ -43,14 +39,22 @@ export function HeightField<TFieldValues extends FieldValues = FieldValues>({
     ? totalInches % 12
     : null;
 
-  // Track a partial feet selection that hasn't been committed to the form yet
   const [pendingFeet, setPendingFeet] = useState<number | null>(null);
+  const suppressRef = useRef(false);
 
-  // The displayed feet value: use form-derived when available, else pending
+  useEffect(() => {
+    suppressRef.current = true;
+    const id = requestAnimationFrame(() => { suppressRef.current = false; });
+    return () => cancelAnimationFrame(id);
+  }, [field.value]);
+
   const displayFeet = derivedFeet ?? pendingFeet;
   const displayInches = derivedInches;
 
   function handleFeetChange(newFeet: number | null) {
+    if (suppressRef.current) {
+      return;
+    }
     if (newFeet === null) {
       field.onChange(null);
       setPendingFeet(null);
@@ -65,6 +69,9 @@ export function HeightField<TFieldValues extends FieldValues = FieldValues>({
   }
 
   function handleInchesChange(newInches: number | null) {
+    if (suppressRef.current) {
+      return;
+    }
     const currentFeet = derivedFeet ?? pendingFeet;
     if (currentFeet !== null && newInches !== null) {
       field.onChange(currentFeet * 12 + newInches);
@@ -72,9 +79,7 @@ export function HeightField<TFieldValues extends FieldValues = FieldValues>({
     }
   }
 
-  // Generate options for feet (3-7 feet covers most adults)
   const feetOptions = [3, 4, 5, 6, 7];
-  // Generate options for inches (0-11)
   const inchesOptions = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
   return (

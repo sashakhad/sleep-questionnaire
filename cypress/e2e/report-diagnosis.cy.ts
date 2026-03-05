@@ -57,16 +57,7 @@ describe('Report & Diagnosis Verification', () => {
     });
 
     it('should show chronotype or sleep timing assessment', () => {
-      cy.get('body').then($body => {
-        const text = $body.text().toLowerCase();
-        const hasChronotype =
-          text.includes('chronotype') ||
-          text.includes('night owl') ||
-          text.includes('evening') ||
-          text.includes('morning') ||
-          text.includes('circadian');
-        expect(hasChronotype).to.be.true;
-      });
+      cy.contains('Chronotype Assessment', { timeout: 10000 }).should('exist');
     });
 
     it('should show next steps or resources section', () => {

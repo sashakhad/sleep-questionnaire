@@ -7,5 +7,13 @@ export default defineConfig({
     specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
     video: false,
     screenshotOnRunFailure: false,
+    setupNodeEvents(on) {
+      on('task', {
+        log(message: string) {
+          console.log(message);
+          return null;
+        },
+      });
+    },
   },
 });

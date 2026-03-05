@@ -397,6 +397,13 @@ export function QuestionnaireForm({
     }
   }, [prefill, form]);
 
+  useEffect(() => {
+    if (currentSection === 'report' && !reportData && !reportLoading && !reportError && prefill) {
+      handleGenerateReport();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSection, prefill]);
+
   const navigateToSection = useCallback(
     (index: number) => {
       setCurrentSectionIndex(index);

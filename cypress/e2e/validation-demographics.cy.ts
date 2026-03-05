@@ -89,6 +89,7 @@ describe('Demographics Section Validation', () => {
 
   it('Pre-filled demographics on dev route — Continue is enabled', () => {
     cy.navigateToSection('demographics');
-    assertContinueEnabled();
+    cy.contains('Body Mass Index (BMI)', { timeout: 10000 }).should('be.visible');
+    cy.contains('button', 'Continue').should('not.be.disabled');
   });
 });
