@@ -7,157 +7,25 @@ import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { questionnaireSchema, type QuestionnaireFormData } from '@/validations/questionnaire';
 import { type QuestionnaireSection } from '@/types/questionnaire';
 import { cn } from '@/lib/utils';
 import { Download, TestTube } from 'lucide-react';
 import type { FullReportResult } from '@/lib/diagnosis-algorithms';
+import {
+  defaultReviewScenario,
+  diagnosisScenarios,
+  getDiagnosisScenario,
+} from '@/lib/diagnosis-scenarios';
 
-// Mock data for pre-filling in development
-const MOCK_DATA: Partial<QuestionnaireFormData> = {
-  intro: {
-    acceptedDisclaimer: true,
-  },
-  demographics: {
-    yearOfBirth: 1990,
-    sex: 'male',
-    zipcode: '10001',
-    weight: 165, // pounds
-    height: 70, // inches (5'10")
-  },
-  daytime: {
-    plannedNaps: { daysPerWeek: 2, napsPerWeek: 3, duration: '30' },
-    fallAsleepDuring: ['lectures', 'evening'],
-    sleepinessInterferes: true,
-    sleepinessSeverity: 5,
-    tiredButCantSleep: '3-5days',
-    weaknessWhenExcited: [],
-    sleepParalysis: false,
-    diagnosedNarcolepsy: false,
-    painAffectsSleep: false,
-    painSeverity: null,
-    jointMusclePain: false,
-    nonRestorativeSleep: true,
-    tirednessRating: 5,
-    fatigueRating: 3,
-  },
-  scheduledSleep: {
-    lightsOutTime: '23:00',
-    lightsOutVaries: false,
-    preBedActivity: [],
-    minutesToFallAsleep: '30',
-    nightWakeups: 2,
-    wakeupReasons: ['urinate', 'noise'],
-    minutesAwakeAtNight: '30',
-    wakeupTime: '07:00',
-    getOutOfBedTime: '07:15',
-    earlyWakeupDays: 1,
-    earlyWakeupMinutes: 15,
-    usesAlarm: true,
-  },
-  unscheduledSleep: {
-    lightsOutTime: '00:30',
-    minutesToFallAsleep: '20',
-    nightWakeups: 1,
-    wakeupReasons: ['urinate'],
-    minutesAwakeAtNight: '20',
-    wakeupTime: '09:00',
-    getOutOfBedTime: '09:30',
-    usesAlarm: false,
-  },
-  breathingDisorders: {
-    snores: true,
-    stopsBreathing: false,
-    mouthBreathes: true,
-    wakesWithDryMouth: true,
-  },
-  restlessLegs: {
-    troubleLyingStill: false,
-    urgeToMoveLegs: false,
-    movementRelieves: false,
-    daytimeDiscomfort: false,
-    legCramps: false,
-    legCrampsPerWeek: null,
-  },
-  parasomnia: {
-    nightBehaviors: [],
-    remembersEvents: false,
-    actsOutDreams: false,
-    hasInjuredOrLeftHome: false,
-    bedwetting: false,
-    diagnosedParasomnia: false,
-    parasomniaType: '',
-    receivedTreatment: false,
-    treatmentType: '',
-  },
-  nightmares: {
-    remembersDreams: true,
-    hasBadDreams: false,
-    badDreamsPerWeek: null,
-    hasNightmares: true,
-    nightmaresPerWeek: 1,
-    associatedWithTrauma: false,
-    historyOfTBI: false,
-    takingMedicationsThatMayCause: false,
-    hasBehavioralHealthDiagnosis: false,
-    hasSleepAversion: false,
-  },
-  chronotype: {
-    preference: 'late',
-    preferenceStrength: 'moderate',
-    shiftWork: false,
-    shiftType: '',
-    shiftDaysPerWeek: 0,
-    pastShiftWorkYears: 0,
-    frequentTimeZoneTravel: false,
-    workSchoolTime: '09:00',
-  },
-  sleepHygiene: {
-    supplements: ['melatonin'],
-    supplementsOther: '',
-    prescriptionMeds: [],
-    prescriptionMedsOther: '',
-    stimulants: '',
-    stimulantTime: '',
-    smokesNicotine: false,
-  },
-  bedroom: {
-    relaxing: 7,
-    comfortable: 8,
-    dark: 6,
-    quiet: 7,
-  },
-  lifestyle: {
-    caffeinePerDay: 2,
-    lastCaffeineTime: '14:00',
-    alcoholPerWeek: 3,
-    exerciseDaysPerWeek: 3,
-    exerciseDuration: 45,
-    exerciseEndTime: '18:00',
-  },
-  mentalHealth: {
-    worriesAffectSleep: true,
-    anxietyInBed: true,
-    timeInBedTrying: true,
-    cancelsAfterPoorSleep: '1-2week',
-    diagnosedMedicalConditions: [],
-    diagnosedMentalHealthConditions: ['anxiety'],
-    currentlyReceivingTreatment: false,
-  },
-  sleepDisorderDiagnoses: {
-    diagnosedDisorders: [],
-    otherDiagnosisDescription: '',
-    diagnosedOSA: false,
-    osaSeverity: null,
-    osaTreated: false,
-    osaTreatmentType: [],
-    osaTreatmentEffective: null,
-    diagnosedRLS: false,
-    rlsTreated: false,
-    rlsTreatment: [],
-    rlsTreatmentEffective: null,
-  },
-};
+const DEFAULT_PREFILL_DATA: QuestionnaireFormData = defaultReviewScenario.data;
 
 // Import section components
 import { IntroSection } from './sections/IntroSection';
@@ -234,6 +102,7 @@ export function QuestionnaireForm({
   const [reportData, setReportData] = useState<FullReportResult | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
+  const [selectedScenarioId, setSelectedScenarioId] = useState(defaultReviewScenario.id);
   // Progress: 0% on intro, 100% on report (last section)
   const progress = (currentSectionIndex / (sections.length - 1)) * 100;
 
@@ -393,7 +262,8 @@ export function QuestionnaireForm({
 
   useEffect(() => {
     if (prefill) {
-      form.reset(MOCK_DATA as QuestionnaireFormData);
+      form.reset(DEFAULT_PREFILL_DATA);
+      setSelectedScenarioId(defaultReviewScenario.id);
     }
   }, [prefill, form]);
 
@@ -402,7 +272,7 @@ export function QuestionnaireForm({
       handleGenerateReport();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSection, prefill]);
+  }, [currentSection, prefill, reportData, reportLoading, reportError]);
 
   const navigateToSection = useCallback(
     (index: number) => {
@@ -441,7 +311,8 @@ export function QuestionnaireForm({
     }).catch(err => console.error('Error saving questionnaire response:', err));
 
     try {
-      const response = await fetch('/api/diagnose', {
+      const diagnoseUrl = prefill ? '/api/diagnose?debug=1' : '/api/diagnose';
+      const response = await fetch(diagnoseUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -501,7 +372,11 @@ export function QuestionnaireForm({
   };
 
   const handlePreFill = () => {
-    form.reset(MOCK_DATA as QuestionnaireFormData);
+    const scenario = getDiagnosisScenario(selectedScenarioId) ?? defaultReviewScenario;
+    form.reset(scenario.data);
+    setReportData(null);
+    setReportLoading(false);
+    setReportError(null);
     navigateToSection(sections.length - 1);
   };
 
@@ -606,7 +481,21 @@ export function QuestionnaireForm({
         {/* Dev Tools - Show in development or when explicitly enabled */}
         {(process.env.NODE_ENV === 'development' ||
           process.env.NEXT_PUBLIC_SHOW_DEV_TOOLS === 'true') && (
-          <div className='mb-4 flex justify-end gap-2'>
+          <div className='mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-end'>
+            <div className='w-full md:max-w-xs'>
+              <Select value={selectedScenarioId} onValueChange={setSelectedScenarioId}>
+                <SelectTrigger className='border-amber-300/50 bg-amber-50/80 text-amber-900'>
+                  <SelectValue placeholder='Select a validation scenario' />
+                </SelectTrigger>
+                <SelectContent>
+                  {diagnosisScenarios.map(scenario => (
+                    <SelectItem key={scenario.id} value={scenario.id}>
+                      {scenario.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <Button
               type='button'
               variant='outline'
@@ -615,7 +504,7 @@ export function QuestionnaireForm({
               className='border-amber-300/50 bg-amber-50/80 text-amber-700 backdrop-blur-sm hover:bg-amber-100'
             >
               <TestTube className='mr-2 h-4 w-4' />
-              Pre-fill & Jump to Report (Dev)
+              Load Scenario & Jump to Report
             </Button>
           </div>
         )}
