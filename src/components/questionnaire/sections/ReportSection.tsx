@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { generateDiagnosisReport, type DiagnosisReport } from '@/lib/diagnosis-algorithms';
+import type { FullReportResult } from '@/lib/diagnosis-algorithms';
 import {
   Moon,
   Brain,
@@ -14,222 +14,15 @@ import {
   Info,
   Printer,
   Download,
+  TestTube,
 } from 'lucide-react';
 
 interface ReportSectionProps {
   data: QuestionnaireFormData;
+  report: FullReportResult;
   onDownloadPDF?: () => void;
 }
 
-// EDS weighted scoring - activities with x2 weight are more concerning
-const EDS_WEIGHTS: Record<string, number> = {
-  stoplight: 2, // Very concerning - falling asleep at traffic lights
-  lectures: 1,
-  working: 1,
-  conversation: 2, // Concerning - falling asleep during conversations
-  evening: 1,
-  meal: 2, // Concerning - falling asleep while eating
-};
-
-function calculateEDSScore(fallAsleepDuring: string[]): {
-  score: number;
-  severity: 'none' | 'mild' | 'moderate' | 'severe';
-} {
-  let score = 0;
-  for (const activity of fallAsleepDuring) {
-    score += EDS_WEIGHTS[activity] ?? 1;
-  }
-
-  // Severity thresholds based on spec:
-  // 3-6 = Mild EDS (possible sleep debt)
-  // 7+ = Moderate to Severe EDS (possible narcolepsy/hypersomnia)
-  let severity: 'none' | 'mild' | 'moderate' | 'severe' = 'none';
-  if (score >= 7) {
-    severity = 'severe';
-  } else if (score >= 5) {
-    severity = 'moderate';
-  } else if (score >= 3) {
-    severity = 'mild';
-  }
-
-  return { score, severity };
-}
-
-interface SleepMetrics {
-  scheduledTST: number; // Total Sleep Time
-  unscheduledTST: number;
-  scheduledSE: number; // Sleep Efficiency
-  unscheduledSE: number;
-  scheduledSOL: number; // Sleep Onset Latency
-  unscheduledSOL: number;
-  scheduledWASO: number; // Wake After Sleep Onset
-  unscheduledWASO: number;
-  midSleepScheduled: string;
-  midSleepUnscheduled: string;
-  weeklyAvgTST: number; // Weighted weekly average (5x scheduled + 2x unscheduled) / 7
-  socialJetLag: number; // Difference in sleep duration between weekend and weekday (hours)
-  midSleepTimeChange: number; // Difference in mid-sleep time (hours)
-}
-
-// Helper to parse minute increment string to number
-function parseMinuteIncrement(value: string | null): number {
-  if (!value) {
-    return 0;
-  }
-  if (value === '>120') {
-    return 130;
-  } // Use 130 for "more than 120"
-  return parseInt(value, 10) || 0;
-}
-
-function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics {
-  // Helper to convert time string to minutes from midnight
-  const timeToMinutes = (time: string): number => {
-    if (!time) {
-      return 0;
-    }
-    const [hours, minutes] = time.split(':').map(Number);
-    return (hours ?? 0) * 60 + (minutes ?? 0);
-  };
-
-  // Helper to convert minutes to time string
-  const minutesToTime = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60) % 24;
-    const mins = minutes % 60;
-    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-  };
-
-  // Parse minute increments from string values
-  const scheduledSOL = parseMinuteIncrement(data.scheduledSleep.minutesToFallAsleep);
-  const scheduledWASO = parseMinuteIncrement(data.scheduledSleep.minutesAwakeAtNight);
-  const unscheduledSOL = parseMinuteIncrement(data.unscheduledSleep.minutesToFallAsleep);
-  const unscheduledWASO = parseMinuteIncrement(data.unscheduledSleep.minutesAwakeAtNight);
-
-  // Calculate for scheduled days
-  const scheduledBedtime = timeToMinutes(data.scheduledSleep.lightsOutTime);
-  const scheduledWaketime = timeToMinutes(data.scheduledSleep.wakeupTime);
-  let scheduledTimeInBed = scheduledWaketime - scheduledBedtime;
-  if (scheduledTimeInBed < 0) {
-    scheduledTimeInBed += 1440;
-  } // Handle crossing midnight
-
-  const scheduledTST = scheduledTimeInBed - scheduledSOL - scheduledWASO;
-  const scheduledSE = scheduledTimeInBed > 0 ? (scheduledTST / scheduledTimeInBed) * 100 : 0;
-
-  // Calculate mid-sleep time for scheduled days (TST/2 + fall asleep time)
-  const scheduledMidSleep = scheduledBedtime + scheduledSOL + scheduledTST / 2;
-
-  // Calculate for unscheduled days
-  const unscheduledBedtime = timeToMinutes(data.unscheduledSleep.lightsOutTime);
-  const unscheduledWaketime = timeToMinutes(data.unscheduledSleep.wakeupTime);
-  let unscheduledTimeInBed = unscheduledWaketime - unscheduledBedtime;
-  if (unscheduledTimeInBed < 0) {
-    unscheduledTimeInBed += 1440;
-  }
-
-  const unscheduledTST = unscheduledTimeInBed - unscheduledSOL - unscheduledWASO;
-  const unscheduledSE =
-    unscheduledTimeInBed > 0 ? (unscheduledTST / unscheduledTimeInBed) * 100 : 0;
-
-  // Calculate mid-sleep time for unscheduled days
-  const unscheduledMidSleep = unscheduledBedtime + unscheduledSOL + unscheduledTST / 2;
-
-  // Calculate weighted weekly average TST (5x workdays + 2x weekend days) / 7
-  const weeklyAvgTST = ((scheduledTST / 60) * 5 + (unscheduledTST / 60) * 2) / 7;
-
-  // Calculate Social Jet Lag (difference in sleep duration between weekend and weekday)
-  // Positive value means more sleep on weekends (catching up)
-  const socialJetLag = (unscheduledTST - scheduledTST) / 60; // in hours
-
-  // Calculate Mid-sleep Time Change (difference between unscheduled and scheduled mid-sleep)
-  // Need to handle crossing midnight properly
-  let midSleepDiff = unscheduledMidSleep - scheduledMidSleep;
-  if (midSleepDiff > 720) {
-    midSleepDiff -= 1440; // Adjust for crossing midnight
-  } else if (midSleepDiff < -720) {
-    midSleepDiff += 1440;
-  }
-  const midSleepTimeChange = midSleepDiff / 60; // in hours
-
-  return {
-    scheduledTST: scheduledTST / 60, // Convert to hours
-    unscheduledTST: unscheduledTST / 60,
-    scheduledSE,
-    unscheduledSE,
-    scheduledSOL,
-    unscheduledSOL,
-    scheduledWASO,
-    unscheduledWASO,
-    midSleepScheduled: minutesToTime(scheduledMidSleep % 1440),
-    midSleepUnscheduled: minutesToTime(unscheduledMidSleep % 1440),
-    weeklyAvgTST,
-    socialJetLag,
-    midSleepTimeChange,
-  };
-}
-
-function getInsomniaSeverity(data: QuestionnaireFormData, metrics: SleepMetrics): string {
-  const hasSOI = metrics.scheduledSOL > 30 || metrics.unscheduledSOL > 30;
-  const hasSMI = metrics.scheduledWASO > 40 || metrics.unscheduledWASO > 40;
-  const hasEMA =
-    data.scheduledSleep.earlyWakeupMinutes && data.scheduledSleep.earlyWakeupMinutes > 20;
-  const hasDaytimeImpairment = data.daytime.sleepinessInterferes;
-
-  if (!hasSOI && !hasSMI && !hasEMA) {
-    return 'none';
-  }
-  if (!hasDaytimeImpairment) {
-    return 'subclinical';
-  }
-
-  const cancelsActivities = data.mentalHealth.cancelsAfterPoorSleep;
-  if (cancelsActivities === '3+week') {
-    return 'severe';
-  }
-  if (cancelsActivities === '1-2week') {
-    return 'moderate';
-  }
-  return 'mild';
-}
-
-function getChronotype(
-  metrics: SleepMetrics,
-  preference: string
-): { type: string; chronotypeLabel: string } {
-  const midSleepHour = parseInt(metrics.midSleepUnscheduled.split(':')[0] ?? '0');
-  const midSleepMinute = parseInt(metrics.midSleepUnscheduled.split(':')[1] ?? '0');
-  const midSleepTotalMinutes = midSleepHour * 60 + midSleepMinute;
-
-  // Mid-sleep time analysis: When <12am (midnight) probable lark, when >5:00am probable owl
-  // Midnight = 0 minutes, 5am = 300 minutes
-  // But we need to handle times after midnight differently
-  // Adjust for times that cross midnight (e.g., 2am is hour 2, should be considered late)
-  const adjustedMidSleep = midSleepHour < 12 ? midSleepTotalMinutes + 1440 : midSleepTotalMinutes;
-
-  let chronotypeLabel = 'Neutral';
-  if (adjustedMidSleep <= 1440) {
-    // Before midnight (24:00 = 1440)
-    chronotypeLabel = 'Probable Lark (Morning Person)';
-  } else if (adjustedMidSleep >= 1740) {
-    // After 5am (29:00 = 1740, i.e., 5:00 + 1440)
-    chronotypeLabel = 'Probable Owl (Night Person)';
-  } else {
-    chronotypeLabel = 'Intermediate';
-  }
-
-  let type = 'normal';
-  if (preference === 'late' || adjustedMidSleep >= 1680) {
-    // After 4am
-    type = 'delayed';
-  } else if (preference === 'early' || adjustedMidSleep <= 1500) {
-    // Before 1am
-    type = 'advanced';
-  }
-
-  return { type, chronotypeLabel };
-}
-
-// Helper to format metric values — shows "N/A" when no sleep data was entered
 function formatHours(hours: number): string {
   if (!Number.isFinite(hours) || hours <= 0) {
     return 'N/A';
@@ -251,110 +44,8 @@ function formatMinutes(mins: number): string {
   return `${mins} minutes`;
 }
 
-export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
-  const metrics = calculateSleepMetrics(data);
-  const insomniaSeverity = getInsomniaSeverity(data, metrics);
-  const { type: chronotype, chronotypeLabel } = getChronotype(metrics, data.chronotype.preference);
-
-  // Calculate weighted EDS score
-  const edsResult = calculateEDSScore(data.daytime.fallAsleepDuring);
-  const hasEDSFromActivities = edsResult.severity !== 'none';
-
-  // Identify major issues
-  const hasInsomnia = insomniaSeverity !== 'none' && insomniaSeverity !== 'subclinical';
-  // Check for long naps (>= 60 minutes based on new 10-minute increments)
-  const napDurationNum = parseMinuteIncrement(data.daytime.plannedNaps.duration);
-  const hasEDSFromNaps = data.daytime.plannedNaps.daysPerWeek >= 3 && napDurationNum >= 60;
-  const hasEDSSymptoms = hasEDSFromActivities || hasEDSFromNaps;
-  // Per feedback: EDS (excessive daytime sleepiness) should only be shown when TST >= 7 hours
-  // If TST < 7 hours, it's more likely Insufficient Sleep Syndrome
-  const avgWeeklySleepForEDS = (metrics.scheduledTST * 5 + metrics.unscheduledTST * 2) / 7;
-  const hasEDS = hasEDSSymptoms && avgWeeklySleepForEDS >= 7;
-  const hasOSA =
-    data.breathingDisorders.stopsBreathing ||
-    (data.breathingDisorders.snores && data.breathingDisorders.wakesWithDryMouth);
-  const hasCOMISA = hasInsomnia && hasOSA; // Comorbid Insomnia and Sleep Apnea
-  const hasRLS =
-    (data.restlessLegs.troubleLyingStill &&
-      data.restlessLegs.urgeToMoveLegs &&
-      data.restlessLegs.movementRelieves) ||
-    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('rls') ||
-    data.sleepDisorderDiagnoses.diagnosedRLS;
-  const hasNightmares = data.nightmares.nightmaresPerWeek && data.nightmares.nightmaresPerWeek >= 3;
-  const hasPoorHygiene =
-    data.lifestyle.caffeinePerDay > 4 ||
-    (data.lifestyle.lastCaffeineTime &&
-      parseInt(data.lifestyle.lastCaffeineTime.split(':')[0] ?? '0') >= 14);
-  const hasSevereTiredness = (data.daytime.sleepinessSeverity ?? 0) > 8;
-
-  // Safety warning flags
-  const hasParasomniaSafetyRisk =
-    data.parasomnia.hasInjuredOrLeftHome ||
-    data.parasomnia.nightBehaviors.includes('walk') ||
-    data.parasomnia.nightBehaviors.includes('eating');
-  const hasMedicationAlcoholRisk =
-    (data.sleepHygiene.prescriptionMeds.length > 0 && data.lifestyle.alcoholPerWeek > 7) ||
-    data.lifestyle.caffeinePerDay > 4 ||
-    data.lifestyle.alcoholPerWeek > 14;
-
-  // Insufficient Sleep Syndrome detection
-  // Criteria: < 7 hours sleep + daytime sleepiness/tiredness + not explained by other disorders
-  // IMPORTANT: Maintenance insomnia (high WASO) takes precedence over insufficient sleep
-  const avgWeeklySleep = avgWeeklySleepForEDS; // Use same calculation
-  const hasDaytimeSleepiness =
-    data.daytime.sleepinessInterferes ||
-    hasEDSSymptoms ||
-    data.daytime.fallAsleepDuring.length >= 3;
-  const hasNarcolepsy =
-    data.daytime.diagnosedNarcolepsy ||
-    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('narcolepsy') ||
-    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('hypersomnia') ||
-    (data.daytime.weaknessWhenExcited.length > 0 && data.daytime.sleepParalysis);
-  const hasInsufficientSleep =
-    avgWeeklySleep < 7 && hasDaytimeSleepiness && !hasNarcolepsy && !hasOSA && !hasInsomnia;
-
-  // Chronic Fatigue / Fibromyalgia screening
-  // Criteria: non-restorative sleep + muscle/joint pain + sleepiness interferes
-  const hasChronicFatigueSymptoms =
-    data.daytime.nonRestorativeSleep &&
-    data.daytime.jointMusclePain &&
-    data.daytime.sleepinessInterferes;
-  const hasPainAffectingSleep =
-    data.daytime.painAffectsSleep && (data.daytime.painSeverity ?? 0) >= 5;
-
-  // Use centralized diagnosis algorithms for additional findings not covered by inline logic
-  const diagnosisReport: DiagnosisReport = generateDiagnosisReport(data);
-
-  const hasMildRespiratoryDisturbance =
-    !hasOSA && diagnosisReport.sleepApnea.hasMildRespiratoryDisturbance;
-
-  // Nocturnal leg cramps (frequency-based: ≥2 nights/week)
-  const hasLegCrampsConcern =
-    data.restlessLegs.legCramps && (data.restlessLegs.legCrampsPerWeek ?? 0) >= 2;
-
-  // Derive diagnosed status from the checklist (primary source) or the legacy boolean fields
-  const hasDiagnosedOSA =
-    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('obstructive_sleep_apnea') ||
-    data.sleepDisorderDiagnoses.diagnosedOSA;
-  const hasDiagnosedRLS =
-    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('rls') ||
-    data.sleepDisorderDiagnoses.diagnosedRLS;
-
-  // Treatment ineffectiveness
-  const osaTreatmentIneffective =
-    hasDiagnosedOSA &&
-    data.sleepDisorderDiagnoses.osaTreated &&
-    data.sleepDisorderDiagnoses.osaTreatmentEffective === false;
-  const rlsTreatmentIneffective =
-    hasDiagnosedRLS &&
-    data.sleepDisorderDiagnoses.rlsTreated &&
-    data.sleepDisorderDiagnoses.rlsTreatmentEffective === false;
-
-  // Pain-related sleep disturbance (from centralized algorithm)
-  const hasPainRelatedSleepDisturbance = diagnosisReport.painRelated.hasCondition;
-
-  // Medication-related sleep disturbance (from centralized algorithm)
-  const hasMedicationRelatedSleepDisturbance = diagnosisReport.medicationRelated.hasCondition;
+export function ReportSection({ data, report, onDownloadPDF }: ReportSectionProps) {
+  const { metrics, algorithmBreakdown } = report;
 
   const handlePrint = () => {
     window.print();
@@ -392,7 +83,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
       </Alert>
 
       {/* Critical Safety Warning for Severe Tiredness */}
-      {hasSevereTiredness && (
+      {report.hasSevereTiredness && (
         <Alert className='alert-danger'>
           <AlertCircle className='h-5 w-5 text-red-600' />
           <AlertDescription className='text-red-900'>
@@ -575,7 +266,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
             <p className='text-foreground/80 text-sm'>
               <strong className='text-foreground'>Chronotype Assessment:</strong> Based on your
               mid-sleep time ({metrics.midSleepUnscheduled} on free days), you are classified as:{' '}
-              <span className='text-primary font-semibold'>{chronotypeLabel}</span>
+              <span className='text-primary font-semibold'>{report.chronotypeLabel}</span>
             </p>
           </div>
         </CardContent>
@@ -591,12 +282,12 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
         </CardHeader>
         <CardContent className='pt-6'>
           <div className='space-y-3'>
-            {hasInsomnia && !hasCOMISA && (
+            {report.hasInsomnia && !report.hasCOMISA && (
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-red-500' />
                 <div>
                   <h4 className='font-semibold'>
-                    Symptoms of Insomnia Disorder ({insomniaSeverity})
+                    Symptoms of Insomnia Disorder ({report.insomniaSeverity})
                   </h4>
                   <p className='text-muted-foreground text-sm'>
                     Difficulty falling asleep and/or staying asleep with daytime impairment. See our
@@ -606,42 +297,42 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasEDS && (
+            {report.hasEDS && (
               <div className='flex items-start space-x-3'>
                 <XCircle
                   className={cn(
                     'mt-0.5 h-5 w-5',
-                    edsResult.severity === 'severe'
+                    report.edsSeverity === 'severe'
                       ? 'text-red-600'
-                      : edsResult.severity === 'moderate'
+                      : report.edsSeverity === 'moderate'
                         ? 'text-red-500'
                         : 'text-amber-500'
                   )}
                 />
                 <div>
                   <h4 className='font-semibold'>
-                    Excessive Daytime Sleepiness ({edsResult.severity})
-                    {edsResult.score > 0 && (
+                    Excessive Daytime Sleepiness ({report.edsSeverity})
+                    {report.edsScore > 0 && (
                       <span className='text-muted-foreground ml-2 text-sm'>
-                        (EDS Score: {edsResult.score})
+                        (EDS Score: {report.edsScore})
                       </span>
                     )}
                   </h4>
                   <p className='text-muted-foreground text-sm'>
-                    {edsResult.severity === 'severe' &&
+                    {report.edsSeverity === 'severe' &&
                       'Falling asleep inappropriately suggests possible narcolepsy, idiopathic hypersomnia, or severe sleep debt. '}
-                    {edsResult.severity === 'moderate' &&
+                    {report.edsSeverity === 'moderate' &&
                       'Significant daytime sleepiness possibly due to moderate sleep debt, insufficient sleep, or snoring/sleep apnea. '}
-                    {edsResult.severity === 'mild' &&
+                    {report.edsSeverity === 'mild' &&
                       'Mild sleepiness that may indicate insufficient sleep or poor sleep quality. '}
-                    {hasEDSFromNaps &&
-                      'Frequent long daytime naps suggest your nighttime sleep may not be restorative.'}
+                    {report.hasEDSFromNaps &&
+                      'Frequent planned daytime naps suggest your nighttime sleep may not be restorative.'}
                   </p>
                 </div>
               </div>
             )}
 
-            {hasOSA && !hasCOMISA && (
+            {report.hasOSA && !report.hasCOMISA && (
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-red-500' />
                 <div>
@@ -654,7 +345,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasCOMISA && (
+            {report.hasCOMISA && (
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-red-600' />
                 <div>
@@ -671,7 +362,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasRLS && (
+            {report.hasRLS && (
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
@@ -684,7 +375,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasNightmares && (
+            {report.hasNightmares && (
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
@@ -697,7 +388,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {chronotype === 'delayed' && (
+            {report.chronotypeType === 'delayed' && (
               <div className='flex items-start space-x-3'>
                 <Info className='text-primary mt-0.5 h-5 w-5' />
                 <div>
@@ -710,7 +401,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasPoorHygiene && (
+            {report.hasPoorHygiene && (
               <div className='flex items-start space-x-3'>
                 <Info className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
@@ -722,13 +413,13 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasInsufficientSleep && (
+            {report.hasInsufficientSleep && (
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
                   <h4 className='font-semibold'>Symptoms of Insufficient Sleep Syndrome</h4>
                   <p className='text-muted-foreground text-sm'>
-                    Your average sleep time of {avgWeeklySleep.toFixed(1)} hours is below the
+                    Your average sleep time of {report.avgWeeklySleep.toFixed(1)} hours is below the
                     recommended 7+ hours. Combined with your daytime sleepiness, this suggests you
                     are not getting enough sleep to meet your body&apos;s needs. See our website for
                     more information and guidance.
@@ -737,22 +428,23 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasChronicFatigueSymptoms && (
+            {report.hasChronicFatigueSymptoms && (
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
                   <h4 className='font-semibold'>Symptoms of Chronic Fatigue / Fibromyalgia</h4>
                   <p className='text-muted-foreground text-sm'>
-                    You report non-restorative sleep, muscle/joint pain, and daytime tiredness that
-                    interferes with activities. These symptoms may be associated with fibromyalgia,
-                    chronic fatigue syndrome, post-viral illness (e.g., long COVID), or Lyme
-                    disease. See our website for more information and guidance.
+                    Your responses match the chronic fatigue / fibromyalgia / post-viral symptom
+                    screen based on insomnia symptoms and/or multiple daytime fatigue indicators.
+                    These symptoms may be associated with fibromyalgia, chronic fatigue syndrome,
+                    post-viral illness (e.g., long COVID), or Lyme disease. See our website for
+                    more information and guidance.
                   </p>
                 </div>
               </div>
             )}
 
-            {hasPainRelatedSleepDisturbance && (
+            {report.hasPainRelatedSleepDisturbance && (
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
@@ -769,9 +461,9 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasPainAffectingSleep &&
-              !hasChronicFatigueSymptoms &&
-              !hasPainRelatedSleepDisturbance && (
+            {report.hasPainAffectingSleep &&
+              !report.hasChronicFatigueSymptoms &&
+              !report.hasPainRelatedSleepDisturbance && (
                 <div className='flex items-start space-x-3'>
                   <Info className='mt-0.5 h-5 w-5 text-amber-500' />
                   <div>
@@ -784,7 +476,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                 </div>
               )}
 
-            {hasMedicationRelatedSleepDisturbance && (
+            {report.hasMedicationRelatedSleepDisturbance && (
               <div className='flex items-start space-x-3'>
                 <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
@@ -801,7 +493,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasMildRespiratoryDisturbance && !hasCOMISA && (
+            {report.hasMildRespiratoryDisturbance && !report.hasCOMISA && (
               <div className='flex items-start space-x-3'>
                 <Info className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
@@ -817,7 +509,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasLegCrampsConcern && (
+            {report.hasLegCrampsConcern && (
               <div className='flex items-start space-x-3'>
                 <Info className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
@@ -832,7 +524,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {osaTreatmentIneffective && (
+            {report.osaTreatmentIneffective && (
               <div className='flex items-start space-x-3'>
                 <AlertCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
@@ -847,7 +539,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {rlsTreatmentIneffective && (
+            {report.rlsTreatmentIneffective && (
               <div className='flex items-start space-x-3'>
                 <AlertCircle className='mt-0.5 h-5 w-5 text-amber-500' />
                 <div>
@@ -862,22 +554,22 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {!hasInsomnia &&
-              !hasEDS &&
-              !hasOSA &&
-              !hasCOMISA &&
-              !hasRLS &&
-              !hasNightmares &&
-              !hasPoorHygiene &&
-              !hasInsufficientSleep &&
-              !hasChronicFatigueSymptoms &&
-              !hasPainAffectingSleep &&
-              !hasPainRelatedSleepDisturbance &&
-              !hasMedicationRelatedSleepDisturbance &&
-              !hasMildRespiratoryDisturbance &&
-              !hasLegCrampsConcern &&
-              !osaTreatmentIneffective &&
-              !rlsTreatmentIneffective && (
+            {!report.hasInsomnia &&
+              !report.hasEDS &&
+              !report.hasOSA &&
+              !report.hasCOMISA &&
+              !report.hasRLS &&
+              !report.hasNightmares &&
+              !report.hasPoorHygiene &&
+              !report.hasInsufficientSleep &&
+              !report.hasChronicFatigueSymptoms &&
+              !report.hasPainAffectingSleep &&
+              !report.hasPainRelatedSleepDisturbance &&
+              !report.hasMedicationRelatedSleepDisturbance &&
+              !report.hasMildRespiratoryDisturbance &&
+              !report.hasLegCrampsConcern &&
+              !report.osaTreatmentIneffective &&
+              !report.rlsTreatmentIneffective && (
                 <div className='flex items-start space-x-3'>
                   <CheckCircle className='mt-0.5 h-5 w-5 text-green-500' />
                   <div>
@@ -902,7 +594,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
         </CardHeader>
         <CardContent className='pt-6'>
           <div className='space-y-4'>
-            {hasInsomnia && (
+            {report.hasInsomnia && (
               <div>
                 <h4 className='mb-2 font-semibold'>For Your Insomnia Symptoms:</h4>
                 <p className='text-foreground/80 text-sm'>
@@ -913,7 +605,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasOSA && !hasCOMISA && (
+            {report.hasOSA && !report.hasCOMISA && (
               <div>
                 <h4 className='mb-2 font-semibold text-red-600'>
                   ⚠️ Important: Sleep Apnea Evaluation Recommended
@@ -926,7 +618,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasCOMISA && (
+            {report.hasCOMISA && (
               <div>
                 <h4 className='mb-2 font-semibold text-red-600'>
                   ⚠️ Important: COMISA Evaluation Recommended
@@ -939,7 +631,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasRLS && (
+            {report.hasRLS && (
               <div>
                 <h4 className='mb-2 font-semibold'>For Restless Legs Syndrome Symptoms:</h4>
                 <p className='text-foreground/80 text-sm'>
@@ -950,20 +642,20 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasInsufficientSleep && (
+            {report.hasInsufficientSleep && (
               <div>
                 <h4 className='mb-2 font-semibold text-amber-600'>
                   For Insufficient Sleep Symptoms:
                 </h4>
                 <p className='text-foreground/80 text-sm'>
-                  You&apos;re averaging {avgWeeklySleep.toFixed(1)} hours of sleep per night. Most
-                  adults need 7-9 hours for optimal health and functioning. Visit our website for
-                  strategies to improve your sleep duration and schedule.
+                  You&apos;re averaging {report.avgWeeklySleep.toFixed(1)} hours of sleep per night.
+                  Most adults need 7-9 hours for optimal health and functioning. Visit our website
+                  for strategies to improve your sleep duration and schedule.
                 </p>
               </div>
             )}
 
-            {hasChronicFatigueSymptoms && (
+            {report.hasChronicFatigueSymptoms && (
               <div>
                 <h4 className='mb-2 font-semibold text-amber-600'>For Chronic Fatigue Symptoms:</h4>
                 <p className='text-foreground/80 text-sm'>
@@ -974,7 +666,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasPainRelatedSleepDisturbance && (
+            {report.hasPainRelatedSleepDisturbance && (
               <div>
                 <h4 className='mb-2 font-semibold'>For Pain-Related Sleep Disturbance:</h4>
                 <p className='text-foreground/80 text-sm'>
@@ -986,7 +678,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasPainAffectingSleep && !hasPainRelatedSleepDisturbance && (
+            {report.hasPainAffectingSleep && !report.hasPainRelatedSleepDisturbance && (
               <div>
                 <h4 className='mb-2 font-semibold'>For Pain Affecting Sleep:</h4>
                 <p className='text-foreground/80 text-sm'>
@@ -996,7 +688,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasMedicationRelatedSleepDisturbance && (
+            {report.hasMedicationRelatedSleepDisturbance && (
               <div>
                 <h4 className='mb-2 font-semibold'>For Medication-Related Sleep Disturbance:</h4>
                 <p className='text-foreground/80 text-sm'>
@@ -1008,7 +700,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {hasMildRespiratoryDisturbance && !hasOSA && !hasCOMISA && (
+            {report.hasMildRespiratoryDisturbance && !report.hasOSA && !report.hasCOMISA && (
               <div>
                 <h4 className='mb-2 font-semibold'>For Respiratory Disturbance:</h4>
                 <p className='text-foreground/80 text-sm'>
@@ -1019,7 +711,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </div>
             )}
 
-            {chronotype === 'delayed' && (
+            {report.chronotypeType === 'delayed' && (
               <div>
                 <h4 className='mb-2 font-semibold'>For Delayed Sleep Phase Symptoms:</h4>
                 <p className='text-foreground/80 text-sm'>
@@ -1043,7 +735,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
       </Card>
 
       {/* Safety Warnings */}
-      {(hasEDS || hasParasomniaSafetyRisk || hasMedicationAlcoholRisk) && (
+      {(report.hasEDS || report.hasParasomniaSafetyRisk || report.hasMedicationAlcoholRisk) && (
         <Card className='shadow-sleep overflow-hidden border-0 border-l-4 border-l-red-500'>
           <CardHeader className='bg-red-50'>
             <CardTitle className='flex items-center space-x-2 text-red-700'>
@@ -1053,8 +745,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
           </CardHeader>
           <CardContent className='pt-6'>
             <div className='space-y-4'>
-              {/* Daytime Sleepiness Warning */}
-              {hasEDS && edsResult.severity !== 'mild' && (
+              {report.hasEDS && report.edsSeverity !== 'mild' && (
                 <Alert className='alert-danger'>
                   <AlertCircle className='h-4 w-4 text-red-600' />
                   <AlertDescription className='text-red-900'>
@@ -1068,8 +759,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                 </Alert>
               )}
 
-              {/* Parasomnia Warning */}
-              {hasParasomniaSafetyRisk && (
+              {report.hasParasomniaSafetyRisk && (
                 <Alert className='alert-danger'>
                   <AlertCircle className='h-4 w-4 text-red-600' />
                   <AlertDescription className='text-red-900'>
@@ -1084,8 +774,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
                 </Alert>
               )}
 
-              {/* Medication/Alcohol Warning */}
-              {hasMedicationAlcoholRisk && (
+              {report.hasMedicationAlcoholRisk && (
                 <Alert className='alert-warning'>
                   <AlertCircle className='h-4 w-4 text-amber-600' />
                   <AlertDescription className='text-amber-900'>
@@ -1114,7 +803,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
         </CardHeader>
         <CardContent className='pt-6'>
           <div className='space-y-3'>
-            {(hasOSA || hasDiagnosedOSA) && (
+            {(report.hasOSA || report.hasDiagnosedOSA) && (
               <Alert className='alert-danger'>
                 <AlertCircle className='h-4 w-4 text-red-600' />
                 <AlertDescription className='text-red-900'>
@@ -1127,7 +816,7 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
               </Alert>
             )}
 
-            {insomniaSeverity === 'severe' && (
+            {report.insomniaSeverity === 'moderate-to-severe' && (
               <Alert className='alert-warning'>
                 <AlertCircle className='h-4 w-4 text-amber-600' />
                 <AlertDescription className='text-amber-900'>
@@ -1155,6 +844,106 @@ export function ReportSection({ data, onDownloadPDF }: ReportSectionProps) {
           </div>
         </CardContent>
       </Card>
+
+      {algorithmBreakdown && (
+        <Card className='shadow-sleep overflow-hidden border-0'>
+          <CardHeader className='bg-gradient-sleep-header text-white'>
+            <CardTitle className='flex items-center space-x-2 text-white'>
+              <TestTube className='h-5 w-5' />
+              <span>Algorithm Details (Dev)</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='pt-6'>
+            <details className='rounded-xl border border-amber-200 bg-amber-50/60 p-4'>
+              <summary className='cursor-pointer list-none font-semibold text-amber-950'>
+                Show scoring breakdown
+              </summary>
+              <p className='mt-3 text-sm text-amber-900/80'>
+                This panel shows the exact inputs, thresholds, and outputs used to build the report.
+              </p>
+
+              <div className='mt-6 space-y-6'>
+                <div>
+                  <h3 className='mb-3 text-sm font-semibold tracking-wide text-amber-950 uppercase'>
+                    Computed Metrics
+                  </h3>
+                  <div className='grid gap-3 md:grid-cols-2'>
+                    {algorithmBreakdown.metrics.map(metric => (
+                      <div key={metric.label} className='rounded-lg border border-amber-200 bg-white/80 p-3'>
+                        <p className='text-sm font-medium text-amber-950'>{metric.label}</p>
+                        <p className='mt-1 text-base font-semibold text-foreground'>{metric.value}</p>
+                        {metric.note && (
+                          <p className='mt-1 text-xs leading-relaxed text-muted-foreground'>{metric.note}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className='mb-3 text-sm font-semibold tracking-wide text-amber-950 uppercase'>
+                    Diagnostic Criteria
+                  </h3>
+                  <div className='space-y-4'>
+                    {algorithmBreakdown.diagnoses.map(diagnosis => (
+                      <div key={diagnosis.id} className='rounded-lg border border-amber-200 bg-white/80 p-4'>
+                        <div className='flex flex-col gap-1 md:flex-row md:items-start md:justify-between'>
+                          <div>
+                            <h4 className='font-semibold text-foreground'>{diagnosis.label}</h4>
+                            <p className='text-sm text-muted-foreground'>{diagnosis.outcome}</p>
+                          </div>
+                        </div>
+
+                        <div className='mt-4 space-y-2'>
+                          {diagnosis.criteria.map(criteria => (
+                            <div
+                              key={`${diagnosis.id}-${criteria.label}`}
+                              className='rounded-md border border-border/60 bg-background/80 p-3'
+                            >
+                              <div className='flex flex-col gap-1 md:flex-row md:items-start md:justify-between'>
+                                <p className='text-sm font-medium text-foreground'>{criteria.label}</p>
+                                <span
+                                  className={cn(
+                                    'inline-flex w-fit rounded-full px-2 py-0.5 text-xs font-medium',
+                                    criteria.met
+                                      ? 'bg-green-100 text-green-700'
+                                      : 'bg-slate-100 text-slate-600'
+                                  )}
+                                >
+                                  {criteria.met ? 'Met' : 'Not met'}
+                                </span>
+                              </div>
+                              <p className='mt-1 text-sm text-muted-foreground'>
+                                <strong className='text-foreground'>Observed:</strong> {criteria.actual}
+                              </p>
+                              {criteria.threshold && (
+                                <p className='text-sm text-muted-foreground'>
+                                  <strong className='text-foreground'>Threshold:</strong>{' '}
+                                  {criteria.threshold}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+
+                        {diagnosis.notes && diagnosis.notes.length > 0 && (
+                          <div className='mt-3 space-y-1'>
+                            {diagnosis.notes.map(note => (
+                              <p key={note} className='text-xs text-muted-foreground'>
+                                {note}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </details>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Resources */}
       <Card className='shadow-sleep overflow-hidden border-0'>
