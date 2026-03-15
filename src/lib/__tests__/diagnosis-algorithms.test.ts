@@ -27,7 +27,13 @@ import {
   determineChronotype,
   screenNarcolepsy,
   generateDiagnosisReport,
+  generateFullReport,
 } from '../diagnosis-algorithms';
+import {
+  diagnosisScenarios,
+  type DiagnosisScenario,
+  type DiagnosisScenarioExpected,
+} from '../diagnosis-scenarios';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 
 // =============================================================================
@@ -215,6 +221,27 @@ function deepMerge<T extends object>(target: T, source: Partial<T>): T {
     }
   }
   return output;
+}
+
+function assertScenarioMatchesExpected(
+  scenario: DiagnosisScenario,
+  expected: DiagnosisScenarioExpected
+): void {
+  const report = generateFullReport(scenario.data);
+
+  expect(report.hasInsomnia).toBe(expected.hasInsomnia);
+  expect(report.insomniaSeverity).toBe(expected.insomniaSeverity);
+  expect(report.hasOSA).toBe(expected.hasOSA);
+  expect(report.hasCOMISA).toBe(expected.hasCOMISA);
+  expect(report.hasRLS).toBe(expected.hasRLS);
+  expect(report.hasNightmares).toBe(expected.hasNightmares);
+  expect(report.hasNarcolepsy).toBe(expected.hasNarcolepsy);
+  expect(report.hasEDS).toBe(expected.hasEDS);
+  expect(report.hasEDSFromNaps).toBe(expected.hasEDSFromNaps);
+  expect(report.hasInsufficientSleep).toBe(expected.hasInsufficientSleep);
+  expect(report.hasChronicFatigueSymptoms).toBe(expected.hasChronicFatigueSymptoms);
+  expect(report.hasPainRelatedSleepDisturbance).toBe(expected.hasPainRelatedSleepDisturbance);
+  expect(report.hasMildRespiratoryDisturbance).toBe(expected.hasMildRespiratoryDisturbance);
 }
 
 // =============================================================================
@@ -1125,5 +1152,256 @@ describe('generateDiagnosisReport', () => {
     expect(report.insomnia.hasInsomnia).toBe(true);
     expect(report.sleepApnea.hasProbableSleepApnea).toBe(true);
     expect(report.hasCOMISA).toBe(true);
+  });
+});
+
+// =============================================================================
+// GENERATE FULL REPORT TESTS
+// =============================================================================
+
+describe('generateFullReport', () => {
+  it('should return all required fields for a healthy patient', () => {
+    const data = createBaseQuestionnaireData();
+    const result = generateFullReport(data);
+
+    expect(result.metrics).toBeDefined();
+    expect(result.metrics.weeklyAvgTST).toBeGreaterThan(0);
+    expect(result.chronotypeLabel).toBeDefined();
+    expect(result.chronotypeType).toMatch(/^(delayed|advanced|normal)$/);
+    expect(typeof result.edsScore).toBe('number');
+    expect(result.edsSeverity).toBe('none');
+    expect(result.hasInsomnia).toBe(false);
+    expect(result.hasOSA).toBe(false);
+    expect(result.hasCOMISA).toBe(false);
+    expect(result.hasRLS).toBe(false);
+    expect(result.hasNightmares).toBe(false);
+    expect(result.hasEDS).toBe(false);
+    expect(result.hasInsufficientSleep).toBe(false);
+    expect(typeof result.avgWeeklySleep).toBe('number');
+  });
+
+  it('should detect insomnia when SOL is high and daytime impairment is present', () => {
+    const data = createBaseQuestionnaireData({
+      scheduledSleep: { minutesToFallAsleep: '40' },
+      daytime: { sleepinessInterferes: true },
+      mentalHealth: { cancelsAfterPoorSleep: '1-2week' },
+    });
+    const result = generateFullReport(data);
+
+    expect(result.hasInsomnia).toBe(true);
+    expect(result.insomniaSeverity).toBe('mild');
+  });
+
+  it('should detect OSA when stops breathing is reported', () => {
+    const data = createBaseQuestionnaireData({
+      breathingDisorders: { snores: true, stopsBreathing: true },
+    });
+    const result = generateFullReport(data);
+
+    expect(result.hasOSA).toBe(true);
+  });
+
+  it('should detect COMISA when insomnia and OSA coexist', () => {
+    const data = createBaseQuestionnaireData({
+      scheduledSleep: { minutesToFallAsleep: '40' },
+      daytime: { sleepinessInterferes: true },
+      mentalHealth: { cancelsAfterPoorSleep: '1-2week' },
+      breathingDisorders: { snores: true, stopsBreathing: true },
+    });
+    const result = generateFullReport(data);
+
+    expect(result.hasInsomnia).toBe(true);
+    expect(result.hasOSA).toBe(true);
+    expect(result.hasCOMISA).toBe(true);
+  });
+
+  it('should not flag EDS when weekly sleep is under 7 hours (insufficient sleep instead)', () => {
+    const data = createBaseQuestionnaireData({
+      scheduledSleep: {
+        lightsOutTime: '01:00',
+        wakeupTime: '05:00',
+        minutesToFallAsleep: '10',
+        minutesAwakeAtNight: '10',
+      },
+      unscheduledSleep: {
+        lightsOutTime: '01:00',
+        wakeupTime: '05:30',
+        minutesToFallAsleep: '10',
+        minutesAwakeAtNight: '10',
+      },
+      daytime: {
+        fallAsleepDuring: ['stoplight', 'meal'],
+        sleepinessInterferes: true,
+      },
+    });
+    const result = generateFullReport(data);
+
+    // avgWeeklySleep < 7 → should be insufficient sleep, not EDS
+    expect(result.hasEDS).toBe(false);
+    expect(result.hasInsufficientSleep).toBe(true);
+  });
+
+  it('should flag EDS when daytime sleepiness symptoms are present and sleep >= 7 hours', () => {
+    const data = createBaseQuestionnaireData({
+      daytime: {
+        fallAsleepDuring: ['stoplight', 'meal', 'conversation'],
+        sleepinessInterferes: true,
+      },
+    });
+    const result = generateFullReport(data);
+
+    // Base case has ~7.5h sleep — symptoms push into EDS territory
+    expect(result.hasEDS).toBe(true);
+    expect(result.edsScore).toBeGreaterThan(0);
+  });
+
+  it('should flag nightmares at the updated threshold >= 2/week', () => {
+    const below = createBaseQuestionnaireData({
+      nightmares: { nightmaresPerWeek: 1 },
+    });
+    expect(generateFullReport(below).hasNightmares).toBe(false);
+
+    const atThreshold = createBaseQuestionnaireData({
+      nightmares: { nightmaresPerWeek: 2 },
+    });
+    expect(generateFullReport(atThreshold).hasNightmares).toBe(true);
+  });
+
+  it('should flag EDS from planned naps at 3 days per week and 30 minutes', () => {
+    const data = createBaseQuestionnaireData({
+      daytime: {
+        plannedNaps: { daysPerWeek: 3, napsPerWeek: 3, duration: '30' },
+      },
+    });
+
+    const result = generateFullReport(data);
+
+    expect(result.hasEDSFromNaps).toBe(true);
+    expect(result.hasEDS).toBe(true);
+    expect(result.edsSeverity).toBe('mild');
+  });
+
+  it('should detect mild respiratory disturbance for snoring and mouth breathing without risk factors', () => {
+    const data = createBaseQuestionnaireData({
+      demographics: {
+        yearOfBirth: 1995,
+        weight: 150,
+        height: 70,
+      },
+      breathingDisorders: {
+        snores: true,
+        mouthBreathes: true,
+      },
+      daytime: {
+        tirednessRating: 2,
+        fatigueRating: 2,
+        nonRestorativeSleep: false,
+      },
+    });
+
+    const result = generateFullReport(data);
+
+    expect(result.hasOSA).toBe(false);
+    expect(result.hasMildRespiratoryDisturbance).toBe(true);
+  });
+
+  it('should detect RLS from classic symptom triad', () => {
+    const data = createBaseQuestionnaireData({
+      restlessLegs: {
+        troubleLyingStill: true,
+        urgeToMoveLegs: true,
+        movementRelieves: true,
+        daytimeDiscomfort: false,
+        legCramps: false,
+        legCrampsPerWeek: null,
+      },
+    });
+    expect(generateFullReport(data).hasRLS).toBe(true);
+  });
+
+  it('should detect severe tiredness safety flag', () => {
+    const data = createBaseQuestionnaireData({
+      daytime: {
+        sleepinessInterferes: true,
+        sleepinessSeverity: 9,
+      },
+    });
+    expect(generateFullReport(data).hasSevereTiredness).toBe(true);
+  });
+
+  it('should flag parasomnia safety risk when walking or eating during sleep', () => {
+    const data = createBaseQuestionnaireData({
+      parasomnia: {
+        nightBehaviors: ['walk', 'eating'],
+        hasInjuredOrLeftHome: false,
+      },
+    });
+    expect(generateFullReport(data).hasParasomniaSafetyRisk).toBe(true);
+  });
+
+  it('should include display metrics with formatted mid-sleep times', () => {
+    const data = createBaseQuestionnaireData();
+    const result = generateFullReport(data);
+
+    expect(result.metrics.midSleepScheduled).toMatch(/^\d{2}:\d{2}$/);
+    expect(result.metrics.midSleepUnscheduled).toMatch(/^\d{2}:\d{2}$/);
+    expect(typeof result.metrics.socialJetLag).toBe('number');
+    expect(typeof result.metrics.midSleepTimeChange).toBe('number');
+  });
+
+  it('should detect delayed chronotype when preference is late', () => {
+    const data = createBaseQuestionnaireData({
+      chronotype: { preference: 'late' },
+    });
+    expect(generateFullReport(data).chronotypeType).toBe('delayed');
+  });
+
+  it('should detect ineffective OSA treatment', () => {
+    const data = createBaseQuestionnaireData({
+      sleepDisorderDiagnoses: {
+        diagnosedOSA: true,
+        osaTreated: true,
+        osaTreatmentEffective: false,
+        diagnosedDisorders: ['obstructive_sleep_apnea'],
+      },
+    });
+    const result = generateFullReport(data);
+
+    expect(result.hasDiagnosedOSA).toBe(true);
+    expect(result.osaTreatmentIneffective).toBe(true);
+  });
+
+  it('should optionally include an algorithm breakdown payload for dev review', () => {
+    const result = generateFullReport(createBaseQuestionnaireData(), { includeBreakdown: true });
+
+    expect(result.algorithmBreakdown).toBeDefined();
+    expect(result.algorithmBreakdown?.metrics.length).toBeGreaterThan(0);
+    expect(result.algorithmBreakdown?.diagnoses.length).toBeGreaterThan(0);
+  });
+
+  describe('named clinical scenarios', () => {
+    for (const scenario of diagnosisScenarios) {
+      it(`should match expected findings for "${scenario.label}"`, () => {
+        assertScenarioMatchesExpected(scenario, scenario.expected);
+      });
+    }
+  });
+
+  it('should keep full report flags aligned with the diagnosis report for every scenario', () => {
+    const comparedScenarios = diagnosisScenarios.filter(scenario => scenario.id !== 'default-review');
+
+    for (const scenario of comparedScenarios) {
+      const diagnosisReport = generateDiagnosisReport(scenario.data);
+      const fullReport = generateFullReport(scenario.data);
+
+      expect(fullReport.hasInsomnia).toBe(diagnosisReport.insomnia.hasInsomnia);
+      expect(fullReport.hasOSA).toBe(diagnosisReport.sleepApnea.hasProbableSleepApnea);
+      expect(fullReport.hasCOMISA).toBe(diagnosisReport.hasCOMISA);
+      expect(fullReport.hasRLS).toBe(diagnosisReport.hasRLS);
+      expect(fullReport.hasNarcolepsy).toBe(diagnosisReport.hasNarcolepsy);
+      expect(fullReport.hasNightmares).toBe(diagnosisReport.nightmares.hasNightmareDisorder);
+      expect(fullReport.hasChronicFatigueSymptoms).toBe(diagnosisReport.chronicFatigue.hasSymptoms);
+      expect(fullReport.hasInsufficientSleep).toBe(diagnosisReport.insufficientSleep);
+    }
   });
 });
