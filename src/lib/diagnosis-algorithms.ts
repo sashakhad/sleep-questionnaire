@@ -15,6 +15,7 @@
 import 'server-only';
 import { getYear } from 'date-fns';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
+import { EDS_WEIGHTS } from '@/lib/diagnosis-shared';
 
 // =============================================================================
 // THRESHOLD CONSTANTS
@@ -296,19 +297,6 @@ export function calculateSleepMetrics(data: QuestionnaireFormData): SleepMetrics
     sleepVariability: Math.abs(scheduledTST - unscheduledTST),
   };
 }
-
-// =============================================================================
-// EDS (EXCESSIVE DAYTIME SLEEPINESS) SCORING
-// =============================================================================
-
-export const EDS_WEIGHTS: Record<string, number> = {
-  stoplight: 2,
-  lectures: 1,
-  working: 1,
-  conversation: 2,
-  evening: 1,
-  meal: 2,
-};
 
 /**
  * Calculate EDS score and severity

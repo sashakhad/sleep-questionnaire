@@ -3,7 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { FullReportResult } from '@/lib/diagnosis-algorithms';
+import type { DiagnosisScenario } from '@/lib/diagnosis-scenarios';
+import type { FullReportResult } from '@/lib/diagnosis-report-types';
+import {
+  getScenarioExpectationResults,
+  getScenarioExpectationSummary,
+} from '@/lib/scenario-review';
 import {
   Moon,
   Brain,
@@ -21,6 +26,8 @@ interface ReportSectionProps {
   data: QuestionnaireFormData;
   report: FullReportResult;
   onDownloadPDF?: () => void;
+  reviewMode?: boolean | undefined;
+  reviewScenario?: DiagnosisScenario | undefined;
 }
 
 function formatHours(hours: number): string {
@@ -44,8 +51,18 @@ function formatMinutes(mins: number): string {
   return `${mins} minutes`;
 }
 
-export function ReportSection({ data, report, onDownloadPDF }: ReportSectionProps) {
+export function ReportSection({
+  data,
+  report,
+  onDownloadPDF,
+  reviewMode,
+  reviewScenario,
+}: ReportSectionProps) {
   const { metrics, algorithmBreakdown } = report;
+  const scenarioExpectationResults = reviewScenario
+    ? getScenarioExpectationResults(reviewScenario, report)
+    : [];
+  const scenarioExpectationSummary = getScenarioExpectationSummary(scenarioExpectationResults);
 
   const handlePrint = () => {
     window.print();
@@ -845,12 +862,87 @@ export function ReportSection({ data, report, onDownloadPDF }: ReportSectionProp
         </CardContent>
       </Card>
 
+      {reviewScenario && (
+        <Card className='shadow-sleep overflow-hidden border-0'>
+          <CardHeader className='bg-gradient-sleep-header text-white'>
+            <CardTitle className='flex items-center space-x-2 text-white'>
+              <TestTube className='h-5 w-5' />
+              <span>Scenario Verification</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='space-y-4 pt-6'>
+            <div className='bg-primary/5 border-primary/20 rounded-xl border p-4'>
+              <p className='text-foreground text-sm font-semibold'>{reviewScenario.label}</p>
+              <p className='text-muted-foreground mt-1 text-sm leading-relaxed'>
+                {reviewScenario.description}
+              </p>
+              <div className='mt-3 flex flex-wrap gap-2'>
+                <span className='bg-primary/10 text-primary inline-flex rounded-full px-2.5 py-1 text-xs font-semibold'>
+                  {scenarioExpectationSummary.matchedCount}/{scenarioExpectationSummary.totalCount}{' '}
+                  matched
+                </span>
+                <span
+                  className={cn(
+                    'inline-flex rounded-full px-2.5 py-1 text-xs font-semibold',
+                    scenarioExpectationSummary.mismatchCount === 0
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-amber-100 text-amber-700'
+                  )}
+                >
+                  {scenarioExpectationSummary.mismatchCount === 0
+                    ? 'Expected and actual are aligned'
+                    : `${scenarioExpectationSummary.mismatchCount} mismatch${
+                        scenarioExpectationSummary.mismatchCount === 1 ? '' : 'es'
+                      } to review`}
+                </span>
+              </div>
+            </div>
+
+            <div className='grid gap-3 md:grid-cols-2'>
+              {scenarioExpectationResults.map(result => (
+                <div
+                  key={result.key}
+                  className={cn(
+                    'rounded-xl border p-4',
+                    result.matches
+                      ? 'border-green-200 bg-green-50/50'
+                      : 'border-amber-200 bg-amber-50/50'
+                  )}
+                >
+                  <div className='flex items-start justify-between gap-3'>
+                    <p className='text-sm font-semibold text-foreground'>{result.label}</p>
+                    <span
+                      className={cn(
+                        'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
+                        result.matches
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-amber-100 text-amber-700'
+                      )}
+                    >
+                      {result.matches ? 'Matched' : 'Mismatch'}
+                    </span>
+                  </div>
+                  <div className='mt-3 space-y-1 text-sm'>
+                    <p className='text-muted-foreground'>
+                      <strong className='text-foreground'>Expected:</strong> {result.expected}
+                    </p>
+                    <p className='text-muted-foreground'>
+                      <strong className='text-foreground'>Actual:</strong> {result.actual}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {algorithmBreakdown && (
         <Card className='shadow-sleep overflow-hidden border-0'>
           <CardHeader className='bg-gradient-sleep-header text-white'>
             <CardTitle className='flex items-center space-x-2 text-white'>
               <TestTube className='h-5 w-5' />
-              <span>Algorithm Details (Dev)</span>
+              <span>{reviewMode ? 'Algorithm Review Details' : 'Algorithm Details (Dev)'}</span>
             </CardTitle>
           </CardHeader>
           <CardContent className='pt-6'>
