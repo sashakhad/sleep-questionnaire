@@ -94,6 +94,7 @@ Use these precedence rules when implementing or reviewing the algorithm:
 2. `dl-and-cl-comments-1.11.md` overrides earlier insomnia, apnea, chronic fatigue, pain-related, and insufficient sleep logic when they conflict.
 3. `questionnaire-comments.txt` remains the base source for calculations and any rule not explicitly replaced later.
 4. `REQUIREMENTS.md` and `QUESTIONNAIRE_SPEC.md` are supporting summaries, not stronger than later direct correspondence.
+5. If the SOW-era artifacts disagree internally, prefer the more direct source text in `questionnaire-comments.txt` unless later correspondence explicitly resolves the point. `QUESTIONNAIRE_SPEC.md` is still useful, but it appears to preserve some intermediate interpretations rather than a final override.
 
 ## Current Algorithm
 
@@ -113,34 +114,43 @@ Use these precedence rules when implementing or reviewing the algorithm:
 
 Inputs:
 
+- Planned naps
 - Difficulty staying awake during the day
 - Falling asleep in daytime situations
 - Weekly average sleep duration
 
-Weighted dozing situations:
+Supported EDS pathways:
 
-| Situation | Weight |
+1. Planned naps `>= 3 days/week` and `>= 30 minutes`
+   - This is explicit in the SOW `questionnaire-comments.txt`.
+   - No later correspondence clearly removes this pathway, so it should be treated as a retained daytime-sleepiness signal unless the client confirms otherwise.
+
+2. Difficulty staying awake during the day and a falling-asleep score in the `2-7` range
+   - If weekly average sleep is `> 7 hours`, classify as EDS symptoms.
+   - If weekly average sleep is `< 7 hours`, route to insufficient sleep instead.
+
+Weighted dozing situations in the source trail:
+
+| Situation | Weight / note |
 | --- | --- |
-| Stopped at a stop light | 2 |
+| Stopped at a stop light | `+1` in `questionnaire-comments.txt`; `x2` in `QUESTIONNAIRE_SPEC.md` |
 | During lectures or work meetings | 1 |
 | While working or studying | 1 |
 | During a conversation | 2 |
 | Quiet activity during the evening | 1 |
 | While eating a meal | 2 |
 
-Current rule:
-
-- Presence threshold: difficulty staying awake during the day and a dozing score in the 2-7 range.
-- If weekly average sleep is `>= 7 hours`, classify as EDS symptoms.
-- If weekly average sleep is `< 7 hours`, route to insufficient sleep instead.
-
 Historical note:
 
 - The initial SOW described 3-4 as mild, 5-6 as moderate, and 7+ as probable EDS.
 - The later round 2 correspondence reframed the gating rule around a 2-7 score plus sleep duration.
+- The SOW materials are internally inconsistent on the stop-light weight. `questionnaire-comments.txt` says `+1`, while `QUESTIONNAIRE_SPEC.md` says `x2`. No later correspondence explicitly resolves that conflict.
+- The phrase "difficulty staying awake during the day" is explicit in round 2, but the correspondence does not define a single questionnaire field that maps to it. Any implementation of that gate is therefore an interpretation of the intended signal rather than a verbatim rule.
+- Round 2 uses `> 7 hours` for EDS and `< 7 hours` for insufficient sleep. It does not explicitly say how to treat exactly `7.0` hours.
 
 Primary source:
 
+- `docs/correspondence/SOW/questionnaire-comments.txt`
 - `docs/correspondence/round-2-edits/dl-and-cl-comments-1.11.md`
 
 ### Insufficient Sleep Syndrome
@@ -151,6 +161,10 @@ Current rule:
 - Weekly average sleep is `< 7 hours`
 - Narcolepsy is not present
 - Sleep apnea is not present
+
+Important caveat:
+
+- Chris's example about `7.5 hrs/night` with nocturnal awakenings indicates that at least some nighttime-disruption cases should resolve to maintenance insomnia rather than insufficient sleep. The correspondence does not turn that example into a universal precedence formula, so similar edge cases should still be framed carefully.
 
 Primary source:
 
@@ -187,7 +201,8 @@ Current rule:
 Implementation note:
 
 - Chris's January comments replaced the earlier simpler insomnia thresholds with this two-tier system.
-- Chris explicitly called out that maintenance insomnia must not be misclassified as insufficient sleep when time in bed is adequate.
+- Chris explicitly gave an example where 7.5 hours in bed plus nocturnal awakenings should be treated as maintenance insomnia rather than insufficient sleep.
+- That example is strong evidence for the intended outcome in similar cases, but the correspondence does not spell out a universal precedence rule beyond the example itself.
 
 Primary source:
 
@@ -245,37 +260,51 @@ Current rule:
 - Urge to move the legs
 - Movement relieves the discomfort
 
+Interpretation note:
+
+- Later correspondence broadened the wording of the symptom questions and suggested that even one affirmative answer could trigger an informational pop-up, but it does not clearly replace the classic triad as the core disorder screen.
+
 Primary source:
 
 - `docs/correspondence/SOW/questionnaire-comments.txt`
+- `docs/correspondence/round-2-edits/feedback-1.0.2026.md`
 
 ### Narcolepsy / Hypersomnia Screen
 
-Current rule:
+Current supported screen signals:
 
-- Previously diagnosed narcolepsy or hypersomnia, or
-- Weakness / loss of muscle control with emotion plus sleep paralysis
+- Previously diagnosed narcolepsy or hypersomnia
+- Cataplexy-type weakness / loss of muscle control with emotion
+- Sleep paralysis as a supportive signal
+- A dozing score `> 6` can trigger a narcolepsy / hypersomnia warning or pop-up in later review comments
+
+Interpretation note:
+
+- Earlier SOW materials also referenced dreams while falling asleep or during naps, but those questions were later cut from the questionnaire.
+- The correspondence does not provide a single final, fully reconciled narcolepsy / hypersomnia decision tree that is as explicit as the round 2 insomnia or apnea logic.
 
 Primary sources:
 
 - `docs/correspondence/SOW/questionnaire-comments.txt`
-- `docs/correspondence/round-2-edits/dl-and-cl-comments-1.11.md`
+- `docs/correspondence/round-2-edits/feedback-1.0.2026.md`
 
-### Nightmare Disorder
+### Nightmares / Bad Dreams
 
 Current rule:
 
 - Nightmare disorder if nightmares occur 2 or more nights per week
-- Bad dream warning if bad dreams occur 3 or more nights per week
+- A separate bad-dream warning at 3 or more nights per week appears in round 2, but it should be treated as a carried-forward interpretation unless the client confirms it remained active after round 3
 
 Source trail:
 
 - Original SOW materials used 3 per week as the practical threshold
 - Round 3 explicitly changed the report threshold to 2 per week
+- Round 2 introduced a separate bad-dreams pathway, but round 3 simplified the questionnaire back to nightmares-per-week only. The bad-dreams branch should therefore be treated as a carried-forward interpretation unless the client confirms it should remain active.
 
 Current authority:
 
-- `docs/correspondence/round-3-edits/additional-comments-2.28.md`
+- Nightmare threshold: `docs/correspondence/round-3-edits/additional-comments-2.28.md`
+- Bad-dream warning: `docs/correspondence/round-2-edits/dl-and-cl-comments-1.11.md`
 
 ### Nocturnal Leg Cramps
 
@@ -287,6 +316,10 @@ Primary sources:
 
 - `docs/correspondence/round-2-edits/dl-and-cl-comments-1.11.md`
 - `docs/correspondence/round-1-edits/clarification-questions-jan-11.md`
+
+Implementation note:
+
+- The threshold itself is clear. The clarification question simply shows that the questionnaire needed a weekly-frequency input in order to apply the rule reliably.
 
 ### Chronic Fatigue / Fibromyalgia / Post-Viral Symptoms
 
@@ -308,13 +341,17 @@ Primary source:
 
 Current rule:
 
-- Pain is present
-- And at least two of the following are present:
+- The round 2 source text says "at least two of the following" and includes pain as one of the listed items:
   - aches and pains and/or joint pain
   - sleepiness interferes with daily activities
   - sleep does not feel restorative
   - tiredness rating 7+
   - fatigue rating 5+
+
+Best-supported reading:
+
+- Requiring pain to be present plus at least one additional listed symptom is a reasonable reading of the section title.
+- However, the correspondence itself only says "at least two of the following" and does not separately state that pain is mandatory, so this should still be confirmed with the client.
 
 Primary source:
 
@@ -335,11 +372,27 @@ Primary source:
 
 - `docs/correspondence/round-2-edits/dl-and-cl-comments-1.11.md`
 
+## Clarifications To Confirm With Client
+
+These items are now explicitly noted so we do not present them as more settled than the correspondence supports:
+
+- EDS dozing weights: `questionnaire-comments.txt` says "At traffic lights +1" while `QUESTIONNAIRE_SPEC.md` uses `x2`. Later correspondence does not explicitly resolve the conflict.
+- EDS presence gate: round 2 requires "difficulty staying awake during the day" plus a dozing score in the `2-7` range, but the correspondence does not define a single field that maps to "difficulty staying awake."
+- EDS sleep-duration boundary: round 2 uses `> 7 hours` for EDS and `< 7 hours` for insufficient sleep, but does not explicitly say how to treat exactly `7.0` hours.
+- Planned naps: the SOW says `>= 3 days/week` and `>= 30 mins`, but later correspondence does not clearly say whether that pathway remains active alongside the round 2 EDS rule or was meant to be replaced by it.
+- Maintenance insomnia versus insufficient sleep: Chris gave a specific example where 7.5 hours in bed with nocturnal awakenings should resolve to maintenance insomnia, but the correspondence does not explicitly generalize that into a universal precedence rule.
+- Nightmare disorder versus bad dreams: round 2 separated bad dreams from nightmares, while round 3 simplified the questionnaire to nightmares per week and explicitly changed the nightmare threshold to `2+` per week.
+- Narcolepsy / hypersomnia screen: the correspondence supports several screening signals, but it does not provide a fully reconciled final decision tree after the later questionnaire cuts.
+- Pain-related sleep disturbance: the source says "at least two of the following" and includes pain as one item; the current implementation interprets that as pain being required.
+- Chronic fatigue fatigue threshold: the correspondence says "Fatigue rating >7," which could mean strictly greater than 7 rather than `7+`; this should be preserved as written unless the client wants it broadened.
+- Circadian display thresholds: earlier SOW materials vary on exact social jet lag and mid-sleep cutoffs, so those display-oriented thresholds should be treated as lower-confidence than the round 2 disorder rules.
+
 ## What This Document Is For
 
 This document is the reference point for:
 
 - reconciling code to the correspondence trail
 - reviewing future algorithm changes with the client
+- flagging items that still require explicit client sign-off
 - validating scenario-based tests
 - building a scoring breakdown that shows exactly why a report flag was triggered
