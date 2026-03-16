@@ -162,11 +162,9 @@ function DesktopSelects({
 
 function MobileGridPopover({
   parsed,
-  defaultPeriod,
   onChangeValue,
 }: {
   parsed: ReturnType<typeof parseTime>
-  defaultPeriod: 'AM' | 'PM'
   onChangeValue: (type: 'hour' | 'minute' | 'period', value: string) => void
 }) {
   const [open, setOpen] = useState(false)
@@ -269,7 +267,7 @@ function TimeFieldInner({ field, defaultPeriod, label, description }: TimeFieldI
     <FormItem>
       <FormLabel>{label}</FormLabel>
       <DesktopSelects parsed={parsed} defaultPeriod={defaultPeriod} onChangeValue={handleChange} />
-      <MobileGridPopover parsed={parsed} defaultPeriod={defaultPeriod} onChangeValue={handleChange} />
+      <MobileGridPopover parsed={parsed} onChangeValue={handleChange} />
       {description && <FormDescription>{description}</FormDescription>}
       <FormMessage />
     </FormItem>

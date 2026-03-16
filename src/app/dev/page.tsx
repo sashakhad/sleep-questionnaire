@@ -17,7 +17,9 @@ function DevPageContent() {
     const params = new URLSearchParams();
     params.set('section', section);
     const showNav = nav ?? sidebarOpen;
-    if (!showNav) params.set('nav', '0');
+    if (!showNav) {
+      params.set('nav', '0');
+    }
     return `/dev?${params.toString()}`;
   }
 
