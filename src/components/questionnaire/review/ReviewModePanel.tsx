@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import type { DiagnosisScenario } from '@/lib/diagnosis-scenarios';
@@ -15,6 +17,7 @@ import {
   isReviewDiagnosisActive,
   sortReviewDiagnoses,
 } from '@/lib/review-mode';
+import { getReviewDocumentUrl, reviewDocumentDefinitions } from '@/lib/review-documents';
 import {
   Activity,
   BookOpenText,
@@ -142,6 +145,30 @@ export function ReviewModePanel({
                   >
                     {highlight}
                   </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className='border-primary/20 bg-background/80 rounded-2xl border p-4'>
+            <div className='flex flex-wrap items-start justify-between gap-4'>
+              <div className='max-w-2xl space-y-2'>
+                <p className='text-primary text-sm font-semibold tracking-wide uppercase'>
+                  Reference documents
+                </p>
+                <p className='text-muted-foreground text-sm leading-relaxed'>
+                  Open the full written reference or the shorter review guide directly in the app.
+                  Each document page can be printed or saved as a PDF from the browser.
+                </p>
+              </div>
+              <div className='flex flex-wrap gap-2'>
+                {reviewDocumentDefinitions.map(document => (
+                  <Button key={document.slug} asChild variant='outline'>
+                    <Link href={getReviewDocumentUrl(document.slug)}>
+                      <BookOpenText className='h-4 w-4' />
+                      {document.shortLabel}
+                    </Link>
+                  </Button>
                 ))}
               </div>
             </div>
