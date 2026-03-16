@@ -1,6 +1,6 @@
 import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
-import { EDS_WEIGHTS } from '@/lib/diagnosis-algorithms';
+import { EDS_WEIGHTS } from '@/lib/diagnosis-shared';
 import { CheckboxField } from '../form-fields/CheckboxField';
 import { NumberField } from '../form-fields/NumberField';
 import { RadioGroupField } from '../form-fields/RadioGroupField';

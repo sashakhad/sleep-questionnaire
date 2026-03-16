@@ -18,11 +18,12 @@ import { questionnaireSchema, type QuestionnaireFormData } from '@/validations/q
 import { type QuestionnaireSection } from '@/types/questionnaire';
 import { cn } from '@/lib/utils';
 import { Download, TestTube } from 'lucide-react';
-import type { FullReportResult } from '@/lib/diagnosis-algorithms';
+import type { FullReportResult } from '@/lib/diagnosis-report-types';
 import {
   defaultReviewScenario,
   diagnosisScenarios,
   getDiagnosisScenario,
+  type DiagnosisScenario,
 } from '@/lib/diagnosis-scenarios';
 
 const DEFAULT_PREFILL_DATA: QuestionnaireFormData = defaultReviewScenario.data;
@@ -87,12 +88,20 @@ interface QuestionnaireFormProps {
   initialSection?: QuestionnaireSection | undefined;
   prefill?: boolean | undefined;
   onSectionChange?: ((section: QuestionnaireSection, index: number) => void) | undefined;
+  initialScenarioId?: string | undefined;
+  onScenarioChange?: ((scenarioId: string) => void) | undefined;
+  reviewMode?: boolean | undefined;
+  persistResponses?: boolean | undefined;
 }
 
 export function QuestionnaireForm({
   initialSection,
   prefill,
   onSectionChange,
+  initialScenarioId,
+  onScenarioChange,
+  reviewMode,
+  persistResponses,
 }: QuestionnaireFormProps = {}) {
   const initialIndex = initialSection ? sections.indexOf(initialSection) : 0;
   const [currentSectionIndex, setCurrentSectionIndex] = useState(
@@ -102,7 +111,18 @@ export function QuestionnaireForm({
   const [reportData, setReportData] = useState<FullReportResult | null>(null);
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
-  const [selectedScenarioId, setSelectedScenarioId] = useState(defaultReviewScenario.id);
+  const [selectedScenarioId, setSelectedScenarioId] = useState(
+    initialScenarioId ?? defaultReviewScenario.id
+  );
+  const activeScenario = getDiagnosisScenario(selectedScenarioId) ?? defaultReviewScenario;
+  const shouldShowScenarioTools =
+    !!reviewMode ||
+    process.env.NODE_ENV === 'development' ||
+    process.env.NEXT_PUBLIC_SHOW_DEV_TOOLS === 'true';
+  const shouldAutoGenerateReport = !!prefill || !!reviewMode;
+  const shouldIncludeBreakdown = !!prefill || !!reviewMode;
+  const shouldPersistResponses = persistResponses ?? (!prefill && !reviewMode);
+  const reviewDeepLink = `/review?scenario=${selectedScenarioId}`;
   // Progress: 0% on intro, 100% on report (last section)
   const progress = (currentSectionIndex / (sections.length - 1)) * 100;
 
@@ -260,20 +280,6 @@ export function QuestionnaireForm({
     },
   });
 
-  useEffect(() => {
-    if (prefill) {
-      form.reset(DEFAULT_PREFILL_DATA);
-      setSelectedScenarioId(defaultReviewScenario.id);
-    }
-  }, [prefill, form]);
-
-  useEffect(() => {
-    if (currentSection === 'report' && !reportData && !reportLoading && !reportError && prefill) {
-      handleGenerateReport();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentSection, prefill, reportData, reportLoading, reportError]);
-
   const navigateToSection = useCallback(
     (index: number) => {
       setCurrentSectionIndex(index);
@@ -285,6 +291,68 @@ export function QuestionnaireForm({
     },
     [onSectionChange]
   );
+
+  const resetScenarioState = useCallback(() => {
+    setReportData(null);
+    setReportLoading(false);
+    setReportError(null);
+  }, []);
+
+  const resetToScenario = useCallback(
+    (scenarioData: QuestionnaireFormData, scenarioIdToSet: string) => {
+      form.reset(scenarioData);
+      setSelectedScenarioId(scenarioIdToSet);
+      resetScenarioState();
+    },
+    [form, resetScenarioState]
+  );
+
+  const loadScenarioAndJumpToReport = useCallback(
+    (scenarioIdToLoad: string) => {
+      const scenario = getDiagnosisScenario(scenarioIdToLoad) ?? defaultReviewScenario;
+
+      resetToScenario(scenario.data, scenario.id);
+      navigateToSection(sections.length - 1);
+    },
+    [navigateToSection, resetToScenario]
+  );
+
+  useEffect(() => {
+    if (!initialScenarioId) {
+      return;
+    }
+
+    setSelectedScenarioId(initialScenarioId);
+  }, [initialScenarioId]);
+
+  useEffect(() => {
+    if (!prefill || reviewMode) {
+      return;
+    }
+
+    resetToScenario(DEFAULT_PREFILL_DATA, defaultReviewScenario.id);
+  }, [prefill, reviewMode, resetToScenario]);
+
+  useEffect(() => {
+    if (!reviewMode) {
+      return;
+    }
+
+    loadScenarioAndJumpToReport(selectedScenarioId);
+  }, [reviewMode, selectedScenarioId, loadScenarioAndJumpToReport]);
+
+  useEffect(() => {
+    if (
+      currentSection === 'report' &&
+      !reportData &&
+      !reportLoading &&
+      !reportError &&
+      shouldAutoGenerateReport
+    ) {
+      handleGenerateReport();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentSection, shouldAutoGenerateReport, reportData, reportLoading, reportError]);
 
   function handleNext() {
     if (currentSectionIndex < sections.length - 1) {
@@ -303,15 +371,17 @@ export function QuestionnaireForm({
     setReportLoading(true);
     setReportError(null);
 
-    // Save response to database (fire-and-forget — non-blocking)
-    fetch('/api/responses', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    }).catch(err => console.error('Error saving questionnaire response:', err));
+    if (shouldPersistResponses) {
+      // Save response to database (fire-and-forget — non-blocking)
+      fetch('/api/responses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      }).catch(err => console.error('Error saving questionnaire response:', err));
+    }
 
     try {
-      const diagnoseUrl = prefill ? '/api/diagnose?debug=1' : '/api/diagnose';
+      const diagnoseUrl = shouldIncludeBreakdown ? '/api/diagnose?debug=1' : '/api/diagnose';
       const response = await fetch(diagnoseUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -371,14 +441,58 @@ export function QuestionnaireForm({
     }
   };
 
-  const handlePreFill = () => {
-    const scenario = getDiagnosisScenario(selectedScenarioId) ?? defaultReviewScenario;
-    form.reset(scenario.data);
-    setReportData(null);
-    setReportLoading(false);
-    setReportError(null);
-    navigateToSection(sections.length - 1);
-  };
+  function handlePreFill() {
+    loadScenarioAndJumpToReport(selectedScenarioId);
+  }
+
+  function handleScenarioSelectionChange(nextScenarioId: string) {
+    setSelectedScenarioId(nextScenarioId);
+    onScenarioChange?.(nextScenarioId);
+  }
+
+  function getScenarioHighlights(scenario: DiagnosisScenario): string[] {
+    const highlights: string[] = [];
+
+    if (scenario.expected.hasInsomnia) {
+      highlights.push(`Insomnia: ${scenario.expected.insomniaSeverity}`);
+    }
+    if (scenario.expected.hasOSA) {
+      highlights.push('Probable OSA');
+    }
+    if (scenario.expected.hasCOMISA) {
+      highlights.push('COMISA');
+    }
+    if (scenario.expected.hasRLS) {
+      highlights.push('RLS');
+    }
+    if (scenario.expected.hasNightmares) {
+      highlights.push('Nightmares');
+    }
+    if (scenario.expected.hasNarcolepsy) {
+      highlights.push('Narcolepsy screen');
+    }
+    if (scenario.expected.hasEDS) {
+      highlights.push('EDS');
+    }
+    if (scenario.expected.hasInsufficientSleep) {
+      highlights.push('Insufficient sleep');
+    }
+    if (scenario.expected.hasChronicFatigueSymptoms) {
+      highlights.push('Chronic fatigue');
+    }
+    if (scenario.expected.hasPainRelatedSleepDisturbance) {
+      highlights.push('Pain-related sleep');
+    }
+    if (scenario.expected.hasMildRespiratoryDisturbance) {
+      highlights.push('Mild respiratory');
+    }
+
+    if (highlights.length === 0) {
+      highlights.push('No major report flags expected');
+    }
+
+    return highlights.slice(0, 3);
+  }
 
   const renderSection = () => {
     switch (currentSection) {
@@ -439,6 +553,8 @@ export function QuestionnaireForm({
             data={form.getValues()}
             report={reportData}
             onDownloadPDF={handleGeneratePDF}
+            reviewMode={reviewMode}
+            reviewScenario={reviewMode ? activeScenario : undefined}
           />
         );
       default:
@@ -478,34 +594,136 @@ export function QuestionnaireForm({
       </div>
 
       <div className='relative container mx-auto max-w-3xl px-4'>
-        {/* Dev Tools - Show in development or when explicitly enabled */}
-        {(process.env.NODE_ENV === 'development' ||
-          process.env.NEXT_PUBLIC_SHOW_DEV_TOOLS === 'true') && (
-          <div className='mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-end'>
-            <div className='w-full md:max-w-xs'>
-              <Select value={selectedScenarioId} onValueChange={setSelectedScenarioId}>
-                <SelectTrigger className='border-amber-300/50 bg-amber-50/80 text-amber-900'>
-                  <SelectValue placeholder='Select a validation scenario' />
-                </SelectTrigger>
-                <SelectContent>
-                  {diagnosisScenarios.map(scenario => (
-                    <SelectItem key={scenario.id} value={scenario.id}>
-                      {scenario.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <Button
-              type='button'
-              variant='outline'
-              size='sm'
-              onClick={handlePreFill}
-              className='border-amber-300/50 bg-amber-50/80 text-amber-700 backdrop-blur-sm hover:bg-amber-100'
-            >
-              <TestTube className='mr-2 h-4 w-4' />
-              Load Scenario & Jump to Report
-            </Button>
+        {shouldShowScenarioTools && (
+          <div className='mb-6 space-y-4'>
+            <Card className='border-amber-300/40 bg-amber-50/80 shadow-sm backdrop-blur-sm'>
+              <CardHeader className='space-y-2 pb-4'>
+                <CardTitle className='flex items-center gap-2 text-amber-950'>
+                  <TestTube className='h-5 w-5' />
+                  {reviewMode ? 'Client Algorithm Review' : 'Scenario Validation Tools'}
+                </CardTitle>
+                <CardDescription className='text-amber-900/80'>
+                  {reviewMode
+                    ? 'Choose a named scenario to jump straight into the generated report and inspect the exact scoring path.'
+                    : 'Load a named scenario without filling the full questionnaire by hand.'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className='space-y-4'>
+                <div className='flex flex-col gap-3 md:flex-row md:items-center md:justify-between'>
+                  <div className='w-full md:max-w-sm'>
+                    <Select
+                      value={selectedScenarioId}
+                      onValueChange={handleScenarioSelectionChange}
+                    >
+                      <SelectTrigger className='border-amber-300/50 bg-white/90 text-amber-950'>
+                        <SelectValue placeholder='Select a validation scenario' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {diagnosisScenarios.map(scenario => (
+                          <SelectItem key={scenario.id} value={scenario.id}>
+                            {scenario.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {reviewMode ? (
+                    <div className='rounded-lg border border-amber-300/50 bg-white/80 px-3 py-2 text-xs'>
+                      <p className='font-semibold text-amber-950'>Shareable path</p>
+                      <p className='font-mono text-amber-900/80'>{reviewDeepLink}</p>
+                    </div>
+                  ) : (
+                    <Button
+                      type='button'
+                      variant='outline'
+                      size='sm'
+                      onClick={handlePreFill}
+                      className='border-amber-300/50 bg-white/80 text-amber-700 backdrop-blur-sm hover:bg-amber-100'
+                    >
+                      <TestTube className='mr-2 h-4 w-4' />
+                      Load Scenario & Jump to Report
+                    </Button>
+                  )}
+                </div>
+
+                <div className='rounded-xl border border-amber-300/40 bg-white/80 p-4'>
+                  <p className='text-sm font-semibold text-amber-950'>{activeScenario.label}</p>
+                  <p className='mt-1 text-sm leading-relaxed text-amber-900/80'>
+                    {activeScenario.description}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {reviewMode && (
+              <div className='space-y-3'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <p className='text-foreground text-sm font-semibold'>Scenario Index</p>
+                    <p className='text-muted-foreground text-xs'>
+                      Each card maps to a shareable route and expected algorithm path.
+                    </p>
+                  </div>
+                  <p className='text-muted-foreground text-xs'>
+                    {diagnosisScenarios.length} scenarios
+                  </p>
+                </div>
+                <div className='grid gap-3 md:grid-cols-2 xl:grid-cols-3'>
+                  {diagnosisScenarios.map(scenario => {
+                    const isSelected = scenario.id === selectedScenarioId;
+                    const highlights = getScenarioHighlights(scenario);
+
+                    return (
+                      <button
+                        key={scenario.id}
+                        type='button'
+                        onClick={() => handleScenarioSelectionChange(scenario.id)}
+                        className={cn(
+                          'bg-card text-left rounded-2xl border p-4 transition-all hover:-translate-y-0.5 hover:shadow-md',
+                          isSelected
+                            ? 'border-primary ring-primary/20 shadow-sm ring-2'
+                            : 'border-border/70 hover:border-primary/40'
+                        )}
+                      >
+                        <div className='flex items-start justify-between gap-3'>
+                          <div>
+                            <p className='text-foreground text-sm font-semibold'>{scenario.label}</p>
+                            <p className='text-muted-foreground mt-1 text-xs leading-relaxed'>
+                              {scenario.description}
+                            </p>
+                          </div>
+                          <span
+                            className={cn(
+                              'inline-flex rounded-full px-2 py-1 text-[11px] font-medium',
+                              isSelected
+                                ? 'bg-primary/10 text-primary'
+                                : 'bg-muted text-muted-foreground'
+                            )}
+                          >
+                            {isSelected ? 'Selected' : 'Open'}
+                          </span>
+                        </div>
+
+                        <div className='mt-3 flex flex-wrap gap-2'>
+                          {highlights.map(highlight => (
+                            <span
+                              key={`${scenario.id}-${highlight}`}
+                              className='bg-muted text-muted-foreground inline-flex rounded-full px-2 py-1 text-[11px] font-medium'
+                            >
+                              {highlight}
+                            </span>
+                          ))}
+                        </div>
+
+                        <p className='text-muted-foreground mt-3 font-mono text-[11px]'>
+                          /review?scenario={scenario.id}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -582,7 +800,9 @@ export function QuestionnaireForm({
               </CardTitle>
               {currentSection !== 'intro' && currentSection !== 'report' && (
                 <CardDescription className='mt-2 text-white/80'>
-                  Please answer all questions to the best of your ability
+                  {reviewMode
+                    ? 'Review the fixed scenario inputs used for this algorithm path.'
+                    : 'Please answer all questions to the best of your ability'}
                 </CardDescription>
               )}
             </div>
@@ -684,7 +904,9 @@ export function QuestionnaireForm({
 
         {/* Footer note */}
         <p className='text-muted-foreground mt-6 text-center text-xs'>
-          Your information is secure and confidential
+          {reviewMode
+            ? 'Review mode uses fixed sample scenarios and does not save questionnaire responses.'
+            : 'Your information is secure and confidential'}
         </p>
       </div>
     </div>
