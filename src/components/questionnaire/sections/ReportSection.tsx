@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { DiagnosisScenario } from '@/lib/diagnosis-scenarios';
 import type { FullReportResult } from '@/lib/diagnosis-report-types';
+import { ReviewModePanel } from '@/components/questionnaire/review/ReviewModePanel';
 import {
   getScenarioExpectationResults,
   getScenarioExpectationSummary,
@@ -63,6 +64,7 @@ export function ReportSection({
     ? getScenarioExpectationResults(reviewScenario, report)
     : [];
   const scenarioExpectationSummary = getScenarioExpectationSummary(scenarioExpectationResults);
+  const shouldShowReviewModePanel = !!reviewMode && !!reviewScenario && !!algorithmBreakdown;
 
   const handlePrint = () => {
     window.print();
@@ -70,13 +72,32 @@ export function ReportSection({
 
   return (
     <div className='space-y-8 print:space-y-4'>
+      {shouldShowReviewModePanel && reviewScenario && (
+        <ReviewModePanel
+          report={report}
+          reviewScenario={reviewScenario}
+          expectationResults={scenarioExpectationResults}
+          expectationSummary={scenarioExpectationSummary}
+        />
+      )}
+
+      {reviewMode && (
+        <Alert className='border-primary/20 bg-background/80 print:hidden'>
+          <Info className='text-primary h-4 w-4' />
+          <AlertDescription className='text-foreground/90'>
+            The algorithm viewer above is the primary review artifact. The remaining sections below
+            are the patient-facing report preview generated from the same fixed scenario inputs.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Header */}
       <div className='space-y-3 text-center'>
         <div className='from-primary/20 to-accent/20 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br'>
           <Moon className='text-primary h-8 w-8' />
         </div>
         <h1 className='text-foreground text-3xl font-bold tracking-tight md:text-4xl'>
-          Your Sleep Health Report
+          {reviewMode ? 'Patient-Facing Report Preview' : 'Your Sleep Health Report'}
         </h1>
         <p className='text-muted-foreground'>
           Generated on{' '}
@@ -454,8 +475,8 @@ export function ReportSection({
                     Your responses match the chronic fatigue / fibromyalgia / post-viral symptom
                     screen based on insomnia symptoms and/or multiple daytime fatigue indicators.
                     These symptoms may be associated with fibromyalgia, chronic fatigue syndrome,
-                    post-viral illness (e.g., long COVID), or Lyme disease. See our website for
-                    more information and guidance.
+                    post-viral illness (e.g., long COVID), or Lyme disease. See our website for more
+                    information and guidance.
                   </p>
                 </div>
               </div>
@@ -862,7 +883,7 @@ export function ReportSection({
         </CardContent>
       </Card>
 
-      {reviewScenario && (
+      {reviewScenario && !reviewMode && (
         <Card className='shadow-sleep overflow-hidden border-0'>
           <CardHeader className='bg-gradient-sleep-header text-white'>
             <CardTitle className='flex items-center space-x-2 text-white'>
@@ -910,7 +931,7 @@ export function ReportSection({
                   )}
                 >
                   <div className='flex items-start justify-between gap-3'>
-                    <p className='text-sm font-semibold text-foreground'>{result.label}</p>
+                    <p className='text-foreground text-sm font-semibold'>{result.label}</p>
                     <span
                       className={cn(
                         'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
@@ -937,7 +958,7 @@ export function ReportSection({
         </Card>
       )}
 
-      {algorithmBreakdown && (
+      {algorithmBreakdown && !reviewMode && (
         <Card className='shadow-sleep overflow-hidden border-0'>
           <CardHeader className='bg-gradient-sleep-header text-white'>
             <CardTitle className='flex items-center space-x-2 text-white'>
@@ -961,11 +982,18 @@ export function ReportSection({
                   </h3>
                   <div className='grid gap-3 md:grid-cols-2'>
                     {algorithmBreakdown.metrics.map(metric => (
-                      <div key={metric.label} className='rounded-lg border border-amber-200 bg-white/80 p-3'>
+                      <div
+                        key={metric.label}
+                        className='rounded-lg border border-amber-200 bg-white/80 p-3'
+                      >
                         <p className='text-sm font-medium text-amber-950'>{metric.label}</p>
-                        <p className='mt-1 text-base font-semibold text-foreground'>{metric.value}</p>
+                        <p className='text-foreground mt-1 text-base font-semibold'>
+                          {metric.value}
+                        </p>
                         {metric.note && (
-                          <p className='mt-1 text-xs leading-relaxed text-muted-foreground'>{metric.note}</p>
+                          <p className='text-muted-foreground mt-1 text-xs leading-relaxed'>
+                            {metric.note}
+                          </p>
                         )}
                       </div>
                     ))}
@@ -978,11 +1006,14 @@ export function ReportSection({
                   </h3>
                   <div className='space-y-4'>
                     {algorithmBreakdown.diagnoses.map(diagnosis => (
-                      <div key={diagnosis.id} className='rounded-lg border border-amber-200 bg-white/80 p-4'>
+                      <div
+                        key={diagnosis.id}
+                        className='rounded-lg border border-amber-200 bg-white/80 p-4'
+                      >
                         <div className='flex flex-col gap-1 md:flex-row md:items-start md:justify-between'>
                           <div>
-                            <h4 className='font-semibold text-foreground'>{diagnosis.label}</h4>
-                            <p className='text-sm text-muted-foreground'>{diagnosis.outcome}</p>
+                            <h4 className='text-foreground font-semibold'>{diagnosis.label}</h4>
+                            <p className='text-muted-foreground text-sm'>{diagnosis.outcome}</p>
                           </div>
                         </div>
 
@@ -990,10 +1021,12 @@ export function ReportSection({
                           {diagnosis.criteria.map(criteria => (
                             <div
                               key={`${diagnosis.id}-${criteria.label}`}
-                              className='rounded-md border border-border/60 bg-background/80 p-3'
+                              className='border-border/60 bg-background/80 rounded-md border p-3'
                             >
                               <div className='flex flex-col gap-1 md:flex-row md:items-start md:justify-between'>
-                                <p className='text-sm font-medium text-foreground'>{criteria.label}</p>
+                                <p className='text-foreground text-sm font-medium'>
+                                  {criteria.label}
+                                </p>
                                 <span
                                   className={cn(
                                     'inline-flex w-fit rounded-full px-2 py-0.5 text-xs font-medium',
@@ -1005,11 +1038,12 @@ export function ReportSection({
                                   {criteria.met ? 'Met' : 'Not met'}
                                 </span>
                               </div>
-                              <p className='mt-1 text-sm text-muted-foreground'>
-                                <strong className='text-foreground'>Observed:</strong> {criteria.actual}
+                              <p className='text-muted-foreground mt-1 text-sm'>
+                                <strong className='text-foreground'>Observed:</strong>{' '}
+                                {criteria.actual}
                               </p>
                               {criteria.threshold && (
-                                <p className='text-sm text-muted-foreground'>
+                                <p className='text-muted-foreground text-sm'>
                                   <strong className='text-foreground'>Threshold:</strong>{' '}
                                   {criteria.threshold}
                                 </p>
@@ -1021,7 +1055,7 @@ export function ReportSection({
                         {diagnosis.notes && diagnosis.notes.length > 0 && (
                           <div className='mt-3 space-y-1'>
                             {diagnosis.notes.map(note => (
-                              <p key={note} className='text-xs text-muted-foreground'>
+                              <p key={note} className='text-muted-foreground text-xs'>
                                 {note}
                               </p>
                             ))}

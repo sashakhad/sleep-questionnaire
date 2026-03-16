@@ -25,6 +25,11 @@ import {
   getDiagnosisScenario,
   type DiagnosisScenario,
 } from '@/lib/diagnosis-scenarios';
+import {
+  getReviewScenarioGroup,
+  getScenarioHighlights,
+  groupDiagnosisScenarios,
+} from '@/lib/review-mode';
 
 const DEFAULT_PREFILL_DATA: QuestionnaireFormData = defaultReviewScenario.data;
 
@@ -123,6 +128,9 @@ export function QuestionnaireForm({
   const shouldIncludeBreakdown = !!prefill || !!reviewMode;
   const shouldPersistResponses = persistResponses ?? (!prefill && !reviewMode);
   const reviewDeepLink = `/review?scenario=${selectedScenarioId}`;
+  const activeScenarioGroup = getReviewScenarioGroup(activeScenario);
+  const activeScenarioHighlights = getScenarioHighlights(activeScenario);
+  const scenarioGroups = groupDiagnosisScenarios(diagnosisScenarios);
   // Progress: 0% on intro, 100% on report (last section)
   const progress = (currentSectionIndex / (sections.length - 1)) * 100;
 
@@ -450,50 +458,6 @@ export function QuestionnaireForm({
     onScenarioChange?.(nextScenarioId);
   }
 
-  function getScenarioHighlights(scenario: DiagnosisScenario): string[] {
-    const highlights: string[] = [];
-
-    if (scenario.expected.hasInsomnia) {
-      highlights.push(`Insomnia: ${scenario.expected.insomniaSeverity}`);
-    }
-    if (scenario.expected.hasOSA) {
-      highlights.push('Probable OSA');
-    }
-    if (scenario.expected.hasCOMISA) {
-      highlights.push('COMISA');
-    }
-    if (scenario.expected.hasRLS) {
-      highlights.push('RLS');
-    }
-    if (scenario.expected.hasNightmares) {
-      highlights.push('Nightmares');
-    }
-    if (scenario.expected.hasNarcolepsy) {
-      highlights.push('Narcolepsy screen');
-    }
-    if (scenario.expected.hasEDS) {
-      highlights.push('EDS');
-    }
-    if (scenario.expected.hasInsufficientSleep) {
-      highlights.push('Insufficient sleep');
-    }
-    if (scenario.expected.hasChronicFatigueSymptoms) {
-      highlights.push('Chronic fatigue');
-    }
-    if (scenario.expected.hasPainRelatedSleepDisturbance) {
-      highlights.push('Pain-related sleep');
-    }
-    if (scenario.expected.hasMildRespiratoryDisturbance) {
-      highlights.push('Mild respiratory');
-    }
-
-    if (highlights.length === 0) {
-      highlights.push('No major report flags expected');
-    }
-
-    return highlights.slice(0, 3);
-  }
-
   const renderSection = () => {
     switch (currentSection) {
       case 'intro':
@@ -647,7 +611,24 @@ export function QuestionnaireForm({
                 </div>
 
                 <div className='rounded-xl border border-amber-300/40 bg-white/80 p-4'>
-                  <p className='text-sm font-semibold text-amber-950'>{activeScenario.label}</p>
+                  <div className='flex flex-wrap items-start justify-between gap-3'>
+                    <div>
+                      <p className='text-sm font-semibold text-amber-950'>{activeScenario.label}</p>
+                      <p className='mt-1 text-xs font-medium text-amber-700'>
+                        {activeScenarioGroup.label}
+                      </p>
+                    </div>
+                    <div className='flex flex-wrap gap-2'>
+                      {activeScenarioHighlights.map(highlight => (
+                        <span
+                          key={`${activeScenario.id}-${highlight}`}
+                          className='inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-900'
+                        >
+                          {highlight}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                   <p className='mt-1 text-sm leading-relaxed text-amber-900/80'>
                     {activeScenario.description}
                   </p>
@@ -668,59 +649,82 @@ export function QuestionnaireForm({
                     {diagnosisScenarios.length} scenarios
                   </p>
                 </div>
-                <div className='grid gap-3 md:grid-cols-2 xl:grid-cols-3'>
-                  {diagnosisScenarios.map(scenario => {
-                    const isSelected = scenario.id === selectedScenarioId;
-                    const highlights = getScenarioHighlights(scenario);
-
-                    return (
-                      <button
-                        key={scenario.id}
-                        type='button'
-                        onClick={() => handleScenarioSelectionChange(scenario.id)}
-                        className={cn(
-                          'bg-card text-left rounded-2xl border p-4 transition-all hover:-translate-y-0.5 hover:shadow-md',
-                          isSelected
-                            ? 'border-primary ring-primary/20 shadow-sm ring-2'
-                            : 'border-border/70 hover:border-primary/40'
-                        )}
-                      >
-                        <div className='flex items-start justify-between gap-3'>
-                          <div>
-                            <p className='text-foreground text-sm font-semibold'>{scenario.label}</p>
-                            <p className='text-muted-foreground mt-1 text-xs leading-relaxed'>
-                              {scenario.description}
-                            </p>
-                          </div>
-                          <span
-                            className={cn(
-                              'inline-flex rounded-full px-2 py-1 text-[11px] font-medium',
-                              isSelected
-                                ? 'bg-primary/10 text-primary'
-                                : 'bg-muted text-muted-foreground'
-                            )}
-                          >
-                            {isSelected ? 'Selected' : 'Open'}
-                          </span>
+                <div className='space-y-4'>
+                  {scenarioGroups.map(group => (
+                    <div
+                      key={group.id}
+                      className='border-border/60 bg-card/70 space-y-3 rounded-2xl border p-4'
+                    >
+                      <div className='flex flex-wrap items-start justify-between gap-3'>
+                        <div>
+                          <p className='text-foreground text-sm font-semibold'>{group.label}</p>
+                          <p className='text-muted-foreground mt-1 text-xs leading-relaxed'>
+                            {group.description}
+                          </p>
                         </div>
+                        <span className='bg-muted text-muted-foreground inline-flex rounded-full px-2.5 py-1 text-[11px] font-medium'>
+                          {group.scenarios.length} scenario{group.scenarios.length === 1 ? '' : 's'}
+                        </span>
+                      </div>
 
-                        <div className='mt-3 flex flex-wrap gap-2'>
-                          {highlights.map(highlight => (
-                            <span
-                              key={`${scenario.id}-${highlight}`}
-                              className='bg-muted text-muted-foreground inline-flex rounded-full px-2 py-1 text-[11px] font-medium'
+                      <div className='grid gap-3 md:grid-cols-2 xl:grid-cols-3'>
+                        {group.scenarios.map((scenario: DiagnosisScenario) => {
+                          const isSelected = scenario.id === selectedScenarioId;
+                          const highlights = getScenarioHighlights(scenario);
+
+                          return (
+                            <button
+                              key={scenario.id}
+                              type='button'
+                              onClick={() => handleScenarioSelectionChange(scenario.id)}
+                              className={cn(
+                                'bg-background rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-md',
+                                isSelected
+                                  ? 'border-primary ring-primary/20 shadow-sm ring-2'
+                                  : 'border-border/70 hover:border-primary/40'
+                              )}
                             >
-                              {highlight}
-                            </span>
-                          ))}
-                        </div>
+                              <div className='flex items-start justify-between gap-3'>
+                                <div>
+                                  <p className='text-foreground text-sm font-semibold'>
+                                    {scenario.label}
+                                  </p>
+                                  <p className='text-muted-foreground mt-1 text-xs leading-relaxed'>
+                                    {scenario.description}
+                                  </p>
+                                </div>
+                                <span
+                                  className={cn(
+                                    'inline-flex rounded-full px-2 py-1 text-[11px] font-medium',
+                                    isSelected
+                                      ? 'bg-primary/10 text-primary'
+                                      : 'bg-muted text-muted-foreground'
+                                  )}
+                                >
+                                  {isSelected ? 'Selected' : 'Open'}
+                                </span>
+                              </div>
 
-                        <p className='text-muted-foreground mt-3 font-mono text-[11px]'>
-                          /review?scenario={scenario.id}
-                        </p>
-                      </button>
-                    );
-                  })}
+                              <div className='mt-3 flex flex-wrap gap-2'>
+                                {highlights.map(highlight => (
+                                  <span
+                                    key={`${scenario.id}-${highlight}`}
+                                    className='bg-muted text-muted-foreground inline-flex rounded-full px-2 py-1 text-[11px] font-medium'
+                                  >
+                                    {highlight}
+                                  </span>
+                                ))}
+                              </div>
+
+                              <p className='text-muted-foreground mt-3 font-mono text-[11px]'>
+                                /review?scenario={scenario.id}
+                              </p>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -729,26 +733,47 @@ export function QuestionnaireForm({
 
         {/* Progress Section */}
         <div className='mb-8'>
-          <div className='mb-3 flex items-center justify-between'>
-            <div className='flex items-center gap-3'>
-              <div className='bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold'>
-                {currentSectionIndex + 1}
-              </div>
-              <div>
-                <p className='text-foreground/80 text-sm font-medium'>
-                  Step {currentSectionIndex + 1} of {sections.length}
-                </p>
-                <p className='text-muted-foreground text-xs'>{sectionTitles[currentSection]}</p>
+          {reviewMode ? (
+            <div className='bg-card/80 border-border/70 rounded-2xl border p-4 shadow-sm backdrop-blur-sm'>
+              <div className='flex flex-wrap items-start justify-between gap-4'>
+                <div className='space-y-1'>
+                  <p className='text-foreground text-sm font-semibold'>Live algorithm viewer</p>
+                  <p className='text-muted-foreground max-w-2xl text-sm leading-relaxed'>
+                    Review mode keeps the inputs fixed, surfaces the generated algorithm path first,
+                    and leaves the patient-facing report below as a preview rather than the main
+                    artifact.
+                  </p>
+                </div>
+                <div className='text-right'>
+                  <p className='text-primary text-2xl font-semibold'>{diagnosisScenarios.length}</p>
+                  <p className='text-muted-foreground text-xs'>named scenarios</p>
+                </div>
               </div>
             </div>
-            <div className='text-right'>
-              <p className='text-primary text-2xl font-semibold'>{Math.round(progress)}%</p>
-              <p className='text-muted-foreground text-xs'>Complete</p>
-            </div>
-          </div>
-          <div className='relative'>
-            <Progress value={progress} className='h-2' />
-          </div>
+          ) : (
+            <>
+              <div className='mb-3 flex items-center justify-between'>
+                <div className='flex items-center gap-3'>
+                  <div className='bg-primary/10 text-primary flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold'>
+                    {currentSectionIndex + 1}
+                  </div>
+                  <div>
+                    <p className='text-foreground/80 text-sm font-medium'>
+                      Step {currentSectionIndex + 1} of {sections.length}
+                    </p>
+                    <p className='text-muted-foreground text-xs'>{sectionTitles[currentSection]}</p>
+                  </div>
+                </div>
+                <div className='text-right'>
+                  <p className='text-primary text-2xl font-semibold'>{Math.round(progress)}%</p>
+                  <p className='text-muted-foreground text-xs'>Complete</p>
+                </div>
+              </div>
+              <div className='relative'>
+                <Progress value={progress} className='h-2' />
+              </div>
+            </>
+          )}
         </div>
 
         {/* Main Form Card */}

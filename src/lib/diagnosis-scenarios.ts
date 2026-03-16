@@ -211,8 +211,9 @@ function createBaseScenarioData(
 
 export const defaultReviewScenario: DiagnosisScenario = {
   id: 'default-review',
-  label: 'Default review example',
-  description: 'The current dev prefill for general report review.',
+  label: 'Complex mixed-path review',
+  description:
+    'A high-signal walkthrough that combines insomnia, probable OSA, COMISA, EDS, and chronic-fatigue flags.',
   data: {
     ...createBaseScenarioData(),
     demographics: {
@@ -365,8 +366,9 @@ export const diagnosisScenarios: DiagnosisScenario[] = [
   },
   {
     id: 'maintenance-insomnia',
-    label: "Chris bug: maintenance insomnia",
-    description: 'Adequate time in bed with prolonged wake after sleep onset should not route to insufficient sleep.',
+    label: 'Maintenance insomnia with adequate sleep opportunity',
+    description:
+      'Adequate sleep opportunity plus prolonged wake after sleep onset should stay on the insomnia path rather than short-sleep routing.',
     data: createBaseScenarioData({
       scheduledSleep: {
         lightsOutTime: '22:30',
@@ -463,8 +465,9 @@ export const diagnosisScenarios: DiagnosisScenario[] = [
   },
   {
     id: 'osa-risk-factors',
-    label: 'OSA via snoring + risk factors',
-    description: 'Snoring plus age, BMI, tiredness, and non-restorative sleep should trigger probable OSA.',
+    label: 'Probable OSA from snoring plus risk factors',
+    description:
+      'Snoring plus age, BMI, tiredness, and non-restorative sleep should trigger probable OSA.',
     data: createBaseScenarioData({
       demographics: {
         yearOfBirth: 1960,
@@ -497,7 +500,7 @@ export const diagnosisScenarios: DiagnosisScenario[] = [
   },
   {
     id: 'osa-breathing-pauses',
-    label: 'OSA via breathing pauses',
+    label: 'Probable OSA from breathing pauses',
     description: 'Reported breathing pauses should trigger probable OSA immediately.',
     data: createBaseScenarioData({
       breathingDisorders: {
@@ -523,8 +526,9 @@ export const diagnosisScenarios: DiagnosisScenario[] = [
   },
   {
     id: 'mild-respiratory-disturbance',
-    label: 'Mild respiratory disturbance',
-    description: 'Snoring and mouth breathing without apnea risk factors should stay mild rather than probable OSA.',
+    label: 'Mild respiratory disturbance only',
+    description:
+      'Snoring and mouth breathing without apnea risk factors should stay mild rather than probable OSA.',
     data: createBaseScenarioData({
       demographics: {
         yearOfBirth: 1995,
@@ -560,7 +564,8 @@ export const diagnosisScenarios: DiagnosisScenario[] = [
   {
     id: 'insufficient-sleep',
     label: 'Insufficient sleep syndrome',
-    description: 'Short sleep with daytime sleepiness and no competing disorder should classify as insufficient sleep.',
+    description:
+      'Short sleep with daytime sleepiness and no competing disorder should classify as insufficient sleep.',
     data: createBaseScenarioData({
       scheduledSleep: {
         lightsOutTime: '01:00',
@@ -634,6 +639,37 @@ export const diagnosisScenarios: DiagnosisScenario[] = [
     },
   },
   {
+    id: 'restless-legs-classic',
+    label: 'Classic RLS triad',
+    description:
+      'Trouble lying still, urge to move, and relief with movement should trigger the RLS pathway.',
+    data: createBaseScenarioData({
+      restlessLegs: {
+        troubleLyingStill: true,
+        urgeToMoveLegs: true,
+        movementRelieves: true,
+        daytimeDiscomfort: true,
+        legCramps: false,
+        legCrampsPerWeek: null,
+      },
+    }),
+    expected: {
+      hasInsomnia: false,
+      insomniaSeverity: 'none',
+      hasOSA: false,
+      hasCOMISA: false,
+      hasRLS: true,
+      hasNightmares: false,
+      hasNarcolepsy: false,
+      hasEDS: false,
+      hasEDSFromNaps: false,
+      hasInsufficientSleep: false,
+      hasChronicFatigueSymptoms: false,
+      hasPainRelatedSleepDisturbance: false,
+      hasMildRespiratoryDisturbance: false,
+    },
+  },
+  {
     id: 'narcolepsy-screen',
     label: 'Narcolepsy screen',
     description: 'Cataplexy-type symptoms plus sleep paralysis should flag narcolepsy symptoms.',
@@ -664,7 +700,8 @@ export const diagnosisScenarios: DiagnosisScenario[] = [
   {
     id: 'nightmare-disorder',
     label: 'Nightmare disorder',
-    description: 'Nightmares at 2 per week should now trigger the report-level nightmare disorder flag.',
+    description:
+      'Nightmares at 2 per week should now trigger the report-level nightmare disorder flag.',
     data: createBaseScenarioData({
       nightmares: {
         hasNightmares: true,
@@ -688,9 +725,42 @@ export const diagnosisScenarios: DiagnosisScenario[] = [
     },
   },
   {
+    id: 'pain-related-sleep-disturbance',
+    label: 'Pain-related sleep disturbance',
+    description:
+      'Pain affecting sleep plus daytime interference should stay on the pain-related pathway without requiring insomnia.',
+    data: createBaseScenarioData({
+      daytime: {
+        painAffectsSleep: true,
+        painSeverity: 7,
+        sleepinessInterferes: true,
+        jointMusclePain: false,
+        nonRestorativeSleep: false,
+        tirednessRating: 4,
+        fatigueRating: 4,
+      },
+    }),
+    expected: {
+      hasInsomnia: false,
+      insomniaSeverity: 'none',
+      hasOSA: false,
+      hasCOMISA: false,
+      hasRLS: false,
+      hasNightmares: false,
+      hasNarcolepsy: false,
+      hasEDS: false,
+      hasEDSFromNaps: false,
+      hasInsufficientSleep: false,
+      hasChronicFatigueSymptoms: false,
+      hasPainRelatedSleepDisturbance: true,
+      hasMildRespiratoryDisturbance: false,
+    },
+  },
+  {
     id: 'eds-from-naps',
-    label: 'EDS from naps',
-    description: 'Frequent 30-minute planned naps should count as daytime sleepiness even without dozing activities.',
+    label: 'EDS signal from planned naps',
+    description:
+      'Frequent 30-minute planned naps should count as daytime sleepiness even without dozing activities.',
     data: createBaseScenarioData({
       daytime: {
         plannedNaps: { daysPerWeek: 3, napsPerWeek: 3, duration: '30' },
@@ -714,7 +784,7 @@ export const diagnosisScenarios: DiagnosisScenario[] = [
   },
   {
     id: 'chronic-fatigue',
-    label: 'Chronic fatigue symptoms',
+    label: 'Chronic fatigue symptom cluster',
     description: 'Three qualifying daytime symptoms should flag chronic fatigue even without pain.',
     data: createBaseScenarioData({
       daytime: {
