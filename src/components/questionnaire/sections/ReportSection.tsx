@@ -963,7 +963,7 @@ export function ReportSection({
           <CardHeader className='bg-gradient-sleep-header text-white'>
             <CardTitle className='flex items-center space-x-2 text-white'>
               <TestTube className='h-5 w-5' />
-              <span>{reviewMode ? 'Algorithm Review Details' : 'Algorithm Details (Dev)'}</span>
+              <span>Algorithm Details (Dev)</span>
             </CardTitle>
           </CardHeader>
           <CardContent className='pt-6'>
