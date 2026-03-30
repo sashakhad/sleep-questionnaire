@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export const THRESHOLD_KEYS = [
   'MIN_RECOMMENDED_SLEEP_HOURS',
   'NAP_EDS_MIN_DAYS',
@@ -388,4 +390,14 @@ export function mergeEDSWeightOverrides(
   }
 
   return mergedWeights;
+}
+
+export function createNumericOverridesSchema(keys: readonly string[]) {
+  const shape: Record<string, z.ZodOptional<z.ZodNumber>> = {};
+
+  for (const key of keys) {
+    shape[key] = z.number().finite().optional();
+  }
+
+  return z.object(shape).partial();
 }

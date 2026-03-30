@@ -4,20 +4,11 @@ import { generateFullReport } from '@/lib/diagnosis-algorithms';
 import {
   EDS_WEIGHT_KEYS,
   THRESHOLD_KEYS,
+  createNumericOverridesSchema,
   mergeEDSWeightOverrides,
   mergeThresholdOverrides,
 } from '@/lib/diagnosis-shared';
 import { questionnaireSchema } from '@/validations/questionnaire';
-
-function createNumericOverridesSchema(keys: readonly string[]) {
-  const shape: Record<string, z.ZodOptional<z.ZodNumber>> = {};
-
-  for (const key of keys) {
-    shape[key] = z.number().finite().optional();
-  }
-
-  return z.object(shape).partial();
-}
 
 const tuningDiagnoseSchema = z.object({
   data: questionnaireSchema,

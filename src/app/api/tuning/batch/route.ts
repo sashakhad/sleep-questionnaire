@@ -10,19 +10,10 @@ import {
 import {
   EDS_WEIGHT_KEYS,
   THRESHOLD_KEYS,
+  createNumericOverridesSchema,
   mergeEDSWeightOverrides,
   mergeThresholdOverrides,
 } from '@/lib/diagnosis-shared';
-
-function createNumericOverridesSchema(keys: readonly string[]) {
-  const shape: Record<string, z.ZodOptional<z.ZodNumber>> = {};
-
-  for (const key of keys) {
-    shape[key] = z.number().finite().optional();
-  }
-
-  return z.object(shape).partial();
-}
 
 const tuningBatchSchema = z.object({
   thresholdOverrides: createNumericOverridesSchema(THRESHOLD_KEYS).optional(),
@@ -52,8 +43,6 @@ export async function POST(request: NextRequest) {
         label: scenario.label,
         description: scenario.description,
         expected: scenario.expected,
-        defaultResult,
-        overriddenResult,
         defaultOutcome,
         overriddenOutcome,
         diffs,

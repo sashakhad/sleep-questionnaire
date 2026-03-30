@@ -53,15 +53,13 @@ export interface TuningBatchScenarioResult {
   label: string;
   description: string;
   expected: DiagnosisScenarioExpected;
-  defaultResult: FullReportResult;
-  overriddenResult: FullReportResult;
   defaultOutcome: TuningOutcomeSnapshot;
   overriddenOutcome: TuningOutcomeSnapshot;
   diffs: TuningBatchDiff[];
   mismatchCount: number;
 }
 
-export function cloneQuestionnaireData(data: QuestionnaireFormData): QuestionnaireFormData {
+function cloneQuestionnaireData(data: QuestionnaireFormData): QuestionnaireFormData {
   return structuredClone(data);
 }
 
