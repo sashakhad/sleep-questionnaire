@@ -17,6 +17,30 @@ import { getYear } from 'date-fns';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { EDS_WEIGHTS } from '@/lib/diagnosis-shared';
 
+export type {
+  SeverityLevel,
+  ReportDisplayMetrics,
+  InsomniaSeverityLabel,
+  ChronotypeType,
+  FullReportResult,
+  ScoringMetric,
+  ScoringCriterion,
+  DiagnosticBreakdown,
+  ScoringBreakdown,
+} from '@/lib/diagnosis-report-types';
+
+import type {
+  SeverityLevel,
+  ReportDisplayMetrics,
+  InsomniaSeverityLabel,
+  ChronotypeType,
+  FullReportResult,
+  ScoringMetric,
+  ScoringCriterion,
+  DiagnosticBreakdown,
+  ScoringBreakdown,
+} from '@/lib/diagnosis-report-types';
+
 // =============================================================================
 // THRESHOLD CONSTANTS
 // =============================================================================
@@ -77,8 +101,6 @@ export const THRESHOLDS = {
 // =============================================================================
 // TYPE DEFINITIONS
 // =============================================================================
-
-export type SeverityLevel = 'none' | 'mild' | 'moderate' | 'severe' | 'moderate-to-severe';
 
 export interface SleepMetrics {
   // Scheduled (work/school) days
@@ -792,97 +814,8 @@ export function screenNarcolepsy(data: QuestionnaireFormData): boolean {
 }
 
 // =============================================================================
-// FULL REPORT RESULT (server-computed, sent to client for display only)
+// FULL REPORT HELPERS
 // =============================================================================
-
-/**
- * Extended sleep metrics for the patient-facing report display.
- * Includes mid-sleep times, social jet lag, and chronotype data in addition
- * to the core SleepMetrics used for clinical diagnosis.
- */
-export interface ReportDisplayMetrics {
-  scheduledTST: number;
-  unscheduledTST: number;
-  scheduledSE: number;
-  unscheduledSE: number;
-  scheduledSOL: number;
-  unscheduledSOL: number;
-  scheduledWASO: number;
-  unscheduledWASO: number;
-  midSleepScheduled: string; // formatted "HH:MM"
-  midSleepUnscheduled: string; // formatted "HH:MM"
-  weeklyAvgTST: number;
-  socialJetLag: number;
-  midSleepTimeChange: number;
-}
-
-export type InsomniaSeverityLabel = 'none' | 'mild' | 'moderate-to-severe';
-export type ChronotypeType = 'delayed' | 'advanced' | 'normal';
-
-/**
- * Complete set of pre-computed findings for rendering the patient report.
- * Returned by the /api/diagnose server route so that zero algorithm logic
- * is shipped to the browser.
- */
-export interface FullReportResult {
-  metrics: ReportDisplayMetrics;
-  chronotypeLabel: string;
-  chronotypeType: ChronotypeType;
-  edsScore: number;
-  edsSeverity: SeverityLevel;
-  hasEDSFromNaps: boolean;
-  hasInsomnia: boolean;
-  insomniaSeverity: InsomniaSeverityLabel;
-  hasOSA: boolean;
-  hasCOMISA: boolean;
-  hasRLS: boolean;
-  hasNightmares: boolean;
-  hasNarcolepsy: boolean;
-  hasEDS: boolean;
-  hasInsufficientSleep: boolean;
-  hasMildRespiratoryDisturbance: boolean;
-  hasPoorHygiene: boolean;
-  hasLegCrampsConcern: boolean;
-  hasChronicFatigueSymptoms: boolean;
-  hasPainAffectingSleep: boolean;
-  hasPainRelatedSleepDisturbance: boolean;
-  hasMedicationRelatedSleepDisturbance: boolean;
-  osaTreatmentIneffective: boolean;
-  rlsTreatmentIneffective: boolean;
-  hasDiagnosedOSA: boolean;
-  hasDiagnosedRLS: boolean;
-  hasSevereTiredness: boolean;
-  hasParasomniaSafetyRisk: boolean;
-  hasMedicationAlcoholRisk: boolean;
-  avgWeeklySleep: number;
-  algorithmBreakdown?: ScoringBreakdown;
-}
-
-export interface ScoringMetric {
-  label: string;
-  value: string;
-  note?: string;
-}
-
-export interface ScoringCriterion {
-  label: string;
-  actual: string;
-  threshold?: string;
-  met: boolean;
-}
-
-export interface DiagnosticBreakdown {
-  id: string;
-  label: string;
-  outcome: string;
-  criteria: ScoringCriterion[];
-  notes?: string[];
-}
-
-export interface ScoringBreakdown {
-  metrics: ScoringMetric[];
-  diagnoses: DiagnosticBreakdown[];
-}
 
 // Internal helper — not exported, not discoverable from bundle
 function minutesToTimeString(totalMinutes: number): string {
