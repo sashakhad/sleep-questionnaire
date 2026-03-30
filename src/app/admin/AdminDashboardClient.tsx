@@ -1,10 +1,11 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Download, LogOut, RefreshCw } from 'lucide-react';
+import { Download, LogOut, RefreshCw, SlidersHorizontal } from 'lucide-react';
 
 interface Response {
   id: string;
@@ -101,6 +102,12 @@ export function AdminDashboardClient() {
                 </CardDescription>
               </div>
               <div className='flex gap-2'>
+                <Button asChild variant='secondary' className='bg-white text-blue-600 hover:bg-blue-50'>
+                  <Link href='/tuning'>
+                    <SlidersHorizontal className='mr-2 h-4 w-4' />
+                    Open Tuning Dashboard
+                  </Link>
+                </Button>
                 <Button
                   variant='secondary'
                   onClick={handleDownloadCSV}
