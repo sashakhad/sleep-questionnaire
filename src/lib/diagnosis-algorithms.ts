@@ -1410,7 +1410,8 @@ export function generateFullReport(
   const hasInsomnia = diagnosisReport.insomnia.hasInsomnia;
   const avgWeeklySleep = metrics.weeklyAvgTST;
   const hasEDSSymptoms =
-    diagnosisReport.eds.severity !== 'none' || diagnosisReport.hasEDSFromNaps;
+    (diagnosisReport.eds.hasDifficultyStayingAwake && diagnosisReport.eds.severity !== 'none') ||
+    diagnosisReport.hasEDSFromNaps;
   const hasEDS = hasEDSSymptoms && avgWeeklySleep >= THRESHOLDS.MIN_RECOMMENDED_SLEEP_HOURS;
   const hasOSA = diagnosisReport.sleepApnea.hasProbableSleepApnea;
   const hasCOMISA = diagnosisReport.hasCOMISA;
