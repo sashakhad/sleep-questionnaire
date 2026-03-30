@@ -298,9 +298,9 @@ export function calculateEDSScore(
     data.daytime.sleepinessInterferes || data.daytime.fallAsleepDuring.length >= 2;
 
   let severity: SeverityLevel = 'none';
-  if (score >= 7) {
+  if (score >= thresholds.EDS_SCORE_MAX) {
     severity = 'severe';
-  } else if (score >= 5) {
+  } else if (score >= Math.max(5, thresholds.EDS_SCORE_MIN)) {
     severity = 'moderate';
   } else if (score >= thresholds.EDS_SCORE_MIN) {
     severity = 'mild';
