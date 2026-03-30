@@ -74,23 +74,23 @@ export function BatchRunner({
         )}
 
         {results && (
-          <div className='overflow-x-auto'>
+          <div className='max-h-[70vh] overflow-auto rounded-2xl border'>
             <table className='w-full min-w-[1200px] border-separate border-spacing-0'>
               <thead>
                 <tr>
-                  <th className='bg-background sticky left-0 z-10 border-b px-3 py-3 text-left text-xs font-semibold tracking-wide uppercase'>
+                  <th className='bg-background sticky top-0 left-0 z-30 border-b px-3 py-3 text-left text-xs font-semibold tracking-wide uppercase'>
                     Scenario
                   </th>
-                  <th className='bg-background border-b px-3 py-3 text-left text-xs font-semibold tracking-wide uppercase'>
+                  <th className='bg-background sticky top-0 z-20 border-b px-3 py-3 text-left text-xs font-semibold tracking-wide uppercase'>
                     Expected mismatches
                   </th>
-                  <th className='bg-background border-b px-3 py-3 text-left text-xs font-semibold tracking-wide uppercase'>
+                  <th className='bg-background sticky top-0 z-20 border-b px-3 py-3 text-left text-xs font-semibold tracking-wide uppercase'>
                     Changed outputs
                   </th>
                   {TUNING_OUTCOME_FIELDS.map(field => (
                     <th
                       key={field.key}
-                      className='bg-background border-b px-3 py-3 text-left text-xs font-semibold tracking-wide uppercase'
+                      className='bg-background sticky top-0 z-20 border-b px-3 py-3 text-left text-xs font-semibold tracking-wide uppercase'
                     >
                       {field.label}
                     </th>

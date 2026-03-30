@@ -89,7 +89,7 @@ export function ThresholdEditor({
           return (
             <details
               key={section.id}
-              open={true}
+              open={activeSectionOverrides.length > 0}
               className='border-border/70 bg-background/70 rounded-2xl border'
             >
               <summary className='cursor-pointer list-none px-4 py-3'>
@@ -180,7 +180,7 @@ export function ThresholdEditor({
           );
         })}
 
-        <details open={true} className='border-border/70 bg-background/70 rounded-2xl border'>
+        <details open={Object.keys(edsWeightOverrides).length > 0} className='border-border/70 bg-background/70 rounded-2xl border'>
           <summary className='cursor-pointer list-none px-4 py-3'>
             <div className='flex items-center justify-between gap-3'>
               <div className='space-y-1'>

@@ -122,14 +122,21 @@ export function ResultsPanel({ report, loading, error }: ResultsPanelProps) {
 
             {algorithmBreakdown && (
               <>
-                <div className='space-y-3'>
-                  <div className='space-y-1'>
-                    <h3 className='text-sm font-semibold tracking-wide uppercase'>Computed Metrics</h3>
-                    <p className='text-muted-foreground text-sm'>
-                      These values are recalculated on every input or threshold change.
-                    </p>
-                  </div>
-                  <div className='grid gap-3 md:grid-cols-2 xl:grid-cols-3'>
+                <details open className='border-border/70 bg-background/70 rounded-2xl border'>
+                  <summary className='cursor-pointer list-none px-4 py-3'>
+                    <div className='flex items-center justify-between gap-3'>
+                      <div className='space-y-1'>
+                        <h3 className='text-sm font-semibold tracking-wide uppercase'>Computed Metrics</h3>
+                        <p className='text-muted-foreground text-xs'>
+                          Recalculated on every input or threshold change.
+                        </p>
+                      </div>
+                      <span className='text-muted-foreground text-xs'>
+                        {algorithmBreakdown.metrics.length} metrics
+                      </span>
+                    </div>
+                  </summary>
+                  <div className='grid gap-3 border-t px-4 py-4 md:grid-cols-2 xl:grid-cols-3'>
                     {algorithmBreakdown.metrics.map(metric => (
                       <div
                         key={metric.label}
@@ -145,16 +152,23 @@ export function ResultsPanel({ report, loading, error }: ResultsPanelProps) {
                       </div>
                     ))}
                   </div>
-                </div>
+                </details>
 
-                <div className='space-y-3'>
-                  <div className='space-y-1'>
-                    <h3 className='text-sm font-semibold tracking-wide uppercase'>Diagnosis Cards</h3>
-                    <p className='text-muted-foreground text-sm'>
-                      Expand a card to inspect the exact threshold checks and whether each criterion was met.
-                    </p>
-                  </div>
-                  <div className='space-y-3'>
+                <details open className='border-border/70 bg-background/70 rounded-2xl border'>
+                  <summary className='cursor-pointer list-none px-4 py-3'>
+                    <div className='flex items-center justify-between gap-3'>
+                      <div className='space-y-1'>
+                        <h3 className='text-sm font-semibold tracking-wide uppercase'>Diagnosis Cards</h3>
+                        <p className='text-muted-foreground text-xs'>
+                          Expand a card to inspect exact threshold checks and whether each criterion was met.
+                        </p>
+                      </div>
+                      <span className='text-muted-foreground text-xs'>
+                        {algorithmBreakdown.diagnoses.length} pathways
+                      </span>
+                    </div>
+                  </summary>
+                  <div className='space-y-3 border-t px-4 py-4'>
                     {algorithmBreakdown.diagnoses.map(diagnosis => (
                       <details
                         key={diagnosis.id}
@@ -228,7 +242,7 @@ export function ResultsPanel({ report, loading, error }: ResultsPanelProps) {
                       </details>
                     ))}
                   </div>
-                </div>
+                </details>
               </>
             )}
           </>

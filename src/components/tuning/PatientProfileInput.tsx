@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, useWatch, type Control, type FieldValues, type Path } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,6 +24,7 @@ import { defaultReviewScenario, diagnosisScenarios, getDiagnosisScenario } from 
 import { getTuningScenarioData, type TuningMode, TUNING_OUTCOME_FIELDS } from '@/lib/diagnosis-tuning';
 import { EDS_WEIGHT_DEFINITIONS, EDS_WEIGHT_KEYS } from '@/lib/diagnosis-shared';
 import { questionnaireSchema, type QuestionnaireFormData } from '@/validations/questionnaire';
+import { ChevronDown } from 'lucide-react';
 
 interface PatientProfileInputProps {
   mode: TuningMode;
@@ -58,6 +59,7 @@ interface InputSectionProps {
   title: string;
   description: string;
   children: React.ReactNode;
+  defaultOpen?: boolean;
 }
 
 const sexOptions: OptionDefinition[] = [
@@ -196,14 +198,35 @@ function TimeInputField<TFieldValues extends FieldValues = FieldValues>({
   );
 }
 
-function InputSection({ title, description, children }: InputSectionProps) {
+function InputSection({
+  title,
+  description,
+  children,
+  defaultOpen = false,
+}: InputSectionProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
   return (
-    <section className='border-border/70 bg-background/70 space-y-4 rounded-2xl border p-4'>
-      <div className='space-y-1'>
-        <h3 className='text-sm font-semibold tracking-wide uppercase'>{title}</h3>
-        <p className='text-muted-foreground text-sm leading-relaxed'>{description}</p>
-      </div>
-      <div className='grid gap-4'>{children}</div>
+    <section className='border-border/70 bg-background/70 rounded-2xl border'>
+      <button
+        type='button'
+        onClick={() => {
+          setIsOpen(currentState => !currentState);
+        }}
+        className='flex w-full items-start justify-between gap-4 px-4 py-4 text-left'
+      >
+        <div className='space-y-1'>
+          <h3 className='text-sm font-semibold tracking-wide uppercase'>{title}</h3>
+          <p className='text-muted-foreground text-sm leading-relaxed'>{description}</p>
+        </div>
+        <ChevronDown
+          className={cn(
+            'text-muted-foreground mt-0.5 h-4 w-4 shrink-0 transition-transform',
+            isOpen && 'rotate-180'
+          )}
+        />
+      </button>
+      {isOpen && <div className='grid gap-4 border-t px-4 py-4'>{children}</div>}
     </section>
   );
 }
@@ -391,6 +414,7 @@ export function PatientProfileInput({
               <InputSection
                 title='Demographics'
                 description='These fields drive age and BMI risk calculations.'
+                defaultOpen={true}
               >
                 <div className='grid gap-4 md:grid-cols-2'>
                   <NumberField
