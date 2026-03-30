@@ -3,10 +3,10 @@ import type { NextRequest } from 'next/server';
 import { getSessionFromRequest } from '@/lib/auth';
 
 export async function middleware(request: NextRequest) {
-  // Only protect /admin routes (not /admin/login)
+  // Protect authenticated app routes (not /admin/login)
   if (
-    request.nextUrl.pathname.startsWith('/admin') &&
-    !request.nextUrl.pathname.startsWith('/admin/login')
+    (request.nextUrl.pathname.startsWith('/admin') && !request.nextUrl.pathname.startsWith('/admin/login')) ||
+    request.nextUrl.pathname.startsWith('/tuning')
   ) {
     const session = await getSessionFromRequest(request);
 
@@ -15,8 +15,11 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Protect API routes under /api/responses (except POST which is public)
-  if (request.nextUrl.pathname.startsWith('/api/responses') && request.method !== 'POST') {
+  // Protect API routes under /api/responses and /api/tuning
+  if (
+    (request.nextUrl.pathname.startsWith('/api/responses') && request.method !== 'POST') ||
+    request.nextUrl.pathname.startsWith('/api/tuning')
+  ) {
     const session = await getSessionFromRequest(request);
 
     if (!session) {
@@ -28,5 +31,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/api/responses/:path*'],
+  matcher: ['/admin/:path*', '/tuning/:path*', '/api/responses/:path*', '/api/tuning/:path*'],
 };
