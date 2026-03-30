@@ -3,7 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { FullReportResult } from '@/lib/diagnosis-algorithms';
+import type { DiagnosisScenario } from '@/lib/diagnosis-scenarios';
+import type { FullReportResult } from '@/lib/diagnosis-report-types';
+import { ReviewModePanel } from '@/components/questionnaire/review/ReviewModePanel';
+import {
+  getScenarioExpectationResults,
+  getScenarioExpectationSummary,
+} from '@/lib/scenario-review';
 import {
   Moon,
   Brain,
@@ -14,12 +20,15 @@ import {
   Info,
   Printer,
   Download,
+  TestTube,
 } from 'lucide-react';
 
 interface ReportSectionProps {
   data: QuestionnaireFormData;
   report: FullReportResult;
   onDownloadPDF?: () => void;
+  reviewMode?: boolean | undefined;
+  reviewScenario?: DiagnosisScenario | undefined;
 }
 
 function formatHours(hours: number): string {
@@ -43,8 +52,19 @@ function formatMinutes(mins: number): string {
   return `${mins} minutes`;
 }
 
-export function ReportSection({ data, report, onDownloadPDF }: ReportSectionProps) {
-  const { metrics } = report;
+export function ReportSection({
+  data,
+  report,
+  onDownloadPDF,
+  reviewMode,
+  reviewScenario,
+}: ReportSectionProps) {
+  const { metrics, algorithmBreakdown } = report;
+  const scenarioExpectationResults = reviewScenario
+    ? getScenarioExpectationResults(reviewScenario, report)
+    : [];
+  const scenarioExpectationSummary = getScenarioExpectationSummary(scenarioExpectationResults);
+  const shouldShowReviewModePanel = !!reviewMode && !!reviewScenario && !!algorithmBreakdown;
 
   const handlePrint = () => {
     window.print();
@@ -52,13 +72,32 @@ export function ReportSection({ data, report, onDownloadPDF }: ReportSectionProp
 
   return (
     <div className='space-y-8 print:space-y-4'>
+      {shouldShowReviewModePanel && reviewScenario && (
+        <ReviewModePanel
+          report={report}
+          reviewScenario={reviewScenario}
+          expectationResults={scenarioExpectationResults}
+          expectationSummary={scenarioExpectationSummary}
+        />
+      )}
+
+      {reviewMode && (
+        <Alert className='border-primary/20 bg-background/80 print:hidden'>
+          <Info className='text-primary h-4 w-4' />
+          <AlertDescription className='text-foreground/90'>
+            The algorithm viewer above is the primary review artifact. The remaining sections below
+            are the patient-facing report preview generated from the same fixed scenario inputs.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Header */}
       <div className='space-y-3 text-center'>
         <div className='from-primary/20 to-accent/20 mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br'>
           <Moon className='text-primary h-8 w-8' />
         </div>
         <h1 className='text-foreground text-3xl font-bold tracking-tight md:text-4xl'>
-          Your Sleep Health Report
+          {reviewMode ? 'Patient-Facing Report Preview' : 'Your Sleep Health Report'}
         </h1>
         <p className='text-muted-foreground'>
           Generated on{' '}
@@ -325,7 +364,7 @@ export function ReportSection({ data, report, onDownloadPDF }: ReportSectionProp
                     {report.edsSeverity === 'mild' &&
                       'Mild sleepiness that may indicate insufficient sleep or poor sleep quality. '}
                     {report.hasEDSFromNaps &&
-                      'Frequent long daytime naps suggest your nighttime sleep may not be restorative.'}
+                      'Frequent planned daytime naps suggest your nighttime sleep may not be restorative.'}
                   </p>
                 </div>
               </div>
@@ -433,10 +472,11 @@ export function ReportSection({ data, report, onDownloadPDF }: ReportSectionProp
                 <div>
                   <h4 className='font-semibold'>Symptoms of Chronic Fatigue / Fibromyalgia</h4>
                   <p className='text-muted-foreground text-sm'>
-                    You report non-restorative sleep, muscle/joint pain, and daytime tiredness that
-                    interferes with activities. These symptoms may be associated with fibromyalgia,
-                    chronic fatigue syndrome, post-viral illness (e.g., long COVID), or Lyme
-                    disease. See our website for more information and guidance.
+                    Your responses match the chronic fatigue / fibromyalgia / post-viral symptom
+                    screen based on insomnia symptoms and/or multiple daytime fatigue indicators.
+                    These symptoms may be associated with fibromyalgia, chronic fatigue syndrome,
+                    post-viral illness (e.g., long COVID), or Lyme disease. See our website for more
+                    information and guidance.
                   </p>
                 </div>
               </div>
@@ -814,7 +854,7 @@ export function ReportSection({ data, report, onDownloadPDF }: ReportSectionProp
               </Alert>
             )}
 
-            {report.insomniaSeverity === 'severe' && (
+            {report.insomniaSeverity === 'moderate-to-severe' && (
               <Alert className='alert-warning'>
                 <AlertCircle className='h-4 w-4 text-amber-600' />
                 <AlertDescription className='text-amber-900'>
@@ -842,6 +882,194 @@ export function ReportSection({ data, report, onDownloadPDF }: ReportSectionProp
           </div>
         </CardContent>
       </Card>
+
+      {reviewScenario && !reviewMode && (
+        <Card className='shadow-sleep overflow-hidden border-0'>
+          <CardHeader className='bg-gradient-sleep-header text-white'>
+            <CardTitle className='flex items-center space-x-2 text-white'>
+              <TestTube className='h-5 w-5' />
+              <span>Scenario Verification</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='space-y-4 pt-6'>
+            <div className='bg-primary/5 border-primary/20 rounded-xl border p-4'>
+              <p className='text-foreground text-sm font-semibold'>{reviewScenario.label}</p>
+              <p className='text-muted-foreground mt-1 text-sm leading-relaxed'>
+                {reviewScenario.description}
+              </p>
+              <div className='mt-3 flex flex-wrap gap-2'>
+                <span className='bg-primary/10 text-primary inline-flex rounded-full px-2.5 py-1 text-xs font-semibold'>
+                  {scenarioExpectationSummary.matchedCount}/{scenarioExpectationSummary.totalCount}{' '}
+                  matched
+                </span>
+                <span
+                  className={cn(
+                    'inline-flex rounded-full px-2.5 py-1 text-xs font-semibold',
+                    scenarioExpectationSummary.mismatchCount === 0
+                      ? 'bg-green-100 text-green-700'
+                      : 'bg-amber-100 text-amber-700'
+                  )}
+                >
+                  {scenarioExpectationSummary.mismatchCount === 0
+                    ? 'Expected and actual are aligned'
+                    : `${scenarioExpectationSummary.mismatchCount} mismatch${
+                        scenarioExpectationSummary.mismatchCount === 1 ? '' : 'es'
+                      } to review`}
+                </span>
+              </div>
+            </div>
+
+            <div className='grid gap-3 md:grid-cols-2'>
+              {scenarioExpectationResults.map(result => (
+                <div
+                  key={result.key}
+                  className={cn(
+                    'rounded-xl border p-4',
+                    result.matches
+                      ? 'border-green-200 bg-green-50/50'
+                      : 'border-amber-200 bg-amber-50/50'
+                  )}
+                >
+                  <div className='flex items-start justify-between gap-3'>
+                    <p className='text-foreground text-sm font-semibold'>{result.label}</p>
+                    <span
+                      className={cn(
+                        'inline-flex rounded-full px-2 py-0.5 text-xs font-medium',
+                        result.matches
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-amber-100 text-amber-700'
+                      )}
+                    >
+                      {result.matches ? 'Matched' : 'Mismatch'}
+                    </span>
+                  </div>
+                  <div className='mt-3 space-y-1 text-sm'>
+                    <p className='text-muted-foreground'>
+                      <strong className='text-foreground'>Expected:</strong> {result.expected}
+                    </p>
+                    <p className='text-muted-foreground'>
+                      <strong className='text-foreground'>Actual:</strong> {result.actual}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {algorithmBreakdown && !reviewMode && (
+        <Card className='shadow-sleep overflow-hidden border-0'>
+          <CardHeader className='bg-gradient-sleep-header text-white'>
+            <CardTitle className='flex items-center space-x-2 text-white'>
+              <TestTube className='h-5 w-5' />
+              <span>Algorithm Details (Dev)</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className='pt-6'>
+            <details className='rounded-xl border border-amber-200 bg-amber-50/60 p-4'>
+              <summary className='cursor-pointer list-none font-semibold text-amber-950'>
+                Show scoring breakdown
+              </summary>
+              <p className='mt-3 text-sm text-amber-900/80'>
+                This panel shows the exact inputs, thresholds, and outputs used to build the report.
+              </p>
+
+              <div className='mt-6 space-y-6'>
+                <div>
+                  <h3 className='mb-3 text-sm font-semibold tracking-wide text-amber-950 uppercase'>
+                    Computed Metrics
+                  </h3>
+                  <div className='grid gap-3 md:grid-cols-2'>
+                    {algorithmBreakdown.metrics.map(metric => (
+                      <div
+                        key={metric.label}
+                        className='rounded-lg border border-amber-200 bg-white/80 p-3'
+                      >
+                        <p className='text-sm font-medium text-amber-950'>{metric.label}</p>
+                        <p className='text-foreground mt-1 text-base font-semibold'>
+                          {metric.value}
+                        </p>
+                        {metric.note && (
+                          <p className='text-muted-foreground mt-1 text-xs leading-relaxed'>
+                            {metric.note}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className='mb-3 text-sm font-semibold tracking-wide text-amber-950 uppercase'>
+                    Diagnostic Criteria
+                  </h3>
+                  <div className='space-y-4'>
+                    {algorithmBreakdown.diagnoses.map(diagnosis => (
+                      <div
+                        key={diagnosis.id}
+                        className='rounded-lg border border-amber-200 bg-white/80 p-4'
+                      >
+                        <div className='flex flex-col gap-1 md:flex-row md:items-start md:justify-between'>
+                          <div>
+                            <h4 className='text-foreground font-semibold'>{diagnosis.label}</h4>
+                            <p className='text-muted-foreground text-sm'>{diagnosis.outcome}</p>
+                          </div>
+                        </div>
+
+                        <div className='mt-4 space-y-2'>
+                          {diagnosis.criteria.map(criteria => (
+                            <div
+                              key={`${diagnosis.id}-${criteria.label}`}
+                              className='border-border/60 bg-background/80 rounded-md border p-3'
+                            >
+                              <div className='flex flex-col gap-1 md:flex-row md:items-start md:justify-between'>
+                                <p className='text-foreground text-sm font-medium'>
+                                  {criteria.label}
+                                </p>
+                                <span
+                                  className={cn(
+                                    'inline-flex w-fit rounded-full px-2 py-0.5 text-xs font-medium',
+                                    criteria.met
+                                      ? 'bg-green-100 text-green-700'
+                                      : 'bg-slate-100 text-slate-600'
+                                  )}
+                                >
+                                  {criteria.met ? 'Met' : 'Not met'}
+                                </span>
+                              </div>
+                              <p className='text-muted-foreground mt-1 text-sm'>
+                                <strong className='text-foreground'>Observed:</strong>{' '}
+                                {criteria.actual}
+                              </p>
+                              {criteria.threshold && (
+                                <p className='text-muted-foreground text-sm'>
+                                  <strong className='text-foreground'>Threshold:</strong>{' '}
+                                  {criteria.threshold}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+
+                        {diagnosis.notes && diagnosis.notes.length > 0 && (
+                          <div className='mt-3 space-y-1'>
+                            {diagnosis.notes.map(note => (
+                              <p key={note} className='text-muted-foreground text-xs'>
+                                {note}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </details>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Resources */}
       <Card className='shadow-sleep overflow-hidden border-0'>

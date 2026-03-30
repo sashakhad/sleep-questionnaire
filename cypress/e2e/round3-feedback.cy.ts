@@ -1,3 +1,10 @@
+function getTimeFieldComboboxes(label: string) {
+  return cy
+    .contains(label)
+    .closest('[data-slot="form-item"]')
+    .find('button[role="combobox"]');
+}
+
 describe('Round 3 Client Feedback Changes', () => {
   // 1. Birth year cap
   describe('Birth year cap (demographics)', () => {
@@ -88,7 +95,7 @@ describe('Round 3 Client Feedback Changes', () => {
     });
 
     it('should show all 12 hour options in the hour dropdown', () => {
-      cy.get('button[role="combobox"]').first().click();
+      getTimeFieldComboboxes('turn out the lights').eq(0).click();
       const expectedHours = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
       for (const hour of expectedHours) {
         cy.get('[role="option"]')
@@ -116,18 +123,14 @@ describe('Round 3 Client Feedback Changes', () => {
     });
 
     it('should have PM as the placeholder for bedtime AM/PM selector', () => {
-      cy.contains('turn out the lights')
-        .closest('[data-slot="form-item"]')
-        .find('button[role="combobox"]')
+      getTimeFieldComboboxes('turn out the lights')
         .last()
         .find('span')
         .should('exist');
     });
 
     it('should have AM as the placeholder for wake time AM/PM selector', () => {
-      cy.contains('What time do you wake up?')
-        .closest('[data-slot="form-item"]')
-        .find('button[role="combobox"]')
+      getTimeFieldComboboxes('What time do you wake up?')
         .last()
         .find('span')
         .should('exist');
@@ -221,18 +224,10 @@ describe('Round 3 Client Feedback Changes', () => {
     });
 
     it('should show warning when bedtime is set to AM (daytime hours)', () => {
-      cy.contains('turn out the lights')
-        .closest('[data-slot="form-item"]')
-        .within(() => {
-          cy.get('button[role="combobox"]').eq(0).click();
-        });
+      getTimeFieldComboboxes('turn out the lights').eq(0).click();
       cy.get('[role="option"]').contains('10').click({ force: true });
 
-      cy.contains('turn out the lights')
-        .closest('[data-slot="form-item"]')
-        .within(() => {
-          cy.get('button[role="combobox"]').eq(2).click();
-        });
+      getTimeFieldComboboxes('turn out the lights').eq(2).click();
       cy.get('[role="option"]').contains('AM').click({ force: true });
 
       cy.contains('Your bedtime appears to be set during daytime hours').should('be.visible');

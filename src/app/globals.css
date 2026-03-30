@@ -157,6 +157,101 @@ body {
   }
 }
 
+@layer components {
+  .review-markdown {
+    @apply text-foreground leading-7;
+  }
+
+  .review-markdown > :first-child {
+    margin-top: 0;
+  }
+
+  .review-markdown > * + * {
+    margin-top: 1.25rem;
+  }
+
+  .review-markdown h1 {
+    @apply text-foreground text-4xl font-semibold tracking-tight;
+  }
+
+  .review-markdown h2 {
+    @apply text-foreground mt-10 border-t border-border/70 pt-8 text-2xl font-semibold tracking-tight;
+  }
+
+  .review-markdown h3 {
+    @apply text-foreground mt-8 text-xl font-semibold;
+  }
+
+  .review-markdown h4 {
+    @apply text-foreground mt-6 text-lg font-semibold;
+  }
+
+  .review-markdown p {
+    @apply text-foreground/90 text-base leading-7;
+  }
+
+  .review-markdown ul,
+  .review-markdown ol {
+    @apply space-y-2 pl-6;
+  }
+
+  .review-markdown ul {
+    list-style: disc;
+  }
+
+  .review-markdown ol {
+    list-style: decimal;
+  }
+
+  .review-markdown li {
+    @apply text-foreground/90;
+  }
+
+  .review-markdown a {
+    @apply text-primary font-medium underline underline-offset-4;
+  }
+
+  .review-markdown strong {
+    @apply text-foreground font-semibold;
+  }
+
+  .review-markdown blockquote {
+    @apply border-primary/20 bg-primary/5 rounded-r-xl border-l-4 px-4 py-3;
+  }
+
+  .review-markdown hr {
+    @apply my-10 border-border/70;
+  }
+
+  .review-markdown code {
+    @apply bg-muted rounded px-1.5 py-0.5 font-mono text-[0.925em] text-foreground;
+  }
+
+  .review-markdown pre {
+    @apply bg-card overflow-x-auto rounded-2xl border border-border px-4 py-4 text-sm;
+  }
+
+  .review-markdown pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .review-markdown table {
+    @apply mt-6 w-full text-left text-sm;
+    border-collapse: collapse;
+    display: block;
+    overflow-x: auto;
+  }
+
+  .review-markdown thead {
+    @apply bg-muted/70;
+  }
+
+  .review-markdown th,
+  .review-markdown td {
+    @apply border border-border px-3 py-2 align-top;
+  }
+}
+
 /* Custom utility classes for the sleep theme */
 @layer utilities {
   .text-balance {

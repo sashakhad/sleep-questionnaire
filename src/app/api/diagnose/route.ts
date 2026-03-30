@@ -7,7 +7,8 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const validatedData = questionnaireSchema.parse(body);
-    const report = generateFullReport(validatedData);
+    const includeBreakdown = request.nextUrl.searchParams.get('debug') === '1';
+    const report = generateFullReport(validatedData, { includeBreakdown });
     return NextResponse.json(report);
   } catch (error) {
     if (error instanceof z.ZodError) {
