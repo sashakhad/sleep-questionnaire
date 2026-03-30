@@ -28,6 +28,8 @@ import {
   screenNarcolepsy,
   generateDiagnosisReport,
   generateFullReport,
+  EDS_WEIGHTS,
+  THRESHOLDS,
 } from '../diagnosis-algorithms';
 import {
   diagnosisScenarios,
@@ -415,6 +417,23 @@ describe('calculateEDSScore', () => {
     expect(result.score).toBe(6);
     expect(result.severity).toBe('moderate');
   });
+
+  it('should support custom EDS weight overrides', () => {
+    const data = createBaseQuestionnaireData({
+      daytime: {
+        fallAsleepDuring: ['lectures'],
+        sleepinessInterferes: true,
+      },
+    });
+
+    const result = calculateEDSScore(data, THRESHOLDS, {
+      ...EDS_WEIGHTS,
+      lectures: 4,
+    });
+
+    expect(result.score).toBe(4);
+    expect(result.severity).toBe('mild');
+  });
 });
 
 // =============================================================================
@@ -570,6 +589,28 @@ describe('diagnoseInsomnia', () => {
     expect(result.hasMaintenanceInsomnia).toBe(true);
     expect(result.hasSleepOnsetInsomnia).toBe(false);
     expect(result.hasInsomnia).toBe(true);
+  });
+
+  it('should support custom insomnia thresholds', () => {
+    const data = createBaseQuestionnaireData({
+      scheduledSleep: {
+        minutesToFallAsleep: '20',
+      },
+      daytime: {
+        sleepinessInterferes: true,
+      },
+    });
+
+    const metrics = calculateSleepMetrics(data);
+    const result = diagnoseInsomnia(data, metrics, {
+      ...THRESHOLDS,
+      SOL_MILD_MIN: 20,
+      SOL_MILD_MAX: 30,
+      SOL_MODERATE: 40,
+    });
+
+    expect(result.hasInsomnia).toBe(true);
+    expect(result.severity).toBe('mild');
   });
 
   /**
@@ -1377,6 +1418,51 @@ describe('generateFullReport', () => {
     expect(result.algorithmBreakdown).toBeDefined();
     expect(result.algorithmBreakdown?.metrics.length).toBeGreaterThan(0);
     expect(result.algorithmBreakdown?.diagnoses.length).toBeGreaterThan(0);
+  });
+
+  it('should support a higher minimum sleep threshold override', () => {
+    const data = createBaseQuestionnaireData({
+      daytime: {
+        fallAsleepDuring: ['stoplight', 'meal'],
+        sleepinessInterferes: true,
+      },
+    });
+
+    const defaultResult = generateFullReport(data);
+    const overriddenResult = generateFullReport(data, {
+      thresholds: {
+        ...THRESHOLDS,
+        MIN_RECOMMENDED_SLEEP_HOURS: 8,
+      },
+    });
+
+    expect(defaultResult.hasEDS).toBe(true);
+    expect(defaultResult.hasInsufficientSleep).toBe(false);
+    expect(overriddenResult.hasEDS).toBe(false);
+    expect(overriddenResult.hasInsufficientSleep).toBe(true);
+  });
+
+  it('should reflect custom thresholds inside the algorithm breakdown text', () => {
+    const data = createBaseQuestionnaireData({
+      nightmares: {
+        hasNightmares: true,
+        nightmaresPerWeek: 1,
+      },
+    });
+
+    const result = generateFullReport(data, {
+      includeBreakdown: true,
+      thresholds: {
+        ...THRESHOLDS,
+        NIGHTMARE_DISORDER_THRESHOLD: 1,
+      },
+    });
+    const nightmareBreakdown = result.algorithmBreakdown?.diagnoses.find(
+      diagnosis => diagnosis.id === 'nightmares'
+    );
+
+    expect(result.hasNightmares).toBe(true);
+    expect(nightmareBreakdown?.criteria[0]?.threshold).toBe('1+ per week');
   });
 
   describe('named clinical scenarios', () => {
