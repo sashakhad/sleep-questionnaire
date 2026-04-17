@@ -43,7 +43,11 @@ function getClientIdentifier(request: NextRequest): string {
     return realIp;
   }
 
-  return 'unknown';
+  const userAgent = request.headers.get('user-agent') || '';
+  const accept = request.headers.get('accept') || '';
+  const acceptLang = request.headers.get('accept-language') || '';
+
+  return `fingerprint:${userAgent}:${accept}:${acceptLang}`;
 }
 
 function pruneStaleBuckets(now: number): void {
