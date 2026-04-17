@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 
@@ -10,21 +10,36 @@ interface TuningWalkthroughProps {
   onDismiss?: () => void;
 }
 
-export function TuningWalkthrough({ onDismiss }: TuningWalkthroughProps) {
-  const [dismissed, setDismissed] = useState<boolean | null>(null);
+function subscribeToStorage(listener: () => void): () => void {
+  window.addEventListener('storage', listener);
+  return () => window.removeEventListener('storage', listener);
+}
 
-  useEffect(() => {
-    const storedValue = window.localStorage.getItem(DISMISS_STORAGE_KEY);
-    setDismissed(storedValue === 'true');
-  }, []);
+function getStoredDismissal(): boolean {
+  return window.localStorage.getItem(DISMISS_STORAGE_KEY) === 'true';
+}
+
+function getServerSnapshot(): boolean {
+  // On SSR we assume not dismissed; client hydration will correct if needed.
+  return false;
+}
+
+export function TuningWalkthrough({ onDismiss }: TuningWalkthroughProps) {
+  const storedDismissal = useSyncExternalStore(
+    subscribeToStorage,
+    getStoredDismissal,
+    getServerSnapshot
+  );
+  const [locallyDismissed, setLocallyDismissed] = useState(false);
+  const dismissed = storedDismissal || locallyDismissed;
 
   function handleDismiss() {
     window.localStorage.setItem(DISMISS_STORAGE_KEY, 'true');
-    setDismissed(true);
+    setLocallyDismissed(true);
     onDismiss?.();
   }
 
-  if (dismissed === null || dismissed === true) {
+  if (dismissed) {
     return null;
   }
 

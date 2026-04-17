@@ -96,26 +96,26 @@ function VerdictSummary({ report }: VerdictSummaryProps) {
     notFlaggedLabels.push('Sleep apnea');
   }
 
-  if (report.hasCOMISA) flaggedLabels.push('COMISA');
-  else notFlaggedLabels.push('COMISA');
+  if (report.hasCOMISA) {flaggedLabels.push('COMISA');}
+  else {notFlaggedLabels.push('COMISA');}
 
-  if (report.hasRLS) flaggedLabels.push('RLS');
-  else notFlaggedLabels.push('RLS');
+  if (report.hasRLS) {flaggedLabels.push('RLS');}
+  else {notFlaggedLabels.push('RLS');}
 
-  if (report.hasNarcolepsy) flaggedLabels.push('Narcolepsy');
-  else notFlaggedLabels.push('Narcolepsy');
+  if (report.hasNarcolepsy) {flaggedLabels.push('Narcolepsy');}
+  else {notFlaggedLabels.push('Narcolepsy');}
 
-  if (report.hasNightmares) flaggedLabels.push('Nightmare disorder');
-  else if (report.hasBadDreamWarning) flaggedLabels.push('Bad dream warning');
-  else notFlaggedLabels.push('Nightmares');
+  if (report.hasNightmares) {flaggedLabels.push('Nightmare disorder');}
+  else if (report.hasBadDreamWarning) {flaggedLabels.push('Bad dream warning');}
+  else {notFlaggedLabels.push('Nightmares');}
 
-  if (report.hasChronicFatigueSymptoms) flaggedLabels.push('Chronic fatigue / fibromyalgia');
-  else notFlaggedLabels.push('Chronic fatigue');
+  if (report.hasChronicFatigueSymptoms) {flaggedLabels.push('Chronic fatigue / fibromyalgia');}
+  else {notFlaggedLabels.push('Chronic fatigue');}
 
-  if (report.hasInsufficientSleep) flaggedLabels.push('Insufficient sleep');
-  else notFlaggedLabels.push('Insufficient sleep');
+  if (report.hasInsufficientSleep) {flaggedLabels.push('Insufficient sleep');}
+  else {notFlaggedLabels.push('Insufficient sleep');}
 
-  if (report.chronotypeType === 'delayed') flaggedLabels.push('Delayed sleep phase');
+  if (report.chronotypeType === 'delayed') {flaggedLabels.push('Delayed sleep phase');}
 
   return (
     <div className='bg-card rounded-2xl border p-5'>
@@ -414,7 +414,7 @@ function DiagnosisCard({
 }
 
 function MetricsBar({ metrics }: { metrics: FullReportResult['algorithmBreakdown'] extends infer T ? T : never }) {
-  if (!metrics) return null;
+  if (!metrics) {return null;}
   return (
     <div className='bg-muted/40 rounded-2xl border p-4'>
       <p className='text-muted-foreground text-xs font-semibold tracking-wide uppercase'>
