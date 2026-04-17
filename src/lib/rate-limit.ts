@@ -34,16 +34,34 @@ function getClientIdentifier(request: NextRequest): string {
   if (forwardedFor) {
     const firstIp = forwardedFor.split(',')[0]?.trim();
     if (firstIp) {
-      return firstIp;
+      return `ip:${firstIp}`;
     }
   }
 
   const realIp = request.headers.get('x-real-ip');
   if (realIp) {
-    return realIp;
+    return `ip:${realIp}`;
   }
 
-  return 'unknown';
+  // No IP headers set (e.g. local dev or a proxy that strips them). Fall
+  // back to a fingerprint of request-identifying headers so unidentified
+  // clients do not all share a single bucket and exhaust each other's
+  // quota. Weaker than an IP but better than collapsing every anonymous
+  // visitor into one rate-limit slot.
+  const fingerprintParts = [
+    request.headers.get('user-agent') ?? '',
+    request.headers.get('accept-language') ?? '',
+    request.headers.get('accept-encoding') ?? '',
+    request.headers.get('sec-ch-ua') ?? '',
+    request.headers.get('sec-ch-ua-platform') ?? '',
+  ];
+
+  const fingerprint = fingerprintParts.join('|');
+  if (fingerprint.replace(/\|/g, '').length === 0) {
+    return 'unknown:no-headers';
+  }
+
+  return `fp:${fingerprint}`;
 }
 
 function pruneStaleBuckets(now: number): void {
