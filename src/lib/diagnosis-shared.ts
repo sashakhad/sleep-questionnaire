@@ -332,7 +332,7 @@ export const DIAGNOSIS_THRESHOLD_MAP: Record<string, readonly ThresholdKey[]> = 
   nightmares: ['NIGHTMARE_DISORDER_THRESHOLD', 'BAD_DREAM_WARNING_THRESHOLD'],
   'chronic-fatigue': ['FATIGUE_CHRONIC', 'TIREDNESS_MODERATE'],
   'pain-related': [],
-  'leg-cramps': ['LEG_CRAMPS_CONCERN_THRESHOLD'],
+  'leg-cramps': ['LEG_CRAMPS_CONCERN_THRESHOLD', 'SLEEPINESS_SAFETY_CONCERN'],
 };
 
 /**
