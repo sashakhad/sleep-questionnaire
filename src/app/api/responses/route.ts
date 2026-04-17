@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { questionnaireSchema } from '@/validations/questionnaire';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
+  const rateLimitResponse = checkRateLimit(request, 'submit-response');
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   try {
     const body = await request.json();
 
