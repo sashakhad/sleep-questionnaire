@@ -86,79 +86,6 @@ export const EDS_WEIGHTS: EDSWeightsConfig = {
   meal: 2,
 };
 
-export interface ThresholdSectionDefinition {
-  id: string;
-  label: string;
-  keys: ThresholdKey[];
-}
-
-export const THRESHOLD_SECTIONS: ThresholdSectionDefinition[] = [
-  {
-    id: 'sleep-duration',
-    label: 'Sleep Duration',
-    keys: ['MIN_RECOMMENDED_SLEEP_HOURS'],
-  },
-  {
-    id: 'nap-eds',
-    label: 'Nap EDS',
-    keys: ['NAP_EDS_MIN_DAYS', 'NAP_EDS_MIN_DURATION'],
-  },
-  {
-    id: 'sleep-onset-latency',
-    label: 'Sleep Onset Latency',
-    keys: ['SOL_MILD_MIN', 'SOL_MILD_MAX', 'SOL_MODERATE'],
-  },
-  {
-    id: 'waso',
-    label: 'WASO',
-    keys: ['WASO_MILD_MIN', 'WASO_MILD_MAX', 'WASO_MODERATE'],
-  },
-  {
-    id: 'sleep-efficiency',
-    label: 'Sleep Efficiency',
-    keys: ['SLEEP_EFFICIENCY_NORMAL'],
-  },
-  {
-    id: 'tiredness-fatigue',
-    label: 'Tiredness / Fatigue',
-    keys: [
-      'TIREDNESS_MILD_MIN',
-      'TIREDNESS_MILD_MAX',
-      'TIREDNESS_MODERATE',
-      'FATIGUE_MILD_MIN',
-      'FATIGUE_MILD_MAX',
-      'FATIGUE_MODERATE',
-      'FATIGUE_CHRONIC',
-    ],
-  },
-  {
-    id: 'eds-score',
-    label: 'EDS Score',
-    keys: ['EDS_SCORE_MIN', 'EDS_SCORE_MAX'],
-  },
-  {
-    id: 'sleep-apnea',
-    label: 'Sleep Apnea',
-    keys: [
-      'APNEA_AGE_RISK',
-      'APNEA_BMI_RISK',
-      'APNEA_TIREDNESS_THRESHOLD',
-      'APNEA_MILD_FACTORS',
-      'APNEA_MODERATE_FACTORS',
-    ],
-  },
-  {
-    id: 'nightmares',
-    label: 'Nightmares',
-    keys: ['NIGHTMARE_DISORDER_THRESHOLD', 'BAD_DREAM_WARNING_THRESHOLD'],
-  },
-  {
-    id: 'leg-cramps-safety',
-    label: 'Leg Cramps / Safety',
-    keys: ['LEG_CRAMPS_CONCERN_THRESHOLD', 'SLEEPINESS_SAFETY_CONCERN'],
-  },
-];
-
 export interface ThresholdDefinition {
   key: ThresholdKey;
   label: string;
@@ -361,6 +288,59 @@ export const EDS_WEIGHT_DEFINITIONS: Record<EDSWeightKey, EDSWeightDefinition> =
     description: 'Dozing while eating a meal.',
   },
 };
+
+/**
+ * Maps an `algorithmBreakdown` diagnosis id to the threshold keys that the
+ * tuning UI should surface as editable inputs on that diagnosis card. Keep
+ * this in sync with the `createScoringCriterion` calls in
+ * `generateScoringBreakdown`.
+ */
+export const DIAGNOSIS_THRESHOLD_MAP: Record<string, readonly ThresholdKey[]> = {
+  eds: [
+    'EDS_SCORE_MIN',
+    'EDS_SCORE_MAX',
+    'NAP_EDS_MIN_DAYS',
+    'NAP_EDS_MIN_DURATION',
+    'MIN_RECOMMENDED_SLEEP_HOURS',
+    'SLEEPINESS_SAFETY_CONCERN',
+  ],
+  'insufficient-sleep': ['MIN_RECOMMENDED_SLEEP_HOURS'],
+  insomnia: [
+    'SOL_MILD_MIN',
+    'SOL_MILD_MAX',
+    'SOL_MODERATE',
+    'WASO_MILD_MIN',
+    'WASO_MILD_MAX',
+    'WASO_MODERATE',
+    'SLEEP_EFFICIENCY_NORMAL',
+    'TIREDNESS_MILD_MIN',
+    'TIREDNESS_MILD_MAX',
+    'TIREDNESS_MODERATE',
+    'FATIGUE_MILD_MIN',
+    'FATIGUE_MILD_MAX',
+    'FATIGUE_MODERATE',
+  ],
+  'sleep-apnea': [
+    'APNEA_AGE_RISK',
+    'APNEA_BMI_RISK',
+    'APNEA_TIREDNESS_THRESHOLD',
+    'APNEA_MILD_FACTORS',
+    'APNEA_MODERATE_FACTORS',
+  ],
+  comisa: [],
+  rls: [],
+  narcolepsy: [],
+  nightmares: ['NIGHTMARE_DISORDER_THRESHOLD', 'BAD_DREAM_WARNING_THRESHOLD'],
+  'chronic-fatigue': ['FATIGUE_CHRONIC', 'TIREDNESS_MODERATE'],
+  'pain-related': [],
+  'leg-cramps': ['LEG_CRAMPS_CONCERN_THRESHOLD'],
+};
+
+/**
+ * Diagnosis ids for which we should show the EDS activity weights editor.
+ * Only EDS currently uses the per-activity weights.
+ */
+export const DIAGNOSIS_EDS_WEIGHTS_IDS: readonly string[] = ['eds'];
 
 export function mergeThresholdOverrides(
   overrides?: Partial<ThresholdConfig> | null

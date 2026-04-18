@@ -1,6 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
-import { EDS_WEIGHTS } from '@/lib/diagnosis-shared';
 import { CheckboxField } from '../form-fields/CheckboxField';
 import { NumberField } from '../form-fields/NumberField';
 import { RadioGroupField } from '../form-fields/RadioGroupField';
@@ -23,13 +22,15 @@ interface DaytimeSectionProps {
 }
 
 const fallAsleepOptions = [
-  { value: 'stoplight', label: 'Stopped at a stop light', weight: 2 },
-  { value: 'lectures', label: 'During lectures or work meetings', weight: 1 },
-  { value: 'working', label: 'While working or studying', weight: 1 },
-  { value: 'conversation', label: 'During a conversation', weight: 2 },
-  { value: 'evening', label: 'While engaged in a quiet activity during the evening', weight: 1 },
-  { value: 'meal', label: 'While eating a meal', weight: 2 },
+  { value: 'stoplight', label: 'Stopped at a stop light' },
+  { value: 'lectures', label: 'During lectures or work meetings' },
+  { value: 'working', label: 'While working or studying' },
+  { value: 'conversation', label: 'During a conversation' },
+  { value: 'evening', label: 'While engaged in a quiet activity during the evening' },
+  { value: 'meal', label: 'While eating a meal' },
 ];
+
+const HIGH_RISK_DOZING_ACTIVITIES = new Set(['stoplight', 'conversation', 'meal']);
 
 const weaknessOptions = [
   { value: 'feel_weak', label: 'I feel weak' },
@@ -43,16 +44,19 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
   const sleepinessInterferes = form.watch('daytime.sleepinessInterferes');
   const weaknessWhenExcited = form.watch('daytime.weaknessWhenExcited');
 
-  // Calculate EDS dozing score for narcolepsy/cataplexy popup trigger
-  let edsDozingScore = 0;
-  for (const activity of fallAsleepDuring ?? []) {
-    edsDozingScore += EDS_WEIGHTS[activity] ?? 1;
-  }
+  const dozingActivities = fallAsleepDuring ?? [];
+  const highRiskDozingCount = dozingActivities.filter(activity =>
+    HIGH_RISK_DOZING_ACTIVITIES.has(activity)
+  ).length;
+  const totalDozingCount = dozingActivities.length;
 
-  // Show narcolepsy/cataplexy alert when ANY cataplexy symptom is endorsed
-  // OR when falling asleep dozing score > 6
+  // Alert triggers on any cataplexy symptom, OR a clinically meaningful
+  // number of dozing endorsements. Thresholds here are UI-only and do not
+  // feed the server-side EDS score; real scoring happens server-side.
   const showNarcolepsyCataplexAlert =
-    (weaknessWhenExcited?.length ?? 0) > 0 || edsDozingScore > 6;
+    (weaknessWhenExcited?.length ?? 0) > 0 ||
+    highRiskDozingCount >= 3 ||
+    totalDozingCount >= 4;
 
   // Show narcolepsy/hypersomnia questions only if fall asleep during activities AND sleepiness interferes
   const showNarcolepsyQuestions =

@@ -3,9 +3,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { BatchRunner } from '@/components/tuning/BatchRunner';
+import { DecisionTreeView } from '@/components/tuning/DecisionTreeView';
 import { PatientProfileInput } from '@/components/tuning/PatientProfileInput';
-import { ResultsPanel } from '@/components/tuning/ResultsPanel';
-import { ThresholdEditor } from '@/components/tuning/ThresholdEditor';
+import { TuningWalkthrough } from '@/components/tuning/TuningWalkthrough';
 import { defaultReviewScenario } from '@/lib/diagnosis-scenarios';
 import {
   decodeEDSWeightOverrides,
@@ -18,7 +18,12 @@ import {
   type TuningMode,
 } from '@/lib/diagnosis-tuning';
 import type { FullReportResult } from '@/lib/diagnosis-report-types';
-import type { EDSWeightsConfig, ThresholdConfig, ThresholdKey, EDSWeightKey } from '@/lib/diagnosis-shared';
+import type {
+  EDSWeightKey,
+  EDSWeightsConfig,
+  ThresholdConfig,
+  ThresholdKey,
+} from '@/lib/diagnosis-shared';
 
 interface BatchResponseBody {
   results: TuningBatchScenarioResult[];
@@ -33,7 +38,6 @@ function getErrorMessage(responseBody: unknown, fallbackMessage: string): string
   ) {
     return responseBody.error;
   }
-
   return fallbackMessage;
 }
 
@@ -61,12 +65,10 @@ function updateNumericOverrideState<TKey extends string>(
   value: number | null
 ): Partial<Record<TKey, number>> {
   const nextState = { ...currentState };
-
   if (value === null) {
     delete nextState[key];
     return nextState;
   }
-
   nextState[key] = value;
   return nextState;
 }
@@ -168,7 +170,6 @@ export function TuningDashboard() {
         if (abortController.signal.aborted) {
           return;
         }
-
         setReportError(error instanceof Error ? error.message : 'Failed to generate tuning diagnosis');
       } finally {
         if (!abortController.signal.aborted) {
@@ -189,22 +190,6 @@ export function TuningDashboard() {
 
   function handleEDSWeightChange(key: EDSWeightKey, value: number | null) {
     setEDSWeightOverrides(currentState => updateNumericOverrideState(currentState, key, value));
-  }
-
-  function handleResetThresholdSection(keys: ThresholdKey[]) {
-    setThresholdOverrides(currentState => {
-      const nextState = { ...currentState };
-
-      for (const key of keys) {
-        delete nextState[key];
-      }
-
-      return nextState;
-    });
-  }
-
-  function handleResetEDSWeights() {
-    setEDSWeightOverrides({});
   }
 
   function handleResetAll() {
@@ -246,40 +231,35 @@ export function TuningDashboard() {
   }
 
   return (
-    <div className='mx-auto flex w-full max-w-[1800px] flex-col gap-6 px-4 py-6 lg:px-6'>
+    <div className='mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 lg:px-6'>
       <div className='space-y-2'>
         <p className='text-primary text-sm font-semibold tracking-wide uppercase'>
           Clinical Tuning
         </p>
         <h1 className='text-3xl font-bold tracking-tight'>Algorithm Tuning Dashboard</h1>
-        <p className='text-muted-foreground max-w-4xl leading-relaxed'>
-          Give the clinician a fast, readable surface for adjusting thresholds, testing profiles,
-          and understanding exactly why the algorithm reached each diagnostic outcome.
-        </p>
       </div>
 
-      <div className='grid gap-6 xl:grid-cols-[0.9fr_1.1fr_1fr]'>
-        <ThresholdEditor
-          thresholdOverrides={thresholdOverrides}
-          edsWeightOverrides={edsWeightOverrides}
-          onThresholdChange={handleThresholdChange}
-          onEDSWeightChange={handleEDSWeightChange}
-          onResetThresholdSection={handleResetThresholdSection}
-          onResetEDSWeights={handleResetEDSWeights}
-          onResetAll={handleResetAll}
-        />
+      <TuningWalkthrough />
 
-        <PatientProfileInput
-          mode={mode}
-          selectedScenarioId={selectedScenarioId}
-          onModeChange={setMode}
-          onScenarioChange={setSelectedScenarioId}
-          onCustomDataChange={setCustomData}
-          onCustomValidityChange={setIsCustomProfileValid}
-        />
+      <PatientProfileInput
+        mode={mode}
+        selectedScenarioId={selectedScenarioId}
+        onModeChange={setMode}
+        onScenarioChange={setSelectedScenarioId}
+        onCustomDataChange={setCustomData}
+        onCustomValidityChange={setIsCustomProfileValid}
+      />
 
-        <ResultsPanel report={report} loading={reportLoading} error={reportError} />
-      </div>
+      <DecisionTreeView
+        report={report}
+        loading={reportLoading}
+        error={reportError}
+        thresholdOverrides={thresholdOverrides}
+        edsWeightOverrides={edsWeightOverrides}
+        onThresholdChange={handleThresholdChange}
+        onEDSWeightChange={handleEDSWeightChange}
+        onResetAll={handleResetAll}
+      />
 
       <BatchRunner
         results={batchResults}

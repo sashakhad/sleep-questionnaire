@@ -426,6 +426,50 @@ export function ReportSection({
               </div>
             )}
 
+            {report.hasBadDreamWarning && !report.hasNightmares && (
+              <div className='flex items-start space-x-3'>
+                <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>Frequent Bad Dreams</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    You endorsed frequent bad dreams. This can be a sign of a history of trauma, a
+                    mental health disorder, or can be caused by some medications. See our website
+                    for more information on dreams and nightmares.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {report.hasNarcolepsy && (
+              <div className='flex items-start space-x-3'>
+                <XCircle className='mt-0.5 h-5 w-5 text-red-500' />
+                <div>
+                  <h4 className='font-semibold'>Symptoms of Narcolepsy or Idiopathic Hypersomnia</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    Your responses suggest possible narcolepsy or idiopathic hypersomnia. These are
+                    treatable sleep disorders that can significantly impact daytime functioning and
+                    safety. A consultation with a sleep specialist is strongly recommended. See our
+                    website for more information.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {report.hasAnxiety && (
+              <div className='flex items-start space-x-3'>
+                <XCircle className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>Anxiety Affecting Sleep</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    Anxiety and worries are affecting your sleep. You report that worries about the
+                    next day contribute to difficulty falling asleep and/or persistent rumination
+                    while in bed. This anxiety-sleep cycle needs to be addressed for better sleep
+                    quality.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {report.chronotypeType === 'delayed' && (
               <div className='flex items-start space-x-3'>
                 <Info className='text-primary mt-0.5 h-5 w-5' />
@@ -598,6 +642,9 @@ export function ReportSection({
               !report.hasCOMISA &&
               !report.hasRLS &&
               !report.hasNightmares &&
+              !report.hasBadDreamWarning &&
+              !report.hasNarcolepsy &&
+              !report.hasAnxiety &&
               !report.hasPoorHygiene &&
               !report.hasInsufficientSleep &&
               !report.hasChronicFatigueSymptoms &&

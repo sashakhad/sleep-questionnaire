@@ -58,7 +58,9 @@ export interface FullReportResult {
   hasCOMISA: boolean;
   hasRLS: boolean;
   hasNightmares: boolean;
+  hasBadDreamWarning: boolean;
   hasNarcolepsy: boolean;
+  hasAnxiety: boolean;
   hasEDS: boolean;
   hasInsufficientSleep: boolean;
   hasMildRespiratoryDisturbance: boolean;
