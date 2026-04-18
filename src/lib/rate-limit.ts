@@ -30,17 +30,17 @@ interface BucketState {
 const buckets = new Map<string, BucketState>();
 
 function getClientIdentifier(request: NextRequest): string {
+  const realIp = request.headers.get('x-real-ip');
+  if (realIp) {
+    return `ip:${realIp}`;
+  }
+
   const forwardedFor = request.headers.get('x-forwarded-for');
   if (forwardedFor) {
     const firstIp = forwardedFor.split(',')[0]?.trim();
     if (firstIp) {
       return `ip:${firstIp}`;
     }
-  }
-
-  const realIp = request.headers.get('x-real-ip');
-  if (realIp) {
-    return `ip:${realIp}`;
   }
 
   // No IP headers set (e.g. local dev or a proxy that strips them). Fall
