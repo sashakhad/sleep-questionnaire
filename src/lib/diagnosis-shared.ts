@@ -302,6 +302,7 @@ export const DIAGNOSIS_THRESHOLD_MAP: Record<string, readonly ThresholdKey[]> = 
     'NAP_EDS_MIN_DAYS',
     'NAP_EDS_MIN_DURATION',
     'MIN_RECOMMENDED_SLEEP_HOURS',
+    'SLEEPINESS_SAFETY_CONCERN',
   ],
   'insufficient-sleep': ['MIN_RECOMMENDED_SLEEP_HOURS'],
   insomnia: [
