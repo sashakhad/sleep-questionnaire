@@ -2,8 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { renderToBuffer } from '@react-pdf/renderer'
 import { ReportPDF } from '@/components/questionnaire/ReportPDF'
 import { questionnaireSchema } from '@/validations/questionnaire'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export async function POST(request: NextRequest) {
+  const rateLimitResponse = checkRateLimit(request, 'generate-pdf')
+  if (rateLimitResponse) {
+    return rateLimitResponse
+  }
+
   try {
     const body = await request.json()
     
