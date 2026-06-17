@@ -86,15 +86,31 @@ What changed:
 - Redundant diagnosis questions were removed from the questionnaire.
 - Several report text changes were requested, but those do not alter the scoring logic except for the nightmare threshold.
 
+### Round 4: 2026-06-16 Retainer Feedback
+
+Primary source:
+
+- `docs/correspondence/feedback/2026-06-16/feedback.md`
+
+What changed:
+
+- Leg cramps threshold increased from 2 to 3 nights per week.
+- Bad-dream and nightmare scoring now requires the patient to endorse dream recall.
+- COMISA requires objective insomnia criteria (SOL, WASO, or sleep efficiency), not non-restorative sleep alone.
+- Chronic fatigue / fibromyalgia no longer fires from insomnia alone; it is now pain-anchored with at least two fatigue indicators.
+- Medication-related sleep disturbance excludes melatonin-only use and requires a sleep-affecting medication used at least 3 nights per week.
+- Delayed sleep phase and RLS can recontextualize insomnia symptoms in the report.
+
 ## Authority Rules
 
 Use these precedence rules when implementing or reviewing the algorithm:
 
-1. `additional-comments-2.28.md` overrides earlier nightmare frequency guidance.
-2. `dl-and-cl-comments-1.11.md` overrides earlier insomnia, apnea, chronic fatigue, pain-related, and insufficient sleep logic when they conflict.
-3. `questionnaire-comments.txt` remains the base source for calculations and any rule not explicitly replaced later.
-4. `REQUIREMENTS.md` and `QUESTIONNAIRE_SPEC.md` are supporting summaries, not stronger than later direct correspondence.
-5. If the SOW-era artifacts disagree internally, prefer the more direct source text in `questionnaire-comments.txt` unless later correspondence explicitly resolves the point. `QUESTIONNAIRE_SPEC.md` is still useful, but it appears to preserve some intermediate interpretations rather than a final override.
+1. `feedback.md` from 2026-06-16 overrides earlier guidance for leg cramps, COMISA over-triggering, chronic fatigue over-triggering, melatonin-only medication flags, nightmare nesting, and insomnia attribution under DSPD/RLS.
+2. `additional-comments-2.28.md` overrides earlier nightmare frequency guidance.
+3. `dl-and-cl-comments-1.11.md` overrides earlier insomnia, apnea, chronic fatigue, pain-related, and insufficient sleep logic when they conflict and when not superseded by Round 4.
+4. `questionnaire-comments.txt` remains the base source for calculations and any rule not explicitly replaced later.
+5. `REQUIREMENTS.md` and `QUESTIONNAIRE_SPEC.md` are supporting summaries, not stronger than later direct correspondence.
+6. If the SOW-era artifacts disagree internally, prefer the more direct source text in `questionnaire-comments.txt` unless later correspondence explicitly resolves the point. `QUESTIONNAIRE_SPEC.md` is still useful, but it appears to preserve some intermediate interpretations rather than a final override.
 
 ## Current Algorithm
 
@@ -246,11 +262,13 @@ Primary source:
 Current rule:
 
 - Insomnia criteria met
+- Objective insomnia evidence is present: SOL, WASO, or sleep efficiency criteria are met
 - Sleep apnea or sleep-disordered breathing criteria met
 
 Primary source:
 
 - `docs/correspondence/round-2-edits/dl-and-cl-comments-1.11.md`
+- `docs/correspondence/feedback/2026-06-16/feedback.md`
 
 ### Restless Legs Syndrome (RLS)
 
@@ -294,48 +312,52 @@ Current rule:
 
 - Nightmare disorder if nightmares occur 2 or more nights per week
 - A separate bad-dream warning at 3 or more nights per week appears in round 2, but it should be treated as a carried-forward interpretation unless the client confirms it remained active after round 3
+- Both paths require the patient to endorse remembering dreams.
 
 Source trail:
 
 - Original SOW materials used 3 per week as the practical threshold
 - Round 3 explicitly changed the report threshold to 2 per week
 - Round 2 introduced a separate bad-dreams pathway, but round 3 simplified the questionnaire back to nightmares-per-week only. The bad-dreams branch should therefore be treated as a carried-forward interpretation unless the client confirms it should remain active.
+- Round 4 confirmed nesting under "I remember my dreams," so bad dreams and nightmares are not scored without dream recall.
 
 Current authority:
 
 - Nightmare threshold: `docs/correspondence/round-3-edits/additional-comments-2.28.md`
 - Bad-dream warning: `docs/correspondence/round-2-edits/dl-and-cl-comments-1.11.md`
+- Dream-recall gate: `docs/correspondence/feedback/2026-06-16/feedback.md`
 
 ### Nocturnal Leg Cramps
 
 Current rule:
 
-- If leg cramps occur on 2 or more nights per week, recommend discussing them with a primary care provider
+- If leg cramps occur on 3 or more nights per week, recommend discussing them with a primary care provider
 
 Primary sources:
 
 - `docs/correspondence/round-2-edits/dl-and-cl-comments-1.11.md`
 - `docs/correspondence/round-1-edits/clarification-questions-jan-11.md`
+- `docs/correspondence/feedback/2026-06-16/feedback.md`
 
 Implementation note:
 
-- The threshold itself is clear. The clarification question simply shows that the questionnaire needed a weekly-frequency input in order to apply the rule reliably.
+- The Round 4 threshold is clear. A checked leg-cramps box without a frequency does not create a report finding by itself.
 
 ### Chronic Fatigue / Fibromyalgia / Post-Viral Symptoms
 
 Current rule:
 
-- Insomnia symptoms, or
-- 3 or more of the following:
+- Pain affecting sleep or joint/muscle pain must be present
+- Plus 2 or more of the following fatigue indicators:
   - sleepiness interferes with daily activities
   - sleep does not feel restorative
   - tiredness rating 7+
-  - fatigue rating greater than 7
-  - aches and pains and/or joint pain
+  - fatigue rating 7+
 
 Primary source:
 
 - `docs/correspondence/round-2-edits/dl-and-cl-comments-1.11.md`
+- `docs/correspondence/feedback/2026-06-16/feedback.md`
 
 ### Pain-Related Sleep Disturbance
 
@@ -356,6 +378,20 @@ Best-supported reading:
 Primary source:
 
 - `docs/correspondence/round-2-edits/dl-and-cl-comments-1.11.md`
+
+### Medication-Related Sleep Disturbance
+
+Current rule:
+
+- A sleep-affecting supplement or prescription medication is endorsed
+- The medication is used at least 3 nights per week
+- Sleep issues are present (sleepiness interferes, non-restorative sleep, tiredness >= 5, or fatigue >= 5)
+- Melatonin-only use does not trigger this finding
+- Mental health or medical diagnoses alone do not trigger this finding without an endorsed sleep-affecting medication
+
+Primary source:
+
+- `docs/correspondence/feedback/2026-06-16/feedback.md`
 
 ## Report Language Constraint
 
@@ -384,7 +420,8 @@ These items are now explicitly noted so we do not present them as more settled t
 - Nightmare disorder versus bad dreams: round 2 separated bad dreams from nightmares, while round 3 simplified the questionnaire to nightmares per week and explicitly changed the nightmare threshold to `2+` per week.
 - Narcolepsy / hypersomnia screen: the correspondence supports several screening signals, but it does not provide a fully reconciled final decision tree after the later questionnaire cuts.
 - Pain-related sleep disturbance: the source says "at least two of the following" and includes pain as one item; the current implementation interprets that as pain being required.
-- Chronic fatigue fatigue threshold: the correspondence says "Fatigue rating >7," which could mean strictly greater than 7 rather than `7+`; this should be preserved as written unless the client wants it broadened.
+- Chronic fatigue strictness: Round 4 asked that the threshold be raised because the screen was firing too often. The current implementation is a conservative pain-anchored interpretation that still needs clinical sign-off.
+- Medication-related sleep disturbance: Round 4 confirms melatonin-only should not trigger this finding, but the exact medication/frequency list should still be clinically reviewed.
 - Circadian display thresholds: earlier SOW materials vary on exact social jet lag and mid-sleep cutoffs, so those display-oriented thresholds should be treated as lower-confidence than the round 2 disorder rules.
 
 ## What This Document Is For
