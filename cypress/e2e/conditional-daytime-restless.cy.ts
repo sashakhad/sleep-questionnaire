@@ -101,23 +101,23 @@ describe('Daytime and Restless Legs Conditionals', () => {
       cy.contains('How many nights per week do you experience leg cramps?').should('exist');
     });
 
-    it('should show Frequent Nocturnal Leg Cramps warning when legCrampsPerWeek is 2', () => {
+    it('should show Frequent Nocturnal Leg Cramps warning when legCrampsPerWeek is 3', () => {
+      cy.checkCheckbox('I experience leg cramps at night');
+      cy.contains('label', /how many nights per week do you experience leg cramps/i)
+        .closest('[data-slot="form-item"]')
+        .find('input')
+        .clear()
+        .type('3');
+      cy.contains('strong', 'Frequent Nocturnal Leg Cramps').should('exist');
+    });
+
+    it('should not show Frequent Nocturnal Leg Cramps warning when legCrampsPerWeek is 2', () => {
       cy.checkCheckbox('I experience leg cramps at night');
       cy.contains('label', /how many nights per week do you experience leg cramps/i)
         .closest('[data-slot="form-item"]')
         .find('input')
         .clear()
         .type('2');
-      cy.contains('strong', 'Frequent Nocturnal Leg Cramps').should('exist');
-    });
-
-    it('should not show Frequent Nocturnal Leg Cramps warning when legCrampsPerWeek is 1', () => {
-      cy.checkCheckbox('I experience leg cramps at night');
-      cy.contains('label', /how many nights per week do you experience leg cramps/i)
-        .closest('[data-slot="form-item"]')
-        .find('input')
-        .clear()
-        .type('1');
       cy.contains('strong', 'Frequent Nocturnal Leg Cramps').should('not.exist');
     });
 

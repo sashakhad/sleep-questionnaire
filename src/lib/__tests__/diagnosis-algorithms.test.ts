@@ -148,8 +148,10 @@ function createBaseQuestionnaireData(
     sleepHygiene: {
       supplements: [],
       supplementsOther: '',
+      supplementsFrequencyPerWeek: null,
       prescriptionMeds: [],
       prescriptionMedsOther: '',
+      prescriptionMedsFrequencyPerWeek: null,
       stimulants: '',
       stimulantTime: '',
       smokesNicotine: false,
@@ -799,6 +801,7 @@ describe('hasCOMISA', () => {
     const insomnia = {
       hasSleepOnsetInsomnia: true,
       hasMaintenanceInsomnia: false,
+      hasObjectiveInsomnia: true,
       hasInsomnia: true,
       severity: 'mild' as const,
       daytimeImpactCount: 2,
@@ -820,6 +823,7 @@ describe('hasCOMISA', () => {
     const insomnia = {
       hasSleepOnsetInsomnia: true,
       hasMaintenanceInsomnia: false,
+      hasObjectiveInsomnia: true,
       hasInsomnia: true,
       severity: 'mild' as const,
       daytimeImpactCount: 2,
@@ -831,6 +835,28 @@ describe('hasCOMISA', () => {
       hasMildRespiratoryDisturbance: false,
       hasProbableSleepApnea: false,
       severity: 'none' as const,
+      riskFactorCount: 0,
+    };
+
+    expect(hasCOMISA(insomnia, sleepApnea)).toBe(false);
+  });
+
+  it('should NOT detect COMISA without objective insomnia criteria', () => {
+    const insomnia = {
+      hasSleepOnsetInsomnia: false,
+      hasMaintenanceInsomnia: false,
+      hasObjectiveInsomnia: false,
+      hasInsomnia: true,
+      severity: 'mild' as const,
+      daytimeImpactCount: 2,
+    };
+
+    const sleepApnea = {
+      hasSnoringOnly: false,
+      hasMouthBreathingOnly: false,
+      hasMildRespiratoryDisturbance: true,
+      hasProbableSleepApnea: false,
+      severity: 'mild' as const,
       riskFactorCount: 0,
     };
 
@@ -873,14 +899,33 @@ describe('diagnoseRLS', () => {
 });
 
 describe('hasLegCrampsConcern', () => {
-  it('should flag concern when leg cramps present', () => {
+  it('should flag concern when leg cramps occur at least 3 nights per week', () => {
     const data = createBaseQuestionnaireData({
       restlessLegs: {
         legCramps: true,
+        legCrampsPerWeek: 3,
       },
     });
 
     expect(hasLegCrampsConcern(data)).toBe(true);
+  });
+
+  it('should NOT flag concern when leg cramps are below threshold or frequency is blank', () => {
+    const belowThreshold = createBaseQuestionnaireData({
+      restlessLegs: {
+        legCramps: true,
+        legCrampsPerWeek: 2,
+      },
+    });
+    const blankFrequency = createBaseQuestionnaireData({
+      restlessLegs: {
+        legCramps: true,
+        legCrampsPerWeek: null,
+      },
+    });
+
+    expect(hasLegCrampsConcern(belowThreshold)).toBe(false);
+    expect(hasLegCrampsConcern(blankFrequency)).toBe(false);
   });
 
   it('should NOT flag concern when no leg cramps', () => {
@@ -918,7 +963,7 @@ describe('screenChronicFatigue', () => {
     expect(result.symptomCount).toBeGreaterThanOrEqual(3);
   });
 
-  it('should detect chronic fatigue with insomnia present', () => {
+  it('should NOT detect chronic fatigue from insomnia alone', () => {
     const data = createBaseQuestionnaireData({
       scheduledSleep: {
         minutesToFallAsleep: '50', // Insomnia
@@ -934,7 +979,7 @@ describe('screenChronicFatigue', () => {
     const result = screenChronicFatigue(data, insomnia);
 
     expect(insomnia.hasInsomnia).toBe(true);
-    expect(result.hasSymptoms).toBe(true);
+    expect(result.hasSymptoms).toBe(false);
   });
 });
 
@@ -983,6 +1028,7 @@ describe('diagnoseMedicationRelatedSleepDisturbance', () => {
     const data = createBaseQuestionnaireData({
       sleepHygiene: {
         supplements: ['melatonin', 'benadryl'],
+        supplementsFrequencyPerWeek: 3,
         prescriptionMeds: [],
       },
       daytime: {
@@ -994,8 +1040,27 @@ describe('diagnoseMedicationRelatedSleepDisturbance', () => {
     const result = diagnoseMedicationRelatedSleepDisturbance(data);
 
     expect(result.hasCondition).toBe(true);
-    expect(result.relevantMedications).toContain('melatonin');
+    expect(result.relevantMedications).not.toContain('melatonin');
     expect(result.relevantMedications).toContain('benadryl');
+  });
+
+  it('should NOT detect medication-related disturbance for melatonin-only use', () => {
+    const data = createBaseQuestionnaireData({
+      sleepHygiene: {
+        supplements: ['melatonin'],
+        supplementsFrequencyPerWeek: 7,
+        prescriptionMeds: [],
+      },
+      daytime: {
+        sleepinessInterferes: true,
+        tirednessRating: 6,
+      },
+    });
+
+    const result = diagnoseMedicationRelatedSleepDisturbance(data);
+
+    expect(result.hasCondition).toBe(false);
+    expect(result.relevantMedications).toHaveLength(0);
   });
 
   it('should detect with prescription sleep medications', () => {
@@ -1003,6 +1068,7 @@ describe('diagnoseMedicationRelatedSleepDisturbance', () => {
       sleepHygiene: {
         supplements: [],
         prescriptionMeds: ['z_drugs', 'antidepressants'],
+        prescriptionMedsFrequencyPerWeek: 3,
       },
       daytime: {
         sleepinessInterferes: true,
@@ -1023,6 +1089,7 @@ describe('diagnoseNightmares', () => {
   it('should detect nightmare disorder with 2+ per week', () => {
     const data = createBaseQuestionnaireData({
       nightmares: {
+        remembersDreams: true,
         hasNightmares: true,
         nightmaresPerWeek: 3,
         associatedWithTrauma: false,
@@ -1038,6 +1105,7 @@ describe('diagnoseNightmares', () => {
   it('should NOT flag disorder with 1 per week', () => {
     const data = createBaseQuestionnaireData({
       nightmares: {
+        remembersDreams: true,
         hasNightmares: true,
         nightmaresPerWeek: 1,
         associatedWithTrauma: false,
@@ -1047,6 +1115,23 @@ describe('diagnoseNightmares', () => {
     const result = diagnoseNightmares(data);
 
     expect(result.hasNightmareDisorder).toBe(false);
+  });
+
+  it('should NOT score nightmares or bad dreams when dreams are not remembered', () => {
+    const data = createBaseQuestionnaireData({
+      nightmares: {
+        remembersDreams: false,
+        hasBadDreams: true,
+        badDreamsPerWeek: 5,
+        hasNightmares: true,
+        nightmaresPerWeek: 3,
+      },
+    });
+
+    const result = diagnoseNightmares(data);
+
+    expect(result.hasNightmareDisorder).toBe(false);
+    expect(result.hasBadDreamWarning).toBe(false);
   });
 });
 
@@ -1212,12 +1297,15 @@ describe('generateFullReport', () => {
     expect(typeof result.edsScore).toBe('number');
     expect(result.edsSeverity).toBe('none');
     expect(result.hasInsomnia).toBe(false);
+    expect(result.insomniaLikelyCircadian).toBe(false);
+    expect(result.insomniaLikelyRLS).toBe(false);
     expect(result.hasOSA).toBe(false);
     expect(result.hasCOMISA).toBe(false);
     expect(result.hasRLS).toBe(false);
     expect(result.hasNightmares).toBe(false);
     expect(result.hasEDS).toBe(false);
     expect(result.hasInsufficientSleep).toBe(false);
+    expect(result.hasUnderweight).toBe(false);
     expect(typeof result.avgWeeklySleep).toBe('number');
   });
 
@@ -1254,6 +1342,25 @@ describe('generateFullReport', () => {
     expect(result.hasInsomnia).toBe(true);
     expect(result.hasOSA).toBe(true);
     expect(result.hasCOMISA).toBe(true);
+  });
+
+  it('should not detect COMISA when insomnia is non-restorative-only', () => {
+    const data = createBaseQuestionnaireData({
+      scheduledSleep: {
+        minutesToFallAsleep: '10',
+        minutesAwakeAtNight: '10',
+      },
+      daytime: {
+        sleepinessInterferes: true,
+        nonRestorativeSleep: true,
+      },
+      breathingDisorders: { mouthBreathes: true },
+    });
+    const result = generateFullReport(data);
+
+    expect(result.hasInsomnia).toBe(true);
+    expect(result.hasMildRespiratoryDisturbance).toBe(true);
+    expect(result.hasCOMISA).toBe(false);
   });
 
   it('should not flag EDS when weekly sleep is under 7 hours (insufficient sleep instead)', () => {
@@ -1298,14 +1405,55 @@ describe('generateFullReport', () => {
 
   it('should flag nightmares at the updated threshold >= 2/week', () => {
     const below = createBaseQuestionnaireData({
-      nightmares: { nightmaresPerWeek: 1 },
+      nightmares: { remembersDreams: true, nightmaresPerWeek: 1 },
     });
     expect(generateFullReport(below).hasNightmares).toBe(false);
 
     const atThreshold = createBaseQuestionnaireData({
-      nightmares: { nightmaresPerWeek: 2 },
+      nightmares: { remembersDreams: true, nightmaresPerWeek: 2 },
     });
     expect(generateFullReport(atThreshold).hasNightmares).toBe(true);
+  });
+
+  it('should flag underweight BMI below 18', () => {
+    const data = createBaseQuestionnaireData({
+      demographics: {
+        weight: 110,
+        height: 70,
+      },
+    });
+
+    expect(generateFullReport(data).hasUnderweight).toBe(true);
+  });
+
+  it('should mark insomnia as likely circadian when delayed chronotype is present', () => {
+    const data = createBaseQuestionnaireData({
+      scheduledSleep: { minutesToFallAsleep: '50' },
+      daytime: { sleepinessInterferes: true, nonRestorativeSleep: true },
+      chronotype: { preference: 'late' },
+    });
+    const result = generateFullReport(data);
+
+    expect(result.hasInsomnia).toBe(true);
+    expect(result.chronotypeType).toBe('delayed');
+    expect(result.insomniaLikelyCircadian).toBe(true);
+  });
+
+  it('should mark insomnia as likely RLS when RLS is present without delayed chronotype', () => {
+    const data = createBaseQuestionnaireData({
+      scheduledSleep: { minutesToFallAsleep: '50' },
+      daytime: { sleepinessInterferes: true, nonRestorativeSleep: true },
+      restlessLegs: {
+        troubleLyingStill: true,
+        urgeToMoveLegs: true,
+        movementRelieves: true,
+      },
+    });
+    const result = generateFullReport(data);
+
+    expect(result.hasInsomnia).toBe(true);
+    expect(result.hasRLS).toBe(true);
+    expect(result.insomniaLikelyRLS).toBe(true);
   });
 
   it('should flag EDS from planned naps at 3 days per week and 30 minutes', () => {
@@ -1445,6 +1593,7 @@ describe('generateFullReport', () => {
   it('should reflect custom thresholds inside the algorithm breakdown text', () => {
     const data = createBaseQuestionnaireData({
       nightmares: {
+        remembersDreams: true,
         hasNightmares: true,
         nightmaresPerWeek: 1,
       },
@@ -1462,7 +1611,7 @@ describe('generateFullReport', () => {
     );
 
     expect(result.hasNightmares).toBe(true);
-    expect(nightmareBreakdown?.criteria[0]?.threshold).toBe('1+ per week');
+    expect(nightmareBreakdown?.criteria[1]?.threshold).toBe('1+ per week');
   });
 
   describe('named clinical scenarios', () => {

@@ -18,12 +18,12 @@ describe('Nightmare and Parasomnia Conditionals', () => {
     });
 
     it('should show badDreamsPerWeek when bad dreams checkbox is checked', () => {
-      cy.checkCheckbox('I have bad dreams, but not nightmares');
+      cy.checkCheckbox('I have bad dreams');
       cy.contains('How many nights a week do you have bad dreams?').should('exist');
     });
 
     it('should show Frequent Bad Dreams warning when badDreamsPerWeek is 3', () => {
-      cy.checkCheckbox('I have bad dreams, but not nightmares');
+      cy.checkCheckbox('I have bad dreams');
       cy.contains('label', /how many nights a week do you have bad dreams/i)
         .closest('[data-slot="form-item"]')
         .find('input')
@@ -33,7 +33,7 @@ describe('Nightmare and Parasomnia Conditionals', () => {
     });
 
     it('should not show Frequent Bad Dreams warning when badDreamsPerWeek is 2', () => {
-      cy.checkCheckbox('I have bad dreams, but not nightmares');
+      cy.checkCheckbox('I have bad dreams');
       cy.contains('label', /how many nights a week do you have bad dreams/i)
         .closest('[data-slot="form-item"]')
         .find('input')
