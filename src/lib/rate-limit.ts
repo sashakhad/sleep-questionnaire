@@ -29,6 +29,10 @@ interface BucketState {
 
 const buckets = new Map<string, BucketState>();
 
+function isRateLimitDisabled(): boolean {
+  return process.env.DISABLE_RATE_LIMIT === '1';
+}
+
 function getClientIdentifier(request: NextRequest): string {
   const forwardedFor = request.headers.get('x-forwarded-for');
   if (forwardedFor) {
@@ -85,6 +89,10 @@ export function recordRateLimitHit(
   request: NextRequest,
   limitName: keyof typeof RATE_LIMIT_CONFIGS | string
 ): RateLimitResult {
+  if (isRateLimitDisabled()) {
+    return { allowed: true, remaining: Number.POSITIVE_INFINITY, retryAfterSeconds: 0 };
+  }
+
   const config = RATE_LIMIT_CONFIGS[limitName];
   if (!config) {
     return { allowed: true, remaining: Number.POSITIVE_INFINITY, retryAfterSeconds: 0 };
