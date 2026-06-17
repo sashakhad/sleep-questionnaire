@@ -10,6 +10,7 @@ import {
   getScenarioExpectationResults,
   getScenarioExpectationSummary,
 } from '@/lib/scenario-review';
+import { getSelectedSleepMedicationLabels } from '@/lib/sleep-medication-labels';
 import {
   Moon,
   Brain,
@@ -60,6 +61,14 @@ export function ReportSection({
   reviewScenario,
 }: ReportSectionProps) {
   const { metrics, algorithmBreakdown } = report;
+  const medicationLabels = getSelectedSleepMedicationLabels(data);
+  const medicationList =
+    medicationLabels.length > 0 ? medicationLabels.join(', ') : 'the medications you listed';
+  const hasSleepDisorderedBreathing =
+    report.hasOSA || report.hasCOMISA || report.hasMildRespiratoryDisturbance;
+  const hasAdhdOrDepression = data.mentalHealth.diagnosedMentalHealthConditions.some(condition =>
+    ['adhd', 'depression'].includes(condition)
+  );
   const scenarioExpectationResults = reviewScenario
     ? getScenarioExpectationResults(reviewScenario, report)
     : [];
@@ -278,7 +287,7 @@ export function ReportSection({
                 <span className='text-amber-600'>
                   {' '}
                   — Catching up more than 1.5 hours on weekends suggests insufficient sleep during
-                  the week.
+                  the week or a circadian rhythm disorder.
                 </span>
               )}
             </p>
@@ -297,7 +306,10 @@ export function ReportSection({
                 <span className='text-amber-600'>
                   {' '}
                   — Sleeping later on weekends suggests catch-up sleep and a propensity for a later
-                  chronotype.
+                  chronotype
+                  {report.hasInsufficientSleep
+                    ? ' and insufficient nightly sleep.'
+                    : ' and a possible circadian rhythm disorder.'}
                 </span>
               )}
             </p>
@@ -325,11 +337,18 @@ export function ReportSection({
                 <XCircle className='mt-0.5 h-5 w-5 text-red-500' />
                 <div>
                   <h4 className='font-semibold'>
-                    Symptoms of Insomnia Disorder ({report.insomniaSeverity})
+                    {report.insomniaLikelyCircadian
+                      ? 'Insomnia Symptoms Likely Due to Circadian Rhythm Disorder'
+                      : report.insomniaLikelyRLS
+                        ? 'Insomnia Symptoms Likely Related to Restless Legs Syndrome'
+                        : `Symptoms of Insomnia Disorder (${report.insomniaSeverity})`}
                   </h4>
                   <p className='text-muted-foreground text-sm'>
-                    Difficulty falling asleep and/or staying asleep with daytime impairment. See our
-                    website for more information and guidance.
+                    {report.insomniaLikelyCircadian
+                      ? 'You report insomnia symptoms, but your delayed sleep timing suggests these symptoms are likely due to a circadian rhythm disorder. The circadian sleep pattern should be considered a preliminary assessment and treatment priority.'
+                      : report.insomniaLikelyRLS
+                        ? 'You report insomnia symptoms, but your restless legs symptoms may be a primary driver of difficulty falling asleep. RLS should be considered a preliminary assessment and treatment priority.'
+                        : 'Difficulty falling asleep and/or staying asleep with daytime impairment. See our website for more information and guidance.'}
                   </p>
                 </div>
               </div>
@@ -358,13 +377,15 @@ export function ReportSection({
                   </h4>
                   <p className='text-muted-foreground text-sm'>
                     {report.edsSeverity === 'severe' &&
-                      'Falling asleep inappropriately suggests possible narcolepsy, idiopathic hypersomnia, or severe sleep debt. '}
+                      'Falling asleep at inappropriate times suggests possible narcolepsy or idiopathic hypersomnia. '}
                     {report.edsSeverity === 'moderate' &&
-                      'Significant daytime sleepiness possibly due to moderate sleep debt, insufficient sleep, or snoring/sleep apnea. '}
+                      'Significant daytime sleepiness may be due to a disorder of excessive daytime sleepiness or another sleep disorder. '}
                     {report.edsSeverity === 'mild' &&
-                      'Mild sleepiness that may indicate insufficient sleep or poor sleep quality. '}
+                      'Mild sleepiness may indicate poor sleep quality or another sleep disorder. '}
                     {report.hasEDSFromNaps &&
                       'Frequent planned daytime naps suggest your nighttime sleep may not be restorative.'}
+                    {hasSleepDisorderedBreathing &&
+                      ' It is common for people with a disorder of excessive daytime sleepiness to also have sleep-disordered breathing or obstructive sleep apnea syndrome.'}
                   </p>
                 </div>
               </div>
@@ -391,10 +412,10 @@ export function ReportSection({
                     Symptoms of COMISA (Comorbid Insomnia and Sleep Apnea)
                   </h4>
                   <p className='text-muted-foreground text-sm'>
-                    You show symptoms of both insomnia and sleep apnea occurring together. COMISA is
-                    a complex condition that affects approximately 30-50% of people with either
-                    disorder. See our website for more information and guidance on treatment
-                    approaches.
+                    You show symptoms of both insomnia and sleep-disordered breathing, which in its
+                    more severe form is called obstructive sleep apnea syndrome. COMISA requires
+                    coordinated treatment of both conditions. See our website for more information
+                    and guidance on treatment approaches.
                   </p>
                 </div>
               </div>
@@ -470,13 +491,28 @@ export function ReportSection({
               </div>
             )}
 
+            {report.hasUnderweight && (
+              <div className='flex items-start space-x-3'>
+                <Info className='mt-0.5 h-5 w-5 text-amber-500' />
+                <div>
+                  <h4 className='font-semibold'>Low BMI</h4>
+                  <p className='text-muted-foreground text-sm'>
+                    Your low BMI is suggestive of being underweight. While difficult to discuss, we
+                    strongly recommend that you talk to your doctor about low BMI and symptoms of
+                    eating disorders.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {report.chronotypeType === 'delayed' && (
               <div className='flex items-start space-x-3'>
                 <Info className='text-primary mt-0.5 h-5 w-5' />
                 <div>
                   <h4 className='font-semibold'>Symptoms of Delayed Sleep Phase Disorder</h4>
                   <p className='text-muted-foreground text-sm'>
-                    Natural tendency to sleep and wake later than conventional times. See our
+                    Natural tendency to sleep and wake later than conventional times. This may be
+                    contributing to decreased total sleep time and daytime impairment. See our
                     website for more information and guidance.
                   </p>
                 </div>
@@ -489,7 +525,8 @@ export function ReportSection({
                 <div>
                   <h4 className='font-semibold'>Sleep Hygiene Issues</h4>
                   <p className='text-muted-foreground text-sm'>
-                    Lifestyle factors that may be impacting sleep quality
+                    Lifestyle factors that may be impacting sleep quality, including caffeine timing
+                    or amount, exercise patterns, tobacco or nicotine use, or bedroom environment.
                   </p>
                 </div>
               </div>
@@ -503,8 +540,9 @@ export function ReportSection({
                   <p className='text-muted-foreground text-sm'>
                     Your average sleep time of {report.avgWeeklySleep.toFixed(1)} hours is below the
                     recommended 7+ hours. Combined with your daytime sleepiness, this suggests you
-                    are not getting enough sleep to meet your body&apos;s needs. See our website for
-                    more information and guidance.
+                    are not getting enough sleep to meet your body&apos;s needs. You reported symptoms
+                    of excessive daytime sleepiness that are likely due to this and/or other sleep
+                    disorders. See our website for more information and guidance.
                   </p>
                 </div>
               </div>
@@ -516,11 +554,11 @@ export function ReportSection({
                 <div>
                   <h4 className='font-semibold'>Symptoms of Chronic Fatigue / Fibromyalgia</h4>
                   <p className='text-muted-foreground text-sm'>
-                    Your responses match the chronic fatigue / fibromyalgia / post-viral symptom
-                    screen based on insomnia symptoms and/or multiple daytime fatigue indicators.
-                    These symptoms may be associated with fibromyalgia, chronic fatigue syndrome,
-                    post-viral illness (e.g., long COVID), or Lyme disease. See our website for more
-                    information and guidance.
+                    Chronic fatigue syndrome and fibromyalgia are difficult to diagnose disorders
+                    that involve a combination of non-restorative sleep, pain, and fatigue. These
+                    symptoms may be associated with fibromyalgia, chronic fatigue syndrome,
+                    post-viral illness, or Lyme disease. See our website for more information and
+                    guidance.
                   </p>
                 </div>
               </div>
@@ -564,12 +602,10 @@ export function ReportSection({
                 <div>
                   <h4 className='font-semibold'>Medication-Related Sleep Disturbance</h4>
                   <p className='text-muted-foreground text-sm'>
-                    The medications that you are currently taking can contribute to sleep
-                    disturbance and your sleepiness/tiredness or fatigue during the day. Please
-                    check out our website for more information and discuss the impact of your
-                    medications on your sleep with your medical provider. Do not discontinue
-                    prescription or over the counter medications that your medical providers have
-                    recommended.
+                    Your medications ({medicationList}) may be contributing to your sleep
+                    difficulties. Visit our website for more information and discuss the impact of
+                    your medications on your sleep with your primary care provider. Please do not
+                    discontinue any medications without consulting your prescribing provider.
                   </p>
                 </div>
               </div>
@@ -599,7 +635,7 @@ export function ReportSection({
                   <p className='text-muted-foreground text-sm'>
                     Your nocturnal leg cramps can be sleep disruptors and can be a sign of age,
                     muscle fatigue, an electrolyte or other imbalance. They can be more common
-                    during pregnancy. Since these occur on two or more nights a week, we suggest
+                    during pregnancy. Since these occur on three or more nights a week, we suggest
                     that you discuss these symptoms with your primary care provider.
                   </p>
                 </div>
@@ -645,6 +681,7 @@ export function ReportSection({
               !report.hasBadDreamWarning &&
               !report.hasNarcolepsy &&
               !report.hasAnxiety &&
+              !report.hasUnderweight &&
               !report.hasPoorHygiene &&
               !report.hasInsufficientSleep &&
               !report.hasChronicFatigueSymptoms &&
@@ -683,9 +720,11 @@ export function ReportSection({
               <div>
                 <h4 className='mb-2 font-semibold'>For Your Insomnia Symptoms:</h4>
                 <p className='text-foreground/80 text-sm'>
-                  Based on your responses, we recommend exploring treatment options for insomnia.
-                  Visit our website for detailed information on evidence-based treatments including
-                  Cognitive Behavioral Therapy for Insomnia (CBT-I) and other strategies.
+                  {report.insomniaLikelyCircadian
+                    ? 'Your insomnia symptoms may be due to a circadian rhythm disorder. A sleep specialist can help assess whether shifting your sleep schedule should be the first treatment priority.'
+                    : report.insomniaLikelyRLS
+                      ? 'Your insomnia symptoms may be related to probable restless legs syndrome. Assessment and treatment of RLS may be the first treatment priority.'
+                      : 'Based on your responses, we recommend exploring treatment options for insomnia. Insomnia is a common sleep disorder that involves difficulty falling asleep, staying asleep, or poor sleep quality that is associated with daytime impairment. The most effective treatment for insomnia is Cognitive Behavior Therapy for Insomnia (CBT-I). Please visit our website for detailed information on CBT-I and other strategies.'}
                 </p>
               </div>
             )}
@@ -699,6 +738,8 @@ export function ReportSection({
                   Based on your responses, we recommend evaluation for sleep apnea. This is an
                   important health condition that warrants attention. Visit our website for detailed
                   information on sleep studies, treatment options, and next steps.
+                  {(report.hasEDS || report.hasNarcolepsy) &&
+                    ' It is common for people with a disorder of excessive daytime sleepiness to also have sleep-disordered breathing or obstructive sleep apnea syndrome.'}
                 </p>
               </div>
             )}
@@ -709,9 +750,12 @@ export function ReportSection({
                   ⚠️ Important: COMISA Evaluation Recommended
                 </h4>
                 <p className='text-foreground/80 text-sm'>
-                  Your symptoms suggest COMISA (Comorbid Insomnia and Sleep Apnea), which requires
-                  coordinated treatment of both conditions. Visit our website for detailed
-                  information on comprehensive evaluation and treatment approaches.
+                  Your symptoms suggest COMISA (Comorbid Insomnia and Sleep Apnea), which means that
+                  you have symptoms of both insomnia and sleep-disordered breathing. COMISA requires
+                  coordinated treatment of both conditions. You can tell your primary care doctor or
+                  a sleep doctor that you are concerned that you have signs of sleep-disordered
+                  breathing and want to know options for assessment and diagnosis. Visit our website
+                  for detailed information on comprehensive evaluation and treatment approaches.
                 </p>
               </div>
             )}
@@ -734,8 +778,10 @@ export function ReportSection({
                 </h4>
                 <p className='text-foreground/80 text-sm'>
                   You&apos;re averaging {report.avgWeeklySleep.toFixed(1)} hours of sleep per night.
-                  Most adults need 7-9 hours for optimal health and functioning. Visit our website
-                  for strategies to improve your sleep duration and schedule.
+                  Most adults need 7-9 hours for optimal health and functioning. You reported
+                  daytime sleepiness that is likely due to insufficient sleep and/or other sleep
+                  disorders. Visit our website for strategies to improve your sleep duration and
+                  schedule.
                 </p>
               </div>
             )}
@@ -744,9 +790,11 @@ export function ReportSection({
               <div>
                 <h4 className='mb-2 font-semibold text-amber-600'>For Chronic Fatigue Symptoms:</h4>
                 <p className='text-foreground/80 text-sm'>
-                  Your combination of non-restorative sleep, pain, and fatigue warrants medical
-                  evaluation. Visit our website for detailed information on evaluation options and
-                  management strategies.
+                  Chronic fatigue syndrome and fibromyalgia involve combinations of non-restorative
+                  sleep, pain, and fatigue and can be difficult to diagnose. Visit our website for
+                  detailed information on evaluation options and management strategies. You might
+                  also raise this with your primary care doctor and ask whether referral to a sleep
+                  specialist, neurologist, or rheumatologist is appropriate.
                 </p>
               </div>
             )}
@@ -777,10 +825,10 @@ export function ReportSection({
               <div>
                 <h4 className='mb-2 font-semibold'>For Medication-Related Sleep Disturbance:</h4>
                 <p className='text-foreground/80 text-sm'>
-                  Your medications may be contributing to your sleep difficulties. Visit our website
-                  for more information and discuss the impact of your medications on your sleep with
-                  your medical provider. Do not discontinue any medications without consulting your
-                  prescribing provider.
+                  Your medications ({medicationList}) may be contributing to your sleep difficulties.
+                  Visit our website for more information and discuss the impact of your medications
+                  on your sleep with your primary care provider. Do not discontinue any medications
+                  without consulting your prescribing provider.
                 </p>
               </div>
             )}
@@ -800,8 +848,34 @@ export function ReportSection({
               <div>
                 <h4 className='mb-2 font-semibold'>For Delayed Sleep Phase Symptoms:</h4>
                 <p className='text-foreground/80 text-sm'>
-                  Your natural sleep timing is later than desired. Visit our website for information
-                  on light therapy, melatonin, and other strategies to shift your sleep schedule.
+                  Your natural sleep timing is later than desired
+                  {report.hasInsufficientSleep
+                    ? ' and this is resulting in decreased total sleep time'
+                    : ''}
+                  . Visit our website for information on light therapy, melatonin, and other
+                  strategies to shift your sleep schedule.
+                </p>
+              </div>
+            )}
+
+            {report.hasNarcolepsy && hasAdhdOrDepression && (
+              <div>
+                <h4 className='mb-2 font-semibold'>For Hypersomnia, ADHD, or Depression:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Your symptoms of excessive daytime sleepiness suggest a disorder of hypersomnia,
+                  and it is common for these disorders to be misdiagnosed as depression or ADHD.
+                  Please discuss this with your prescribing doctor and visit our website for more
+                  information.
+                </p>
+              </div>
+            )}
+
+            {report.hasUnderweight && (
+              <div>
+                <h4 className='mb-2 font-semibold text-amber-600'>For Low BMI:</h4>
+                <p className='text-foreground/80 text-sm'>
+                  Your low BMI is suggestive of being underweight. We strongly recommend talking to
+                  your doctor about low BMI and symptoms of eating disorders.
                 </p>
               </div>
             )}
@@ -809,11 +883,54 @@ export function ReportSection({
             {/* Sleep Hygiene Recommendations */}
             <div>
               <h4 className='mb-2 font-semibold'>General Sleep Hygiene:</h4>
-              <p className='text-foreground/80 text-sm'>
-                Good sleep hygiene is foundational to healthy sleep. Visit our website for
-                comprehensive information on bedroom environment, lifestyle factors, and sleep
-                habits that can improve your sleep quality.
-              </p>
+              <div className='text-foreground/80 space-y-2 text-sm'>
+                <p>
+                  Good sleep hygiene is foundational to healthy sleep. Based on your answers, there
+                  are several sleep hygiene improvements you may want to focus on.
+                </p>
+                <ul className='list-inside list-disc space-y-1'>
+                  {data.bedroom.comfortable < 7 && <li>Improve mattress or bedroom comfort.</li>}
+                  {data.bedroom.dark < 7 && <li>Reduce light in your bedroom.</li>}
+                  {data.bedroom.quiet < 7 && <li>Reduce noise in your bedroom.</li>}
+                  <li>Establish a consistent bedtime ritual.</li>
+                  <li>Discontinue eating more than 2 hours before getting into bed.</li>
+                  <li>
+                    Discontinue rigorous exercise more than 1.5 hours before getting into bed.
+                  </li>
+                  <li>
+                    Establish a regular bedtime that varies no more than 30 minutes on weeknights
+                    and one hour between weeknights and weekend or unscheduled nights.
+                  </li>
+                  {(data.lifestyle.caffeinePerDay > 4 || data.lifestyle.lastCaffeineTime) && (
+                    <li>Eliminate caffeine at least 10 hours before bedtime.</li>
+                  )}
+                  {data.daytime.plannedNaps.daysPerWeek > 0 && (
+                    <li>Decrease naps to no more than 20 minutes a day.</li>
+                  )}
+                  {data.lifestyle.exerciseDaysPerWeek < 3 && (
+                    <li>
+                      You exercise less than three times a week. This can be considered a sleep
+                      hygiene issue and a general health issue.
+                    </li>
+                  )}
+                  {data.sleepHygiene.smokesNicotine && (
+                    <li>
+                      Tobacco and nicotine can cause sleep disruption and significant health risks.
+                      Discuss strategies to discontinue use with your primary care doctor.
+                    </li>
+                  )}
+                  {data.lifestyle.caffeinePerDay > 4 && (
+                    <li>
+                      Your caffeine use is greater than 4 servings per day. High caffeine intake can
+                      disrupt sleep similarly to late caffeine use.
+                    </li>
+                  )}
+                </ul>
+                <p>
+                  Visit our website for comprehensive information on adjusting sleep hygiene to
+                  improve your sleep health and sleep quality.
+                </p>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -1130,13 +1247,11 @@ export function ReportSection({
           <div className='border-primary/20 bg-primary/5 rounded-xl border p-4'>
             <p className='text-foreground/90 text-sm'>
               <strong className='text-primary'>SomnaHealth Services:</strong> Our team offers sleep
-              education that addresses the specific problems that we have identified in this report.
-              We also have a staff of sleep coaches and board certified sleep doctor who can support
-              you with evidence based treatments including CBT-I and consultation regarding the best
-              treatment approaches. Visit our website for more information about how we can help you
-              achieve better sleep. You can also find board certified sleep specialists near where
-              you live. On our website we provide you with links to help you find a sleep specialist
-              or other health care professional.
+              education that addresses the specific problems identified in this report. We also have
+              sleep coaches and a board-certified sleep doctor who can support you with
+              evidence-based treatments including CBT-I and consultation regarding the best treatment
+              approaches. Visit our website for more information about how we can help you achieve
+              better sleep. You can also find board-certified sleep specialists near where you live.
             </p>
           </div>
         </CardContent>

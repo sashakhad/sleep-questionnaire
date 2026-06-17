@@ -1,7 +1,12 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { QuestionnaireFormData } from '@/validations/questionnaire';
-import { generateDiagnosisReport } from '@/lib/diagnosis-algorithms';
+import {
+  calculateBMI,
+  generateDiagnosisReport,
+  generateFullReport,
+} from '@/lib/diagnosis-algorithms';
+import { getSelectedSleepMedicationLabels } from '@/lib/sleep-medication-labels';
 
 const styles = StyleSheet.create({
   page: {
@@ -166,7 +171,15 @@ interface ReportPDFProps {
 export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
   // Use the centralized diagnosis engine
   const report = generateDiagnosisReport(data);
+  const fullReport = generateFullReport(data);
   const { sleepMetrics: metrics, insomnia, sleepApnea, eds, chronicFatigue, painRelated, medicationRelated, nightmares, treatmentEffectiveness } = report;
+  const medicationLabels = getSelectedSleepMedicationLabels(data);
+  const medicationList =
+    medicationLabels.length > 0 ? medicationLabels.join(', ') : 'the medications you listed';
+  const bmi = calculateBMI(data.demographics.height, data.demographics.weight);
+  const hasUnderweight = bmi !== null && bmi < 18;
+  const hasSleepDisorderedBreathing =
+    sleepApnea.hasProbableSleepApnea || sleepApnea.hasMildRespiratoryDisturbance || report.hasCOMISA;
 
   // Determine severity descriptions for language
   const getSeverityText = (severity: string) => {
@@ -179,6 +192,8 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
   // Check for poor sleep hygiene
   const hasPoorHygiene =
     data.lifestyle.caffeinePerDay > 4 ||
+    data.lifestyle.exerciseDaysPerWeek < 3 ||
+    data.sleepHygiene.smokesNicotine ||
     (data.lifestyle.lastCaffeineTime &&
       parseInt(data.lifestyle.lastCaffeineTime.split(':')[0] ?? '0') >= 14);
 
@@ -367,13 +382,23 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
                 <Text style={{ fontWeight: 'bold' }}>Excessive Daytime Sleepiness</Text>
                 {'\n\n'}
                 You have symptoms of daytime sleepiness that appear to be impacting functioning during
-                the day. These symptoms may be associated with your possible sleep diagnosis, or if
-                these symptoms have been present for more than a month, they may be a sign of an
-                underlying sleep disorder, medication side effect (melatonin, a sleep medication, an
-                antihistamine, blood pressure medication, heart medication, a psychiatric medication,
-                or other), or other medical problems (hypertension, heart disease, cancer or cancer
-                treatment, or other chronic medical conditions). We strongly recommend follow-up for
-                diagnosis and possible treatment.
+                the day. These symptoms may be associated with narcolepsy, idiopathic hypersomnia, or
+                another sleep disorder.
+                {hasSleepDisorderedBreathing &&
+                  '\n\nIt is common for people with a disorder of excessive daytime sleepiness to also have sleep-disordered breathing or obstructive sleep apnea syndrome.'}
+                {'\n\n'}We strongly recommend follow-up for diagnosis and possible treatment.
+              </Text>
+            </View>
+          )}
+
+          {report.hasNarcolepsy && (
+            <View style={styles.warningBox}>
+              <Text style={styles.warningText}>
+                <Text style={{ fontWeight: 'bold' }}>Symptoms of Narcolepsy or Idiopathic Hypersomnia</Text>
+                {'\n\n'}
+                Your responses suggest possible narcolepsy or idiopathic hypersomnia. These are
+                treatable sleep disorders that can significantly impact daytime functioning and
+                safety. A consultation with a sleep specialist is strongly recommended.
               </Text>
             </View>
           )}
@@ -384,12 +409,11 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
               <Text style={styles.warningText}>
                 <Text style={{ fontWeight: 'bold' }}>Insufficient Sleep Syndrome</Text>
                 {'\n\n'}
-                Your answers suggest that you have significant daytime sleepiness that is likely
-                associated with short sleep over the course of a week (average:{' '}
-                {metrics.weeklyAverageTST.toFixed(1)} hours). Please see the video on our website
-                that provides guidance on optimal sleep duration. If your daytime sleepiness does not
-                improve with increased sleep time, please discuss your daytime sleepiness symptoms
-                with your primary care provider to rule out an underlying medical condition.
+                Your average sleep time of {metrics.weeklyAverageTST.toFixed(1)} hours is below the
+                recommended 7+ hours. Combined with your daytime sleepiness, this suggests you are not
+                getting enough sleep to meet your body&apos;s needs. You reported symptoms of excessive
+                daytime sleepiness that are likely due to this and/or other sleep disorders. Please
+                see the video on our website that provides guidance on optimal sleep duration.
               </Text>
             </View>
           )}
@@ -402,8 +426,11 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
                   Insomnia Symptoms ({getSeverityText(insomnia.severity)})
                 </Text>
                 {'\n\n'}
-                You have symptoms of insomnia that could be in the {getSeverityText(insomnia.severity)} range.
-                We strongly recommend follow-up for a diagnosis and possible treatment.
+                {fullReport.insomniaLikelyCircadian
+                  ? 'You report insomnia symptoms, but your delayed sleep timing suggests these symptoms are likely due to a circadian rhythm disorder. The circadian sleep pattern should be considered a preliminary assessment and treatment priority.'
+                  : fullReport.insomniaLikelyRLS
+                    ? 'You report insomnia symptoms, but your restless legs symptoms may be a primary driver of difficulty falling asleep. RLS should be considered a preliminary assessment and treatment priority.'
+                    : `You have symptoms of insomnia that could be in the ${getSeverityText(insomnia.severity)} range. We strongly recommend follow-up for a diagnosis and possible treatment.`}
                 {'\n\n'}
                 Your symptoms include:
                 {insomnia.hasSleepOnsetInsomnia && '\n• Difficulty falling asleep (>30 minutes)'}
@@ -456,18 +483,12 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
                   COMISA (Comorbid Insomnia and Sleep Apnea)
                 </Text>
                 {'\n\n'}
-                You have symptoms of both sleep-disordered breathing and insomnia. This condition is
-                called Comorbid Insomnia and Sleep Apnea (COMISA). Please see the link on our website
-                for more information on COMISA. When you discuss with your primary care or sleep
-                doctor, please mention that you may have both conditions. Treatment of both is very
-                important for your sleep health and quality of life.
-                {'\n\n'}
-                Treatment for COMISA should include:{'\n'}
-                • A comprehensive sleep study to assess severity{'\n'}
-                • Combined therapy: CBT-I plus CPAP treatment{'\n'}
-                • Avoidance of sedative sleep medications{'\n'}
-                • Weight management (if applicable){'\n'}
-                • Consistent sleep schedules
+                Your symptoms suggest COMISA (Comorbid Insomnia and Sleep Apnea), which means that
+                you have symptoms of both insomnia and sleep-disordered breathing. COMISA requires
+                coordinated treatment of both conditions. You can tell your primary care doctor or a
+                sleep doctor that you are concerned that you have signs of sleep-disordered breathing
+                and want to know options for assessment and diagnosis. Visit our website for detailed
+                information on comprehensive evaluation and treatment approaches.
               </Text>
             </View>
           )}
@@ -492,7 +513,7 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
                 {'\n\n'}
                 Your nocturnal leg cramps can be sleep disruptors and can be a sign of age, muscle
                 fatigue, an electrolyte or other imbalance. They can be more common during pregnancy.
-                Since these occur frequently, we suggest that you discuss these symptoms with your
+                Since these occur on three or more nights a week, we suggest that you discuss these symptoms with your
                 primary care provider.
               </Text>
             </View>
@@ -539,6 +560,30 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
             </View>
           )}
 
+          {fullReport.chronotypeType === 'delayed' && (
+            <View style={styles.warningBox}>
+              <Text style={styles.warningText}>
+                <Text style={{ fontWeight: 'bold' }}>Symptoms of Delayed Sleep Phase Disorder</Text>
+                {'\n\n'}
+                Your natural sleep timing is later than desired and may be contributing to decreased
+                total sleep time or daytime impairment. Visit our website for information on light
+                therapy, melatonin, and other strategies to shift your sleep schedule.
+              </Text>
+            </View>
+          )}
+
+          {hasUnderweight && (
+            <View style={styles.warningBox}>
+              <Text style={styles.warningText}>
+                <Text style={{ fontWeight: 'bold' }}>Low BMI</Text>
+                {'\n\n'}
+                Your low BMI is suggestive of being underweight. While difficult to discuss, we
+                strongly recommend that you talk to your doctor about low BMI and symptoms of eating
+                disorders.
+              </Text>
+            </View>
+          )}
+
           {/* Chronic Fatigue / Fibromyalgia */}
           {chronicFatigue.hasSymptoms && (
             <View style={styles.warningBox}>
@@ -547,11 +592,11 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
                   Possible Chronic Fatigue / Fibromyalgia Symptoms
                 </Text>
                 {'\n\n'}
-                You report non-restorative sleep, muscle/joint pain, and daytime tiredness that
-                interferes with activities. These symptoms may be associated with fibromyalgia,
-                chronic fatigue syndrome, post-viral illness (e.g., long COVID), or Lyme disease.
-                Please discuss these symptoms with your primary care doctor who may refer you to a
-                rheumatologist or other specialist.
+                Chronic fatigue syndrome and fibromyalgia are difficult to diagnose disorders that
+                involve a combination of non-restorative sleep, pain, and fatigue. These symptoms may
+                be associated with fibromyalgia, chronic fatigue syndrome, post-viral illness, or Lyme
+                disease. Please discuss these symptoms with your primary care doctor who may refer you
+                to a sleep specialist, neurologist, rheumatologist, or other specialist.
               </Text>
             </View>
           )}
@@ -577,11 +622,10 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
               <Text style={styles.warningText}>
                 <Text style={{ fontWeight: 'bold' }}>Medication-Related Sleep Disturbance</Text>
                 {'\n\n'}
-                The medications that you are currently taking can contribute to sleep disturbance and
-                your sleepiness, tiredness, or fatigue during the day. Please check out the links on
-                our website for more information and discuss the impact of your medications on your
-                sleep with your medical provider. Do not discontinue prescription or over-the-counter
-                medications that your medical providers have recommended without consulting them first.
+                Your medications ({medicationList}) may be contributing to your sleep difficulties.
+                Please check out the links on our website for more information and discuss the impact
+                of your medications on your sleep with your primary care provider. Do not discontinue
+                any medications without consulting your prescribing provider.
               </Text>
             </View>
           )}
@@ -624,6 +668,7 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
             !nightmares.hasNightmareDisorder &&
             !nightmares.hasBadDreamWarning &&
             !report.hasAnxiety &&
+            !hasUnderweight &&
             !chronicFatigue.hasSymptoms &&
             !painRelated.hasCondition &&
             !medicationRelated.hasCondition && (
@@ -640,7 +685,7 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
       <Page size='A4' style={styles.page}>
         {/* Recommendations */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Personalized Recommendations</Text>
+          <Text style={styles.sectionTitle}>Recommendations</Text>
 
           {insomnia.hasInsomnia && (
             <View style={styles.recommendationBox}>
@@ -648,16 +693,11 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
                 <Text style={{ fontWeight: 'bold' }}>For Insomnia:</Text>
               </Text>
               <Text style={styles.recommendationText}>
-                • Maintain a consistent sleep schedule, even on weekends
-              </Text>
-              <Text style={styles.recommendationText}>
-                • Create a relaxing bedtime routine 30-60 minutes before sleep
-              </Text>
-              <Text style={styles.recommendationText}>
-                • Avoid screens and bright lights 1 hour before bedtime
-              </Text>
-              <Text style={styles.recommendationText}>
-                • Consider Cognitive Behavioral Therapy for Insomnia (CBT-I)
+                Based on your responses, we recommend exploring treatment options for insomnia.
+                Insomnia is a common sleep disorder that involves difficulty falling asleep, staying
+                asleep, or poor sleep quality that is associated with daytime impairment. The most
+                effective treatment for insomnia is Cognitive Behavior Therapy for Insomnia (CBT-I).
+                Please visit our website for detailed information on CBT-I and other strategies.
               </Text>
             </View>
           )}
@@ -682,15 +722,29 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
             </View>
           )}
 
+          {fullReport.chronotypeType === 'delayed' && (
+            <View style={styles.recommendationBox}>
+              <Text style={styles.recommendationText}>
+                <Text style={{ fontWeight: 'bold' }}>For Delayed Sleep Phase Symptoms:</Text>
+              </Text>
+              <Text style={styles.recommendationText}>
+                Your natural sleep timing is later than desired
+                {report.insufficientSleep ? ' and this is resulting in decreased total sleep time' : ''}.
+                Visit our website for information on light therapy, melatonin, and other strategies
+                to shift your sleep schedule.
+              </Text>
+            </View>
+          )}
+
           {data.lifestyle.caffeinePerDay > 2 && (
             <View style={styles.recommendationBox}>
               <Text style={styles.recommendationText}>
                 <Text style={{ fontWeight: 'bold' }}>For Caffeine Management:</Text>
               </Text>
               <Text style={styles.recommendationText}>
-                • Reduce caffeine intake to 2 cups per day maximum
+                • Consider reducing caffeine intake, especially if you consume more than 4 servings per day
               </Text>
-              <Text style={styles.recommendationText}>• Avoid caffeine after 2 PM</Text>
+              <Text style={styles.recommendationText}>• Eliminate caffeine at least 10 hours before bedtime</Text>
               <Text style={styles.recommendationText}>
                 • Consider switching to decaf or herbal teas in the afternoon
               </Text>
@@ -709,7 +763,7 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
                 • Aim for 30 minutes of moderate activity daily
               </Text>
               <Text style={styles.recommendationText}>
-                • Complete exercise at least 3 hours before bedtime
+                • Discuss increased exercise with your primary care doctor
               </Text>
             </View>
           )}
@@ -719,16 +773,35 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
               <Text style={{ fontWeight: 'bold' }}>General Sleep Hygiene:</Text>
             </Text>
             <Text style={styles.recommendationText}>
-              • Keep bedroom cool (65-68°F), dark, and quiet
+              • Make bedroom changes that support sleep, including comfort, less light, and less noise
             </Text>
             <Text style={styles.recommendationText}>
-              • Use your bed only for sleep and intimacy
+              • Establish a bedtime ritual
             </Text>
             <Text style={styles.recommendationText}>
-              • Avoid large meals 2-3 hours before bedtime
+              • Discontinue eating more than 2 hours before getting into bed
             </Text>
             <Text style={styles.recommendationText}>
-              • Limit alcohol consumption, especially near bedtime
+              • Discontinue rigorous exercise more than 1.5 hours before getting into bed
+            </Text>
+            <Text style={styles.recommendationText}>
+              • Establish a regular bedtime that varies no more than 30 minutes on weeknights and one hour between scheduled and unscheduled nights
+            </Text>
+            <Text style={styles.recommendationText}>
+              • Decrease naps to no more than 20 minutes a day
+            </Text>
+            {data.sleepHygiene.smokesNicotine && (
+              <Text style={styles.recommendationText}>
+                • Tobacco and nicotine can cause sleep disruption and significant health risks. Discuss strategies to discontinue use with your primary care doctor.
+              </Text>
+            )}
+            {hasUnderweight && (
+              <Text style={styles.recommendationText}>
+                • Talk to your doctor about low BMI and symptoms of eating disorders.
+              </Text>
+            )}
+            <Text style={styles.recommendationText}>
+              Visit our website for comprehensive information on adjusting sleep hygiene to improve your sleep health and sleep quality.
             </Text>
           </View>
         </View>
@@ -740,10 +813,12 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
           <View style={styles.resourceBox}>
             <Text style={styles.resourceTitle}>SomnaHealth Services</Text>
             <Text style={styles.text}>
-              Our team offers sleep education that addresses the specific problems identified in this report.
-              Visit our website for more information about how we can help you achieve better sleep,
-              find a sleep specialist in your area, and access educational resources about your
-              specific sleep concerns.
+              Our team offers sleep education that addresses the specific problems identified in this
+              report. We also have sleep coaches and a board-certified sleep doctor who can support
+              you with evidence-based treatments including CBT-I and consultation regarding the best
+              treatment approaches. Visit our website for more information about how we can help you
+              achieve better sleep. You can also find board-certified sleep specialists near where you
+              live.
             </Text>
           </View>
         </View>
