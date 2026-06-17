@@ -95,8 +95,8 @@ export function RestlessLegsSection({ form }: RestlessLegsSectionProps) {
         </Alert>
       )}
 
-      {/* Leg cramps warning (2+ nights per week) */}
-      {legCrampsPerWeek >= 2 && (
+      {/* Leg cramps warning (3+ nights per week) */}
+      {legCrampsPerWeek >= 3 && (
         <Alert className='alert-warning'>
           <AlertCircle className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
@@ -104,7 +104,7 @@ export function RestlessLegsSection({ form }: RestlessLegsSectionProps) {
             <br />
             Your nocturnal leg cramps can be sleep disruptors and can be a sign of age, muscle
             fatigue, an electrolyte or other imbalance. They can be more common during pregnancy.
-            Since these occur on two or more nights a week, we suggest that you discuss these
+            Since these occur on three or more nights a week, we suggest that you discuss these
             symptoms with your primary care provider.
           </AlertDescription>
         </Alert>

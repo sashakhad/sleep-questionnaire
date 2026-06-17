@@ -9,13 +9,47 @@ interface LifestyleSectionProps {
   form: UseFormReturn<QuestionnaireFormData>;
 }
 
+function timeToMinutes(time: string | undefined): number | null {
+  if (!time) {
+    return null;
+  }
+
+  const [hourPart, minutePart] = time.split(':');
+  const hour = parseInt(hourPart ?? '', 10);
+  const minute = parseInt(minutePart ?? '', 10);
+  if (Number.isNaN(hour) || Number.isNaN(minute)) {
+    return null;
+  }
+
+  return hour * 60 + minute;
+}
+
+function isWithinTwoHoursBeforeBedtime(exerciseEndTime: string, bedtime: string): boolean {
+  const exerciseMinutes = timeToMinutes(exerciseEndTime);
+  const bedtimeMinutes = timeToMinutes(bedtime);
+  if (exerciseMinutes === null || bedtimeMinutes === null) {
+    return false;
+  }
+
+  const minutesUntilBed = (bedtimeMinutes - exerciseMinutes + 24 * 60) % (24 * 60);
+  return minutesUntilBed > 0 && minutesUntilBed <= 120;
+}
+
 export function LifestyleSection({ form }: LifestyleSectionProps) {
   const caffeinePerDay = form.watch('lifestyle.caffeinePerDay');
   const lastCaffeineTime = form.watch('lifestyle.lastCaffeineTime');
   const alcoholPerWeek = form.watch('lifestyle.alcoholPerWeek');
   const exerciseDaysPerWeek = form.watch('lifestyle.exerciseDaysPerWeek');
+  const exerciseDuration = form.watch('lifestyle.exerciseDuration') ?? 0;
+  const exerciseEndTime = form.watch('lifestyle.exerciseEndTime');
+  const scheduledBedtime = form.watch('scheduledSleep.lightsOutTime');
 
   const lateCaffeine = lastCaffeineTime && parseInt(lastCaffeineTime.split(':')[0] ?? '0') >= 14; // After 2 PM
+  const lateVigorousExercise =
+    exerciseDuration > 45 &&
+    Boolean(exerciseEndTime) &&
+    Boolean(scheduledBedtime) &&
+    isWithinTwoHoursBeforeBedtime(exerciseEndTime, scheduledBedtime);
 
   return (
     <div className='space-y-6'>
@@ -54,6 +88,7 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
             name='lifestyle.lastCaffeineTime'
             label='What time do you have your final caffeinated food or beverage?'
             description='Caffeine can affect sleep for 6-8 hours after consumption'
+            defaultPeriod='AM'
           />
         )}
       </div>
@@ -188,6 +223,19 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
         </Alert>
       )}
 
+      {exerciseDaysPerWeek > 0 && exerciseDaysPerWeek < 3 && (
+        <Alert className='alert-warning'>
+          <Activity className='h-4 w-4 text-amber-600' />
+          <AlertDescription className='text-amber-900'>
+            <strong>Low Exercise Frequency</strong>
+            <br />
+            You exercise less than three times a week. This can be considered a sleep hygiene issue,
+            but is also a general health issue. Consider discussing increased exercise with your
+            primary care doctor.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {exerciseDaysPerWeek >= 5 && (
         <Alert className='alert-success'>
           <Activity className='h-4 w-4 text-green-600' />
@@ -195,24 +243,23 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
             <strong>Great Exercise Habits!</strong>
             <br />
             You&apos;re exercising regularly, which is excellent for sleep quality. Just make sure
-            to finish vigorous exercise at least 3 hours before bedtime to allow your body
-            temperature and arousal levels to decrease.
+            to finish vigorous exercise well before bedtime to allow your body temperature and
+            arousal levels to decrease.
           </AlertDescription>
         </Alert>
       )}
 
       {/* Late exercise warning */}
-      {form.watch('lifestyle.exerciseEndTime') &&
-        parseInt(form.watch('lifestyle.exerciseEndTime')?.split(':')[0] ?? '0') >= 20 && (
-          <Alert>
-            <Activity className='h-4 w-4' />
-            <AlertDescription>
-              Exercising within 3 hours of bedtime can make it harder to fall asleep. Your body
-              temperature and arousal levels need time to decrease after exercise. Try to schedule
-              workouts earlier in the day if possible.
-            </AlertDescription>
-          </Alert>
-        )}
+      {lateVigorousExercise && (
+        <Alert>
+          <Activity className='h-4 w-4' />
+          <AlertDescription>
+            Vigorous exercise for more than 45 minutes within 2 hours of bedtime can make it harder
+            to fall asleep. Your body temperature and arousal levels need time to decrease after
+            exercise. Try to schedule workouts earlier in the day if possible.
+          </AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }

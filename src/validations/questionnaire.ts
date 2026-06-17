@@ -129,8 +129,10 @@ export const chronotypeSchema = z.object({
 export const sleepHygieneSchema = z.object({
   supplements: z.array(z.string()),
   supplementsOther: z.string(), // Other write-in field
+  supplementsFrequencyPerWeek: z.number().min(0).max(7).nullable(),
   prescriptionMeds: z.array(z.string()),
   prescriptionMedsOther: z.string(), // Other write-in field
+  prescriptionMedsFrequencyPerWeek: z.number().min(0).max(7).nullable(),
   stimulants: z.string(),
   stimulantTime: timeString,
   smokesNicotine: z.boolean(),
