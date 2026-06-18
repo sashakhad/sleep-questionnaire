@@ -156,6 +156,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 
 ![Your annotated report — COMISA / chronic fatigue / medication false positives](/review/round-4/image10.png)
 
+![The same patient's sleep metrics — normal sleep latency and efficiency, which argue against COMISA](/review/round-4/image11.png)
+
 **What changed:** COMISA now requires objective insomnia (difficulty falling asleep, staying asleep, or low sleep efficiency) **plus** sleep-disordered breathing. A patient with normal sleep latency/efficiency who only reports non-restorative sleep plus snoring now reads as sleep-disordered breathing, not COMISA.
 
 **Where to see it:** [Algorithm Viewer → COMISA scenario](/review?scenario=comisa).
@@ -198,9 +200,7 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 
 **Your feedback:** "If delayed sleep phase syndrome is likely … say insomnia symptoms are likely due to a circadian rhythm disorder." And: "The same logic if someone has RLS … attribute to probable RLS."
 
-![Your annotated delayed sleep phase case](/review/round-4/image13.png)
-
-![Your annotated insufficient-sleep case metrics](/review/round-4/image15.png)
+![Your annotated insufficient-sleep + comorbid delayed sleep phase case metrics](/review/round-4/image15.png)
 
 ![Your annotated insufficient-sleep case findings and recommendations](/review/round-4/image16.png)
 
@@ -258,7 +258,7 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 
 **Your feedback:** Social Jet Lag "… or a circadian rhythm disorder"; Mid-Sleep Time Change "… and a possible circadian rhythm disorder" (or "… and insufficient nightly sleep" for the insufficient-sleep case).
 
-![Your annotated sleep-metrics screenshot](/review/round-4/image11.png)
+![Your annotated metrics-wording edits on the delayed sleep phase case](/review/round-4/image13.png)
 
 **What changed:** Updated the Social Jet Lag and Mid-Sleep Time Change explanations accordingly, switching the mid-sleep ending based on whether insufficient sleep is present. We also fixed a display bug where mid-sleep time rendered as e.g. `03:7.5`; it now renders as a proper time.
 
