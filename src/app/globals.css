@@ -251,6 +251,10 @@ body {
     @apply border border-border px-3 py-2 align-top;
   }
 
+  .review-markdown img {
+    @apply my-4 block w-full max-w-3xl rounded-xl border border-border shadow-sm;
+  }
+
   .review-markdown .review-tag {
     @apply mr-2 inline-flex items-center rounded-full border px-4 py-1.5 text-sm font-semibold no-underline;
   }

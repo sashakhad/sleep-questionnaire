@@ -1,12 +1,12 @@
 # Round 4 Feedback (6/16) — Changes Implemented
 
-This is the change log for the **June 16 feedback only**. Each item lists what you asked for, what we changed, and a link to see it live.
+This is the change log for the **June 16 feedback only**. Each item lists what you asked for (with your original annotated screenshot), what we changed, and a link to see it live.
 
 **Status tags:** <span class="review-tag review-tag--done">Done</span> built and covered by automated tests &nbsp; <span class="review-tag review-tag--signoff">Needs your sign-off</span> built using our best clinical interpretation — please confirm the rule &nbsp; <span class="review-tag review-tag--deferred">Deferred</span> needs a specific rule from you before we build it
 
 > **How to use the links:** Each link opens the relevant page with sample data already filled in (the `/dev` route, for review only — the real questionnaire at `/` is unchanged for patients). Links are relative, so they open on whatever version you are viewing (this preview build). For the diagnostic-logic items, the **[Algorithm Viewer](/review)** shows every rule, the patient's value, the threshold used, and whether each criterion was met.
 >
-> Your original annotated screenshots are preserved in `feedback.md` in this same folder for side-by-side reference.
+> The screenshots under each item are your original 6/16 annotations, kept here so we don't lose that context.
 
 ---
 
@@ -18,6 +18,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 
 **Your feedback:** "Suggest cutting these warnings on the first page. If easy it would be much preferable to show a BMI and the range of definitions rather than labeling." Also: "If BMI is < 18 add to report ... underweight ... eating disorders."
 
+![Your annotated BMI screenshot](/review/round-4/image1.png)
+
 **What changed:** The demographics page now shows the BMI number plus the standard range definitions (Underweight < 18.5 / Normal 18.5–24.9 / Overweight 25–29.9 / Obese ≥ 30) instead of a single category label. The old "BMI and Sleep Apnea Risk" warning box was removed. A short low-BMI note appears when BMI < 18, and the report adds the underweight/eating-disorder statement.
 
 **Where to see it:** [Demographics page](/dev?section=demographics) (set weight/height to produce a BMI under 18 to see the low-BMI note); the report statement shows on the [report page](/dev?section=report).
@@ -27,6 +29,10 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 <span class="review-tag review-tag--done">Done</span>
 
 **Your feedback:** "I have bad dreams but not nightmares — change wording and drop 'but not nightmares'." And: "I remember my dreams — nest so only include bad dreams and nightmares if this is affirmative."
+
+![Your annotated bad-dreams wording screenshot](/review/round-4/image2.png)
+
+![Your annotated dream-recall nesting screenshot](/review/round-4/image6.png)
 
 **What changed:** The label now reads "I have bad dreams." The bad-dream and nightmare questions (and their definitions and warnings) only appear after the patient checks "I remember my dreams at least a few nights a week." If dream recall is not endorsed, nothing about bad dreams/nightmares is asked or scored.
 
@@ -38,6 +44,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 
 **Your feedback:** "Add warning for sleep disordered breathing when both mouth breathing and dry mouth."
 
+![Your annotated mouth-breathing + dry-mouth screenshot](/review/round-4/image3.png)
+
 **What changed:** When both "I mouth breathe" and "I frequently wake up with a dry mouth" are checked, the page now shows the sleep-disordered-breathing warning (previously only snoring or breathing pauses triggered it).
 
 **Where to see it:** [Sleep Related Breathing page](/dev?section=breathing-disorders) — check mouth breathing, then dry mouth.
@@ -47,6 +55,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 <span class="review-tag review-tag--done">Done</span>
 
 **Your feedback:** "To prevent a false response, would it be possible to automatically change to am when someone endorses 12–6am for bedtimes?"
+
+![Your annotated bedtime AM/PM screenshot](/review/round-4/image4.png)
 
 **What changed:** On both bedtime fields, selecting an hour of 12–6 now forces AM automatically, so a 12–6 bedtime can no longer be saved as a daytime PM time.
 
@@ -58,6 +68,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 
 **Your feedback:** "Set caffeine question default to am, not pm."
 
+![Your annotated caffeine time screenshot](/review/round-4/image8.png)
+
 **What changed:** The "final caffeinated beverage" time now defaults to AM.
 
 **Where to see it:** [Lifestyle page](/dev?section=lifestyle) — set caffeine servings to 1+ and the time field defaults to AM.
@@ -68,6 +80,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 
 **Your feedback:** "Add 3 or more nights a week for supplement questions and prescription questions."
 
+![Your annotated medications screenshot](/review/round-4/image7.png)
+
 **What changed:** When a patient selects any sleep supplement or prescription, we now ask how many nights a week they take it. Medication-related sleep disturbance is only flagged when a relevant medication is taken 3+ nights/week.
 
 **Where to see it:** [Sleep Medications page](/dev?section=sleep-hygiene) — check a supplement to reveal the nights-per-week question.
@@ -77,6 +91,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 <span class="review-tag review-tag--done">Done</span>
 
 **Your feedback:** "Change warning verbiage to vigorous exercise for more than 45 minutes within 2 hours of bedtime."
+
+![Your annotated exercise warning screenshot](/review/round-4/image9.png)
 
 **What changed:** The late-exercise warning now reads "vigorous exercise for more than 45 minutes within 2 hours of bedtime," and the logic checks exercise duration (> 45 min) ending within 2 hours of bedtime (checked against both weekday and weekend bedtimes).
 
@@ -108,6 +124,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 
 **Your feedback:** "When caffeine use is greater than 4/day add an excessive caffeine use warning that is about the same as the late caffeine warning."
 
+![Your annotated caffeine intake screenshot](/review/round-4/image14.png)
+
 **What changed:** Confirmed the > 4/day "High Caffeine Intake" warning is present in the questionnaire, and the report now includes an excessive-caffeine sleep-hygiene note.
 
 **Where to see it:** [Lifestyle page](/dev?section=lifestyle) — set caffeine servings to 5.
@@ -117,6 +135,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 <span class="review-tag review-tag--done">Done</span>
 
 **Your feedback:** "This is right on target, but suggest you make the following cuts to this pop-up warning to keep assessment recs for the report and our website."
+
+![Your annotated chronotype pop-up screenshot](/review/round-4/image12.png)
 
 **What changed:** Removed the "consider consulting with a sleep specialist…" sentence from the night-owl pop-up so the pop-up stays informational and the assessment recommendation lives in the report/website.
 
@@ -132,7 +152,9 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 
 <span class="review-tag review-tag--signoff">Needs your sign-off</span>
 
-**Your feedback:** "EDS is ok. COMISA is not. This person should not meet criteria for insomnia symptoms, only sleep apnea."
+**Your feedback:** "EDS is ok. COMISA is not. This person should not meet criteria for insomnia symptoms, only sleep apnea." (Same case drove your chronic-fatigue and medication false-positive notes in B2 and B3.)
+
+![Your annotated report — COMISA / chronic fatigue / medication false positives](/review/round-4/image10.png)
 
 **What changed:** COMISA now requires objective insomnia (difficulty falling asleep, staying asleep, or low sleep efficiency) **plus** sleep-disordered breathing. A patient with normal sleep latency/efficiency who only reports non-restorative sleep plus snoring now reads as sleep-disordered breathing, not COMISA.
 
@@ -142,7 +164,7 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 
 <span class="review-tag review-tag--signoff">Needs your sign-off</span>
 
-**Your feedback:** "Symptoms of chronic fatigue are coming up in most cases and threshold should be raised as this is pretty rare… shows up for almost every diagnosis."
+**Your feedback:** "Symptoms of chronic fatigue are coming up in most cases and threshold should be raised as this is pretty rare… shows up for almost every diagnosis." (Visible in the B1 screenshot above.)
 
 **What changed:** It no longer fires from insomnia alone. It now requires a pain anchor (pain affecting sleep or joint/muscle pain) **plus** at least two fatigue indicators (sleepiness interferes, non-restorative sleep, tiredness ≥ 7, fatigue ≥ 7).
 
@@ -152,7 +174,7 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 
 <span class="review-tag review-tag--signoff">Needs your sign-off</span>
 
-**Your feedback:** "Medication related sleep disturbance also should not be listed for this person as they are only taking melatonin."
+**Your feedback:** "Medication related sleep disturbance also should not be listed for this person as they are only taking melatonin." (Visible in the B1 screenshot above.)
 
 **What changed:** Melatonin alone no longer triggers this finding. It now requires a sleep-affecting medication (e.g., sedating antihistamines, benzodiazepines, Z-drugs, sedating antidepressants/antipsychotics) used 3+ nights/week. A prior medical/mental-health diagnosis no longer triggers it on its own without a medication. The report also now lists the patient's actual medications.
 
@@ -164,6 +186,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 
 **Your feedback:** "Increase threshold nocturnal leg cramps to 3." Also: "They do meet criteria for RLS, but no nocturnal leg cramps."
 
+![Your annotated leg cramps screenshot](/review/round-4/image5.png)
+
 **What changed:** The concern threshold is now 3+ nights/week (was 2). Checking the leg-cramps box without entering a frequency no longer creates a report finding on its own.
 
 **Where to see it:** [Restless Legs page](/dev?section=restless-legs) — set leg cramps to 2 (no warning) vs 3 (warning).
@@ -173,6 +197,12 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 <span class="review-tag review-tag--done">Done</span>
 
 **Your feedback:** "If delayed sleep phase syndrome is likely … say insomnia symptoms are likely due to a circadian rhythm disorder." And: "The same logic if someone has RLS … attribute to probable RLS."
+
+![Your annotated delayed sleep phase case](/review/round-4/image13.png)
+
+![Your annotated insufficient-sleep case metrics](/review/round-4/image15.png)
+
+![Your annotated insufficient-sleep case findings and recommendations](/review/round-4/image16.png)
 
 **What changed:** When a delayed chronotype is present, insomnia is presented as "likely due to a circadian rhythm disorder" and treated as a preliminary assessment/treatment priority. When RLS is present (and DSPD is not), insomnia is attributed to probable RLS. (We chose to relabel rather than hide insomnia, per "I am fine with either.")
 
@@ -227,6 +257,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 <span class="review-tag review-tag--done">Done</span>
 
 **Your feedback:** Social Jet Lag "… or a circadian rhythm disorder"; Mid-Sleep Time Change "… and a possible circadian rhythm disorder" (or "… and insufficient nightly sleep" for the insufficient-sleep case).
+
+![Your annotated sleep-metrics screenshot](/review/round-4/image11.png)
 
 **What changed:** Updated the Social Jet Lag and Mid-Sleep Time Change explanations accordingly, switching the mid-sleep ending based on whether insufficient sleep is present. We also fixed a display bug where mid-sleep time rendered as e.g. `03:7.5`; it now renders as a proper time.
 
