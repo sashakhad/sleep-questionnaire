@@ -134,10 +134,9 @@ export function ChronotypeSection({ form }: ChronotypeSectionProps) {
             <br />
             You have a late chronotype preference. Difficulty waking in the morning, daytime
             tiredness and difficulty falling asleep are symptoms of Delayed Sleep Phase Syndrome.
-            This is particularly common between ages 12-25 but can affect all ages. Consider
-            consulting with a sleep specialist if these issues impact your daily functioning. More
-            details will be provided in the report with links to education and recommendations on
-            our website.
+            This is particularly common between ages 12-25 but can affect all ages. More details
+            will be provided in the report with links to education and recommendations on our
+            website.
           </AlertDescription>
         </Alert>
       )}

@@ -43,13 +43,16 @@ export function LifestyleSection({ form }: LifestyleSectionProps) {
   const exerciseDuration = form.watch('lifestyle.exerciseDuration') ?? 0;
   const exerciseEndTime = form.watch('lifestyle.exerciseEndTime');
   const scheduledBedtime = form.watch('scheduledSleep.lightsOutTime');
+  const unscheduledBedtime = form.watch('unscheduledSleep.lightsOutTime');
 
   const lateCaffeine = lastCaffeineTime && parseInt(lastCaffeineTime.split(':')[0] ?? '0') >= 14; // After 2 PM
   const lateVigorousExercise =
     exerciseDuration > 45 &&
     Boolean(exerciseEndTime) &&
-    Boolean(scheduledBedtime) &&
-    isWithinTwoHoursBeforeBedtime(exerciseEndTime, scheduledBedtime);
+    ((Boolean(scheduledBedtime) &&
+      isWithinTwoHoursBeforeBedtime(exerciseEndTime, scheduledBedtime)) ||
+      (Boolean(unscheduledBedtime) &&
+        isWithinTwoHoursBeforeBedtime(exerciseEndTime, unscheduledBedtime)));
 
   return (
     <div className='space-y-6'>
