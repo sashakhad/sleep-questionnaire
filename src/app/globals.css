@@ -252,7 +252,7 @@ body {
   }
 
   .review-markdown .review-tag {
-    @apply mr-2 inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold no-underline;
+    @apply mr-2 inline-flex items-center rounded-full border px-4 py-1.5 text-sm font-semibold no-underline;
   }
 
   .review-markdown .review-tag--done {
