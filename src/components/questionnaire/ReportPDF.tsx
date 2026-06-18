@@ -663,6 +663,9 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
             !sleepApnea.hasMildRespiratoryDisturbance &&
             !report.hasCOMISA &&
             !report.hasRLS &&
+            !report.hasNarcolepsy &&
+            fullReport.chronotypeType !== 'delayed' &&
+            !report.hasLegCrampsConcern &&
             !report.insufficientSleep &&
             eds.severity === 'none' &&
             !nightmares.hasNightmareDisorder &&
@@ -671,7 +674,9 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
             !hasUnderweight &&
             !chronicFatigue.hasSymptoms &&
             !painRelated.hasCondition &&
-            !medicationRelated.hasCondition && (
+            !medicationRelated.hasCondition &&
+            !treatmentEffectiveness.osaTreatmentIneffective &&
+            !treatmentEffectiveness.rlsTreatmentIneffective && (
               <Text style={styles.text}>
                 No major sleep disorders were identified based on your responses. However, there may
                 still be opportunities to optimize your sleep quality.
@@ -690,14 +695,14 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
           {insomnia.hasInsomnia && (
             <View style={styles.recommendationBox}>
               <Text style={styles.recommendationText}>
-                <Text style={{ fontWeight: 'bold' }}>For Insomnia:</Text>
+                <Text style={{ fontWeight: 'bold' }}>For Your Insomnia Symptoms:</Text>
               </Text>
               <Text style={styles.recommendationText}>
-                Based on your responses, we recommend exploring treatment options for insomnia.
-                Insomnia is a common sleep disorder that involves difficulty falling asleep, staying
-                asleep, or poor sleep quality that is associated with daytime impairment. The most
-                effective treatment for insomnia is Cognitive Behavior Therapy for Insomnia (CBT-I).
-                Please visit our website for detailed information on CBT-I and other strategies.
+                {fullReport.insomniaLikelyCircadian
+                  ? 'Your insomnia symptoms may be due to a circadian rhythm disorder. A sleep specialist can help assess whether shifting your sleep schedule should be the first treatment priority.'
+                  : fullReport.insomniaLikelyRLS
+                    ? 'Your insomnia symptoms may be related to probable restless legs syndrome. Assessment and treatment of RLS may be the first treatment priority.'
+                    : 'Based on your responses, we recommend exploring treatment options for insomnia. Insomnia is a common sleep disorder that involves difficulty falling asleep, staying asleep, or poor sleep quality that is associated with daytime impairment. The most effective treatment for insomnia is Cognitive Behavior Therapy for Insomnia (CBT-I). Please visit our website for detailed information on CBT-I and other strategies.'}
               </Text>
             </View>
           )}
@@ -735,6 +740,23 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
               </Text>
             </View>
           )}
+
+          {report.hasNarcolepsy &&
+            data.mentalHealth.diagnosedMentalHealthConditions.some(condition =>
+              ['adhd', 'depression'].includes(condition)
+            ) && (
+              <View style={styles.recommendationBox}>
+                <Text style={styles.recommendationText}>
+                  <Text style={{ fontWeight: 'bold' }}>For Hypersomnia, ADHD, or Depression:</Text>
+                </Text>
+                <Text style={styles.recommendationText}>
+                  Your symptoms of excessive daytime sleepiness suggest a disorder of hypersomnia,
+                  and it is common for these disorders to be misdiagnosed as depression or ADHD.
+                  Please discuss this with your prescribing doctor and visit our website for more
+                  information.
+                </Text>
+              </View>
+            )}
 
           {data.lifestyle.caffeinePerDay > 2 && (
             <View style={styles.recommendationBox}>

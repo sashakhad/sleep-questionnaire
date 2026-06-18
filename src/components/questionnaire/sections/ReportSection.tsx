@@ -680,6 +680,7 @@ export function ReportSection({
               !report.hasNightmares &&
               !report.hasBadDreamWarning &&
               !report.hasNarcolepsy &&
+              report.chronotypeType !== 'delayed' &&
               !report.hasAnxiety &&
               !report.hasUnderweight &&
               !report.hasPoorHygiene &&
