@@ -91,7 +91,7 @@ export function NightmaresSection({ form }: NightmaresSectionProps) {
           )}
 
           {/* Bad dreams warning (3+ per week) */}
-          {badDreamsPerWeek >= 3 && (
+          {hasBadDreams && badDreamsPerWeek >= 3 && (
             <Alert className="alert-warning">
               <AlertCircle className="h-4 w-4 text-amber-600" />
               <AlertDescription className="text-amber-900">
@@ -134,7 +134,7 @@ export function NightmaresSection({ form }: NightmaresSectionProps) {
           )}
 
           {/* Nightmare disorder warning (2+ per week) */}
-          {nightmaresPerWeek >= 2 && (
+          {hasNightmares && nightmaresPerWeek >= 2 && (
             <Alert className="alert-warning">
               <AlertCircle className="h-4 w-4 text-amber-600" />
               <AlertDescription className="text-amber-900">

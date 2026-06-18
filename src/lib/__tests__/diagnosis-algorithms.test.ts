@@ -1405,14 +1405,19 @@ describe('generateFullReport', () => {
 
   it('should flag nightmares at the updated threshold >= 2/week', () => {
     const below = createBaseQuestionnaireData({
-      nightmares: { remembersDreams: true, nightmaresPerWeek: 1 },
+      nightmares: { remembersDreams: true, hasNightmares: true, nightmaresPerWeek: 1 },
     });
     expect(generateFullReport(below).hasNightmares).toBe(false);
 
     const atThreshold = createBaseQuestionnaireData({
-      nightmares: { remembersDreams: true, nightmaresPerWeek: 2 },
+      nightmares: { remembersDreams: true, hasNightmares: true, nightmaresPerWeek: 2 },
     });
     expect(generateFullReport(atThreshold).hasNightmares).toBe(true);
+
+    const notEndorsed = createBaseQuestionnaireData({
+      nightmares: { remembersDreams: true, hasNightmares: false, nightmaresPerWeek: 2 },
+    });
+    expect(generateFullReport(notEndorsed).hasNightmares).toBe(false);
   });
 
   it('should flag underweight BMI below 18', () => {

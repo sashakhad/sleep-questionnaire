@@ -731,9 +731,14 @@ export function diagnoseNightmares(
   const badDreamsPerWeek =
     ((data.nightmares as Record<string, unknown>).badDreamsPerWeek as number) ?? 0;
 
+  // Only score the frequency fields when the patient endorsed the corresponding
+  // symptom. This prevents a stale frequency (entered then unchecked) from
+  // flagging a finding on its own.
   return {
-    hasNightmareDisorder: nightmaresPerWeek >= thresholds.NIGHTMARE_DISORDER_THRESHOLD,
-    hasBadDreamWarning: badDreamsPerWeek >= thresholds.BAD_DREAM_WARNING_THRESHOLD,
+    hasNightmareDisorder:
+      data.nightmares.hasNightmares && nightmaresPerWeek >= thresholds.NIGHTMARE_DISORDER_THRESHOLD,
+    hasBadDreamWarning:
+      data.nightmares.hasBadDreams && badDreamsPerWeek >= thresholds.BAD_DREAM_WARNING_THRESHOLD,
     nightmaresPerWeek,
     badDreamsPerWeek,
   };
