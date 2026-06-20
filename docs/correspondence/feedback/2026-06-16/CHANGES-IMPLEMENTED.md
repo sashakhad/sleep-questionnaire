@@ -12,6 +12,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 
 ## A. Questionnaire pages
 
+<a id="a1"></a>
+
 ### A1. BMI shown as a value with ranges, not a label
 
 <span class="review-tag review-tag--done">Done</span>
@@ -23,6 +25,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 **What changed:** The demographics page now shows the BMI number plus the standard range definitions (Underweight < 18.5 / Normal 18.5–24.9 / Overweight 25–29.9 / Obese ≥ 30) instead of a single category label. The old "BMI and Sleep Apnea Risk" warning box was removed. A short low-BMI note appears when BMI < 18, and the report adds the underweight/eating-disorder statement.
 
 **Where to see it:** [Demographics page](/dev?section=demographics) (set weight/height to produce a BMI under 18 to see the low-BMI note); the report statement shows on the [report page](/dev?section=report).
+
+<a id="a2"></a>
 
 ### A2. Bad dreams / nightmares wording and nesting
 
@@ -38,6 +42,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 
 **Where to see it:** [Dreams and Nightmares page](/dev?section=nightmares) — uncheck "I remember my dreams" and the section collapses.
 
+<a id="a3"></a>
+
 ### A3. Sleep-disordered-breathing warning for mouth breathing + dry mouth
 
 <span class="review-tag review-tag--done">Done</span>
@@ -49,6 +55,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 **What changed:** When both "I mouth breathe" and "I frequently wake up with a dry mouth" are checked, the page now shows the sleep-disordered-breathing warning (previously only snoring or breathing pauses triggered it).
 
 **Where to see it:** [Sleep Related Breathing page](/dev?section=breathing-disorders) — check mouth breathing, then dry mouth.
+
+<a id="a4"></a>
 
 ### A4. Auto-correct 12–6 bedtimes to AM
 
@@ -62,6 +70,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 
 **Where to see it:** [Work/School Nights page](/dev?section=scheduled-sleep) — set bedtime hour to 1 and try to switch it to PM; it stays AM. (Same on the [Weekends page](/dev?section=unscheduled-sleep).)
 
+<a id="a5"></a>
+
 ### A5. Caffeine time defaults to AM
 
 <span class="review-tag review-tag--done">Done</span>
@@ -73,6 +83,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 **What changed:** The "final caffeinated beverage" time now defaults to AM.
 
 **Where to see it:** [Lifestyle page](/dev?section=lifestyle) — set caffeine servings to 1+ and the time field defaults to AM.
+
+<a id="a6"></a>
 
 ### A6. Supplement & prescription frequency ("3 or more nights a week")
 
@@ -86,6 +98,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 
 **Where to see it:** [Sleep Medications page](/dev?section=sleep-hygiene) — check a supplement to reveal the nights-per-week question.
 
+<a id="a7"></a>
+
 ### A7. Exercise warning verbiage
 
 <span class="review-tag review-tag--done">Done</span>
@@ -98,6 +112,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 
 **Where to see it:** [Lifestyle page](/dev?section=lifestyle) — set exercise duration over 45 and an end time close to bedtime.
 
+<a id="a8"></a>
+
 ### A8. "Exercise less than 3x/week" added as a sleep-hygiene item
 
 <span class="review-tag review-tag--done">Done</span>
@@ -108,6 +124,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 
 **Where to see it:** [Lifestyle page](/dev?section=lifestyle) — set exercise days to 1 or 2.
 
+<a id="a9"></a>
+
 ### A9. Tobacco / nicotine health statement
 
 <span class="review-tag review-tag--done">Done</span>
@@ -117,6 +135,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 **What changed:** Checking the nicotine question shows the health statement inline, and it is also included in the report's sleep-hygiene guidance.
 
 **Where to see it:** [Sleep Medications page](/dev?section=sleep-hygiene) — check "I smoke cigarettes or use nicotine patches."
+
+<a id="a10"></a>
 
 ### A10. Excessive caffeine (> 4/day) warning
 
@@ -129,6 +149,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 **What changed:** Confirmed the > 4/day "High Caffeine Intake" warning is present in the questionnaire, and the report now includes an excessive-caffeine sleep-hygiene note.
 
 **Where to see it:** [Lifestyle page](/dev?section=lifestyle) — set caffeine servings to 5.
+
+<a id="a11"></a>
 
 ### A11. Trimmed the night-owl chronotype pop-up
 
@@ -148,6 +170,8 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 
 The clearest way to review these is the **[Algorithm Viewer](/review)**, which shows each pathway's criteria, the patient's values, the thresholds, and whether the pathway fired.
 
+<a id="b1"></a>
+
 ### B1. COMISA no longer fires on non-restorative sleep alone
 
 <span class="review-tag review-tag--signoff">Needs your sign-off</span>
@@ -162,6 +186,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 
 **Where to see it:** [Algorithm Viewer → COMISA scenario](/review?scenario=comisa).
 
+<a id="b2"></a>
+
 ### B2. Chronic fatigue / fibromyalgia raised threshold
 
 <span class="review-tag review-tag--signoff">Needs your sign-off</span>
@@ -172,6 +198,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 
 **Where to see it:** [Algorithm Viewer → chronic-fatigue scenario](/review?scenario=chronic-fatigue).
 
+<a id="b3"></a>
+
 ### B3. Medication-related no longer fires for melatonin-only
 
 <span class="review-tag review-tag--signoff">Needs your sign-off</span>
@@ -181,6 +209,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 **What changed:** Melatonin alone no longer triggers this finding. It now requires a sleep-affecting medication (e.g., sedating antihistamines, benzodiazepines, Z-drugs, sedating antidepressants/antipsychotics) used 3+ nights/week. A prior medical/mental-health diagnosis no longer triggers it on its own without a medication. The report also now lists the patient's actual medications.
 
 **Where to see it:** [Sleep Medications page](/dev?section=sleep-hygiene); the report wording shows on the [report page](/dev?section=report).
+
+<a id="b4"></a>
 
 ### B4. Nocturnal leg cramps threshold raised to 3
 
@@ -193,6 +223,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 **What changed:** The concern threshold is now 3+ nights/week (was 2). Checking the leg-cramps box without entering a frequency no longer creates a report finding on its own.
 
 **Where to see it:** [Restless Legs page](/dev?section=restless-legs) — set leg cramps to 2 (no warning) vs 3 (warning).
+
+<a id="b5"></a>
 
 ### B5. Insomnia re-attributed under DSPD or RLS
 
@@ -208,6 +240,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 
 **Where to see it:** [Algorithm Viewer](/review); report wording on the [report page](/dev?section=report).
 
+<a id="b6"></a>
+
 ### B6. Nightmares/bad dreams only scored when remembered and endorsed
 
 <span class="review-tag review-tag--done">Done</span>
@@ -218,6 +252,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 
 **Where to see it:** [Dreams and Nightmares page](/dev?section=nightmares).
 
+<a id="b7"></a>
+
 ### B7. EDS + sleep-disordered-breathing comorbidity note
 
 <span class="review-tag review-tag--done">Done</span>
@@ -227,6 +263,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 **What changed:** When excessive daytime sleepiness/narcolepsy and sleep-disordered breathing co-occur, the report adds this comorbidity note. The EDS narrative was also tightened so "insufficient sleep" is only mentioned when it is an actual finding.
 
 **Where to see it:** [Report page](/dev?section=report).
+
+<a id="b8"></a>
 
 ### B8. Narcolepsy ↔ ADHD/depression misdiagnosis note
 
@@ -242,6 +280,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 
 ## C. Report wording and metrics
 
+<a id="c1"></a>
+
 ### C1. Report copy rewrites
 
 <span class="review-tag review-tag--done">Done</span>
@@ -251,6 +291,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 **What changed:** Applied your wording to the web report and the PDF, including: the CBT-I-forward insomnia text, the expanded COMISA explanation, the chronic-fatigue referral language, the medication list, the data-driven sleep-hygiene bullet list (bedroom, bedtime ritual, eat 2h before, exercise 1.5h before, regular bedtime within 30 min, caffeine 10h before, naps ≤ 20 min), the insufficient-sleep EDS sentence, and the SomnaHealth services paragraph.
 
 **Where to see it:** [Report page](/dev?section=report).
+
+<a id="c2"></a>
 
 ### C2. Sleep-metrics wording
 
@@ -263,6 +305,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 **What changed:** Updated the Social Jet Lag and Mid-Sleep Time Change explanations accordingly, switching the mid-sleep ending based on whether insufficient sleep is present. We also fixed a display bug where mid-sleep time rendered as e.g. `03:7.5`; it now renders as a proper time.
 
 **Where to see it:** [Report page](/dev?section=report) (Your Sleep Metrics section).
+
+<a id="c3"></a>
 
 ### C3. "Personalized Recommendations" → "Recommendations" in the PDF
 
@@ -278,6 +322,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 
 ## D. Still needs your input
 
+<a id="d1"></a>
+
 ### D1. Delayed sleep phase over-triggering (the narcolepsy case)
 
 <span class="review-tag review-tag--deferred">Deferred</span>
@@ -286,6 +332,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 
 **Why deferred:** Our delayed-chronotype flag currently fires on a late chronotype preference or a late mid-sleep time. Tightening *when* DSPD is flagged needs a specific rule from you (e.g., which combination of mid-sleep time, social jet lag, and reported trouble waking should qualify). Please tell us the criteria and we will implement it. The insomnia re-attribution in B5 is in place regardless.
 
+<a id="d2"></a>
+
 ### D2. "Average 24-hour sleep duration (naps included)" metric
 
 <span class="review-tag review-tag--deferred">Deferred</span> <span class="review-tag review-tag--optional">Optional</span>
@@ -293,6 +341,8 @@ The clearest way to review these is the **[Algorithm Viewer](/review)**, which s
 **Your feedback:** "If not difficult … under school/weekdays — average nightly sleep duration; average 24-hour sleep duration — with naps included."
 
 **Why deferred:** This needs a definition for averaging nap time into a 24-hour total (per day vs per week). Confirm how you'd like naps averaged in and we'll add the metric row.
+
+<a id="d3"></a>
 
 ### D3. Clinical sign-off on the new thresholds
 
