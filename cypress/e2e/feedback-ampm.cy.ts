@@ -85,7 +85,14 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('PM').click({ force: true });
+      cy.get('[role="option"]').contains('PM').should('be.visible').click();
+
+      // Confirm the period change registered before asserting the warning
+      cy.contains('What time do you wake up?')
+        .closest('[data-slot="form-item"]')
+        .find('button[role="combobox"]')
+        .last()
+        .should('contain.text', 'PM');
 
       cy.contains('Your wake time appears to be set during evening/nighttime hours').should(
         'be.visible'
@@ -98,7 +105,7 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('PM').click({ force: true });
+      cy.get('[role="option"]').contains('PM').should('be.visible').click();
       cy.contains('Your wake time appears to be set during evening/nighttime hours').should(
         'be.visible'
       );
@@ -108,7 +115,7 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('AM').click({ force: true });
+      cy.get('[role="option"]').contains('AM').should('be.visible').click();
 
       cy.contains('Your wake time appears to be set during evening/nighttime hours').should(
         'not.exist'
@@ -131,7 +138,7 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('PM').click({ force: true });
+      cy.get('[role="option"]').contains('PM').should('be.visible').click();
 
       cy.contains('turn out the lights')
         .closest('[data-slot="form-item"]')
@@ -147,7 +154,7 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('PM').click({ force: true });
+      cy.get('[role="option"]').contains('PM').should('be.visible').click();
 
       cy.contains('Your bedtime appears to be set during daytime hours').should('not.exist');
     });
@@ -164,7 +171,7 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('PM').click({ force: true });
+      cy.get('[role="option"]').contains('PM').should('be.visible').click();
 
       cy.contains('Your wake time appears to be set during evening/nighttime hours').should(
         'be.visible'
@@ -177,7 +184,7 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('PM').click({ force: true });
+      cy.get('[role="option"]').contains('PM').should('be.visible').click();
       cy.contains('Your wake time appears to be set during evening/nighttime hours').should(
         'be.visible'
       );
@@ -187,7 +194,7 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('AM').click({ force: true });
+      cy.get('[role="option"]').contains('AM').should('be.visible').click();
 
       cy.contains('Your wake time appears to be set during evening/nighttime hours').should(
         'not.exist'
