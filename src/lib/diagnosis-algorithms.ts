@@ -81,6 +81,7 @@ export interface EDSResult {
 export interface InsomniaDiagnosis {
   hasSleepOnsetInsomnia: boolean;
   hasMaintenanceInsomnia: boolean;
+  hasObjectiveInsomnia: boolean;
   hasInsomnia: boolean;
   severity: SeverityLevel;
   daytimeImpactCount: number;
@@ -391,6 +392,10 @@ export function diagnoseInsomnia(
   // Poor sleep quality indicator
   const hasPoorSleepQuality =
     data.daytime.nonRestorativeSleep || metrics.scheduledSE < thresholds.SLEEP_EFFICIENCY_NORMAL;
+  const hasObjectiveInsomnia =
+    hasSleepOnsetInsomnia ||
+    hasMaintenanceInsomnia ||
+    metrics.scheduledSE < thresholds.SLEEP_EFFICIENCY_NORMAL;
 
   // Check sleep disturbance criteria
   const hasMildSleepDisturbance =
@@ -433,6 +438,7 @@ export function diagnoseInsomnia(
   return {
     hasSleepOnsetInsomnia,
     hasMaintenanceInsomnia,
+    hasObjectiveInsomnia,
     hasInsomnia,
     severity,
     daytimeImpactCount: Math.max(mildDaytimeSymptoms, moderateDaytimeSymptoms),
@@ -523,6 +529,7 @@ export function diagnoseSleepApnea(
 export function hasCOMISA(insomnia: InsomniaDiagnosis, sleepApnea: SleepApneaDiagnosis): boolean {
   return (
     insomnia.hasInsomnia &&
+    insomnia.hasObjectiveInsomnia &&
     (sleepApnea.hasProbableSleepApnea || sleepApnea.hasMildRespiratoryDisturbance)
   );
 }
@@ -553,7 +560,8 @@ export function hasLegCrampsConcern(
     return false;
   }
 
-  // If we have frequency data, use threshold
+  // If we have frequency data, use the threshold. A checked box without a
+  // frequency should not create a report finding by itself.
   const legCrampsFrequency = (data.restlessLegs as Record<string, unknown>).legCrampsPerWeek as
     | number
     | undefined;
@@ -561,8 +569,7 @@ export function hasLegCrampsConcern(
     return legCrampsFrequency >= thresholds.LEG_CRAMPS_CONCERN_THRESHOLD;
   }
 
-  // Fall back to boolean (assume concern if checked)
-  return data.restlessLegs.legCramps;
+  return false;
 }
 
 // =============================================================================
@@ -572,12 +579,11 @@ export function hasLegCrampsConcern(
 /**
  * Screen for chronic fatigue / fibromyalgia symptoms
  *
- * Criteria: Insomnia symptoms AND/OR 3+ of:
+ * Criteria: Pain anchored, plus 2+ of:
  * - Sleepiness interferes
  * - Non-restorative sleep
  * - Tiredness rating 7+
  * - Fatigue rating >7
- * - Aches/pains AND/OR joint pain
  */
 export function screenChronicFatigue(
   data: QuestionnaireFormData,
@@ -586,17 +592,18 @@ export function screenChronicFatigue(
 ): ChronicFatigueDiagnosis {
   const tiredness = data.daytime.tirednessRating ?? 0;
   const fatigue = data.daytime.fatigueRating ?? 0;
+  const hasPainAnchor = data.daytime.painAffectsSleep || data.daytime.jointMusclePain;
 
   const symptoms = [
     data.daytime.sleepinessInterferes,
     data.daytime.nonRestorativeSleep,
     tiredness >= thresholds.TIREDNESS_MODERATE,
-    fatigue > thresholds.FATIGUE_CHRONIC,
-    data.daytime.painAffectsSleep || data.daytime.jointMusclePain,
+    fatigue >= thresholds.FATIGUE_CHRONIC,
   ];
 
-  const symptomCount = symptoms.filter(Boolean).length;
-  const hasSymptoms = insomnia.hasInsomnia || symptomCount >= 3;
+  const fatigueIndicatorCount = symptoms.filter(Boolean).length;
+  const symptomCount = fatigueIndicatorCount + (hasPainAnchor ? 1 : 0);
+  const hasSymptoms = hasPainAnchor && fatigueIndicatorCount >= 2;
 
   return {
     hasSymptoms,
@@ -647,8 +654,9 @@ export function diagnosePainRelatedSleepDisturbance(
 // MEDICATION-RELATED SLEEP DISTURBANCE
 // =============================================================================
 
-const SLEEP_AFFECTING_SUPPLEMENTS = ['melatonin', 'benadryl', 'tylenol_pm', 'nyquil', 'unisom'];
+const SLEEP_AFFECTING_SUPPLEMENTS = ['benadryl', 'tylenol_pm', 'nyquil', 'unisom'];
 const SLEEP_AFFECTING_PRESCRIPTIONS = ['antidepressants', 'antipsychotic', 'benzos', 'z_drugs'];
+const MEDICATION_RELATED_MIN_NIGHTS = 3;
 
 /**
  * Check for medication-related sleep disturbance
@@ -657,26 +665,28 @@ export function diagnoseMedicationRelatedSleepDisturbance(
   data: QuestionnaireFormData
 ): MedicationRelatedSleepDisturbance {
   const relevantMedications: string[] = [];
+  const supplementsUsedFrequently =
+    (data.sleepHygiene.supplementsFrequencyPerWeek ?? 0) >= MEDICATION_RELATED_MIN_NIGHTS;
+  const prescriptionsUsedFrequently =
+    (data.sleepHygiene.prescriptionMedsFrequencyPerWeek ?? 0) >= MEDICATION_RELATED_MIN_NIGHTS;
 
   // Check supplements
-  for (const supplement of data.sleepHygiene.supplements) {
-    if (SLEEP_AFFECTING_SUPPLEMENTS.includes(supplement)) {
-      relevantMedications.push(supplement);
+  if (supplementsUsedFrequently) {
+    for (const supplement of data.sleepHygiene.supplements) {
+      if (SLEEP_AFFECTING_SUPPLEMENTS.includes(supplement)) {
+        relevantMedications.push(supplement);
+      }
     }
   }
 
   // Check prescription medications
-  for (const med of data.sleepHygiene.prescriptionMeds) {
-    if (SLEEP_AFFECTING_PRESCRIPTIONS.includes(med)) {
-      relevantMedications.push(med);
+  if (prescriptionsUsedFrequently) {
+    for (const med of data.sleepHygiene.prescriptionMeds) {
+      if (SLEEP_AFFECTING_PRESCRIPTIONS.includes(med)) {
+        relevantMedications.push(med);
+      }
     }
   }
-
-  // Check medical conditions that suggest medication use
-  const hasMedicalConditionsWithMeds =
-    data.mentalHealth.diagnosedMedicalConditions.includes('hypertension') ||
-    data.mentalHealth.diagnosedMedicalConditions.includes('heart_disease') ||
-    data.mentalHealth.diagnosedMentalHealthConditions.length > 0;
 
   // Has condition if they're on medications AND have sleep issues
   const hasSleepIssues =
@@ -686,8 +696,7 @@ export function diagnoseMedicationRelatedSleepDisturbance(
     (data.daytime.fatigueRating ?? 0) >= 5;
 
   return {
-    hasCondition:
-      (relevantMedications.length > 0 || hasMedicalConditionsWithMeds) && hasSleepIssues,
+    hasCondition: relevantMedications.length > 0 && hasSleepIssues,
     relevantMedications,
   };
 }
@@ -706,6 +715,15 @@ export function diagnoseNightmares(
   data: QuestionnaireFormData,
   thresholds: ThresholdConfig = THRESHOLDS
 ): NightmareDiagnosis {
+  if (!data.nightmares.remembersDreams) {
+    return {
+      hasNightmareDisorder: false,
+      hasBadDreamWarning: false,
+      nightmaresPerWeek: 0,
+      badDreamsPerWeek: 0,
+    };
+  }
+
   // Get nightmare frequency (new field or fallback to old)
   const nightmaresPerWeek = data.nightmares.nightmaresPerWeek ?? 0;
 
@@ -713,9 +731,14 @@ export function diagnoseNightmares(
   const badDreamsPerWeek =
     ((data.nightmares as Record<string, unknown>).badDreamsPerWeek as number) ?? 0;
 
+  // Only score the frequency fields when the patient endorsed the corresponding
+  // symptom. This prevents a stale frequency (entered then unchecked) from
+  // flagging a finding on its own.
   return {
-    hasNightmareDisorder: nightmaresPerWeek >= thresholds.NIGHTMARE_DISORDER_THRESHOLD,
-    hasBadDreamWarning: badDreamsPerWeek >= thresholds.BAD_DREAM_WARNING_THRESHOLD,
+    hasNightmareDisorder:
+      data.nightmares.hasNightmares && nightmaresPerWeek >= thresholds.NIGHTMARE_DISORDER_THRESHOLD,
+    hasBadDreamWarning:
+      data.nightmares.hasBadDreams && badDreamsPerWeek >= thresholds.BAD_DREAM_WARNING_THRESHOLD,
     nightmaresPerWeek,
     badDreamsPerWeek,
   };
@@ -794,8 +817,9 @@ export function screenNarcolepsy(data: QuestionnaireFormData): boolean {
 
 // Internal helper — not exported, not discoverable from bundle
 function minutesToTimeString(totalMinutes: number): string {
-  const hours = Math.floor(totalMinutes / 60) % 24;
-  const mins = totalMinutes % 60;
+  const normalizedMinutes = ((Math.round(totalMinutes) % 1440) + 1440) % 1440;
+  const hours = Math.floor(normalizedMinutes / 60);
+  const mins = normalizedMinutes % 60;
   return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
 }
 
@@ -1024,6 +1048,13 @@ export function generateScoringBreakdown(
     fatigue >= thresholds.FATIGUE_MODERATE,
   ].filter(Boolean).length;
   const chronicFatigueSymptomCount = diagnosisReport.chronicFatigue.symptomCount;
+  const chronicFatiguePainAnchor = data.daytime.painAffectsSleep || data.daytime.jointMusclePain;
+  const chronicFatigueIndicatorCount = [
+    data.daytime.sleepinessInterferes,
+    data.daytime.nonRestorativeSleep,
+    tiredness >= thresholds.TIREDNESS_MODERATE,
+    fatigue >= thresholds.FATIGUE_CHRONIC,
+  ].filter(Boolean).length;
   const painRelatedSymptomCount = diagnosisReport.painRelated.symptomCount;
   const nightmareCount = diagnosisReport.nightmares.nightmaresPerWeek;
   const badDreamCount = diagnosisReport.nightmares.badDreamsPerWeek;
@@ -1212,10 +1243,10 @@ export function generateScoringBreakdown(
       outcome: diagnosisReport.hasCOMISA ? 'Flagged' : 'Not flagged',
       criteria: [
         createScoringCriterion(
-          'Insomnia present',
-          formatBreakdownBoolean(diagnosisReport.insomnia.hasInsomnia),
+          'Objective insomnia present',
+          formatBreakdownBoolean(diagnosisReport.insomnia.hasObjectiveInsomnia),
           'Must be yes',
-          diagnosisReport.insomnia.hasInsomnia
+          diagnosisReport.insomnia.hasObjectiveInsomnia
         ),
         createScoringCriterion(
           'Sleep-disordered breathing present',
@@ -1289,6 +1320,12 @@ export function generateScoringBreakdown(
           : 'Not flagged',
       criteria: [
         createScoringCriterion(
+          'Dream recall',
+          formatBreakdownBoolean(data.nightmares.remembersDreams),
+          'Must be yes before bad dreams or nightmares are scored',
+          data.nightmares.remembersDreams
+        ),
+        createScoringCriterion(
           'Nightmares per week',
           String(nightmareCount),
           `${thresholds.NIGHTMARE_DISORDER_THRESHOLD}+ per week`,
@@ -1308,16 +1345,16 @@ export function generateScoringBreakdown(
       outcome: diagnosisReport.chronicFatigue.hasSymptoms ? 'Flagged' : 'Not flagged',
       criteria: [
         createScoringCriterion(
-          'Insomnia pathway',
-          formatBreakdownBoolean(diagnosisReport.insomnia.hasInsomnia),
-          'Insomnia alone is sufficient',
-          diagnosisReport.insomnia.hasInsomnia
+          'Pain anchor',
+          formatBreakdownBoolean(chronicFatiguePainAnchor),
+          'Pain affecting sleep or joint/muscle pain must be present',
+          chronicFatiguePainAnchor
         ),
         createScoringCriterion(
-          'Symptom count',
-          String(chronicFatigueSymptomCount),
-          '3 or more symptoms when insomnia is absent',
-          chronicFatigueSymptomCount >= 3
+          'Fatigue indicator count',
+          `${chronicFatigueIndicatorCount} indicators (${chronicFatigueSymptomCount} total including pain)`,
+          '2 or more fatigue indicators with the pain anchor',
+          chronicFatigueIndicatorCount >= 2
         ),
       ],
     },
@@ -1401,7 +1438,11 @@ export function generateFullReport(
   const hasOSA = diagnosisReport.sleepApnea.hasProbableSleepApnea;
   const hasCOMISA = diagnosisReport.hasCOMISA;
   const hasRLS = diagnosisReport.hasRLS;
+  const insomniaLikelyCircadian = hasInsomnia && chronotypeType === 'delayed';
+  const insomniaLikelyRLS = hasInsomnia && hasRLS && !insomniaLikelyCircadian;
   const hasNightmares = diagnosisReport.nightmares.hasNightmareDisorder;
+  const bmi = calculateBMI(data.demographics.height, data.demographics.weight);
+  const hasUnderweight = bmi !== null && bmi < 18;
   const edsSeverity = resolveReportEDSSeverity(
     diagnosisReport.eds,
     diagnosisReport.hasEDSFromNaps,
@@ -1410,6 +1451,8 @@ export function generateFullReport(
 
   const hasPoorHygiene = !!(
     data.lifestyle.caffeinePerDay > 4 ||
+    data.lifestyle.exerciseDaysPerWeek < 3 ||
+    data.sleepHygiene.smokesNicotine ||
     (data.lifestyle.lastCaffeineTime &&
       parseInt(data.lifestyle.lastCaffeineTime.split(':')[0] ?? '0') >= 14)
   );
@@ -1445,6 +1488,8 @@ export function generateFullReport(
     edsSeverity,
     hasEDSFromNaps: diagnosisReport.hasEDSFromNaps,
     hasInsomnia,
+    insomniaLikelyCircadian,
+    insomniaLikelyRLS,
     insomniaSeverity,
     hasOSA,
     hasCOMISA,
@@ -1469,6 +1514,7 @@ export function generateFullReport(
     hasSevereTiredness: diagnosisReport.hasSevereTiredness,
     hasParasomniaSafetyRisk,
     hasMedicationAlcoholRisk,
+    hasUnderweight,
     avgWeeklySleep,
   };
 

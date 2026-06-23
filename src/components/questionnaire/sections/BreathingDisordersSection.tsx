@@ -12,6 +12,7 @@ export function BreathingDisordersSection({ form }: BreathingDisordersSectionPro
   const mouthBreathes = form.watch('breathingDisorders.mouthBreathes');
   const snores = form.watch('breathingDisorders.snores');
   const stopsBreathing = form.watch('breathingDisorders.stopsBreathing');
+  const wakesWithDryMouth = form.watch('breathingDisorders.wakesWithDryMouth');
 
   return (
     <div className='space-y-6'>
@@ -57,13 +58,14 @@ export function BreathingDisordersSection({ form }: BreathingDisordersSectionPro
       )}
 
       {/* Warning message if symptoms detected */}
-      {(snores || stopsBreathing) && (
+      {(snores || stopsBreathing || (mouthBreathes && wakesWithDryMouth)) && (
         <Alert className='alert-warning'>
           <AlertCircle className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
-            Based on your responses, we will provide important information in the report which will
-            include discussion of treatment options with your sleep specialist or primary care
-            doctor. Sleep breathing disorders can significantly impact your health.
+            Based on your responses, we will provide important information in the report about
+            possible sleep-disordered breathing. This will include discussion of treatment options
+            with your sleep specialist or primary care doctor. Sleep breathing disorders can
+            significantly impact your health.
           </AlertDescription>
         </Alert>
       )}

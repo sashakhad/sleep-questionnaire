@@ -1,4 +1,7 @@
-export type ReviewDocumentSlug = 'algorithm-reference' | 'client-review-guide';
+export type ReviewDocumentSlug =
+  | 'round-4-changes'
+  | 'algorithm-reference'
+  | 'client-review-guide';
 
 export interface ReviewDocumentDefinition {
   slug: ReviewDocumentSlug;
@@ -9,6 +12,14 @@ export interface ReviewDocumentDefinition {
 }
 
 export const reviewDocumentDefinitions: ReviewDocumentDefinition[] = [
+  {
+    slug: 'round-4-changes',
+    title: 'Round 4 Feedback (6/16) — Changes Implemented',
+    shortLabel: '6/16 changes',
+    description:
+      'A per-item change log for the June 16 feedback: what was requested, what changed, where to verify it live, and what still needs your sign-off.',
+    repoPath: 'docs/correspondence/feedback/2026-06-16/CHANGES-IMPLEMENTED.md',
+  },
   {
     slug: 'algorithm-reference',
     title: 'Sleep Algorithm Reference',

@@ -27,6 +27,7 @@ interface TimeFieldProps<T extends FieldValues> {
   label: string
   description?: string
   defaultPeriod?: 'AM' | 'PM'
+  forceEarlyMorningToAM?: boolean
 }
 
 function parseTime(time: string): { hour: string; minute: string; period: 'AM' | 'PM' } | null {
@@ -68,6 +69,7 @@ interface TimeFieldInnerProps {
   defaultPeriod: 'AM' | 'PM'
   label: string
   description?: string | undefined
+  forceEarlyMorningToAM: boolean
 }
 
 function GridButton({
@@ -241,7 +243,18 @@ function MobileGridPopover({
   )
 }
 
-function TimeFieldInner({ field, defaultPeriod, label, description }: TimeFieldInnerProps) {
+function isEarlyMorningHour(hour: string): boolean {
+  const parsedHour = parseInt(hour, 10)
+  return parsedHour === 12 || (parsedHour >= 1 && parsedHour <= 6)
+}
+
+function TimeFieldInner({
+  field,
+  defaultPeriod,
+  label,
+  description,
+  forceEarlyMorningToAM,
+}: TimeFieldInnerProps) {
   const parsed = parseTime(field.value as string)
   const mountedRef = useRef(false)
 
@@ -257,7 +270,8 @@ function TimeFieldInner({ field, defaultPeriod, label, description }: TimeFieldI
 
     const hour = type === 'hour' ? value : (parsed?.hour ?? '1')
     const minute = type === 'minute' ? value : (parsed?.minute ?? '00')
-    const period = type === 'period' ? value : (parsed?.period ?? defaultPeriod)
+    const selectedPeriod = type === 'period' ? value : (parsed?.period ?? defaultPeriod)
+    const period = forceEarlyMorningToAM && isEarlyMorningHour(hour) ? 'AM' : selectedPeriod
 
     const newTime = formatTime(hour, minute, period as 'AM' | 'PM')
     field.onChange(newTime)
@@ -280,6 +294,7 @@ export function TimeField<T extends FieldValues>({
   label,
   description,
   defaultPeriod = 'PM',
+  forceEarlyMorningToAM = false,
 }: TimeFieldProps<T>) {
   return (
     <FormField
@@ -291,6 +306,7 @@ export function TimeField<T extends FieldValues>({
           defaultPeriod={defaultPeriod}
           label={label}
           description={description}
+          forceEarlyMorningToAM={forceEarlyMorningToAM}
         />
       )}
     />

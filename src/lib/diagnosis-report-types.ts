@@ -53,6 +53,8 @@ export interface FullReportResult {
   edsSeverity: SeverityLevel;
   hasEDSFromNaps: boolean;
   hasInsomnia: boolean;
+  insomniaLikelyCircadian: boolean;
+  insomniaLikelyRLS: boolean;
   insomniaSeverity: InsomniaSeverityLabel;
   hasOSA: boolean;
   hasCOMISA: boolean;
@@ -77,6 +79,7 @@ export interface FullReportResult {
   hasSevereTiredness: boolean;
   hasParasomniaSafetyRisk: boolean;
   hasMedicationAlcoholRisk: boolean;
+  hasUnderweight: boolean;
   avgWeeklySleep: number;
   algorithmBreakdown?: ScoringBreakdown;
 }

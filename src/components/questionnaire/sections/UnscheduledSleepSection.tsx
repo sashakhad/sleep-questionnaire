@@ -80,6 +80,7 @@ export function UnscheduledSleepSection({ form }: UnscheduledSleepSectionProps) 
         name='unscheduledSleep.lightsOutTime'
         label='What time do you turn out the lights and try to fall asleep?'
         defaultPeriod='PM'
+        forceEarlyMorningToAM
       />
 
       {isUnusualBedtime(lightsOutTime) && (

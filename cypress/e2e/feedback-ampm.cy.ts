@@ -85,7 +85,14 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('PM').click({ force: true });
+      cy.get('[role="option"]').contains('PM').should('be.visible').click();
+
+      // Confirm the period change registered before asserting the warning
+      cy.contains('What time do you wake up?')
+        .closest('[data-slot="form-item"]')
+        .find('button[role="combobox"]')
+        .last()
+        .should('contain.text', 'PM');
 
       cy.contains('Your wake time appears to be set during evening/nighttime hours').should(
         'be.visible'
@@ -98,7 +105,7 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('PM').click({ force: true });
+      cy.get('[role="option"]').contains('PM').should('be.visible').click();
       cy.contains('Your wake time appears to be set during evening/nighttime hours').should(
         'be.visible'
       );
@@ -108,7 +115,7 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('AM').click({ force: true });
+      cy.get('[role="option"]').contains('AM').should('be.visible').click();
 
       cy.contains('Your wake time appears to be set during evening/nighttime hours').should(
         'not.exist'
@@ -121,9 +128,9 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
       cy.navigateToSection('unscheduled-sleep');
     });
 
-    // Mock lightsOutTime='00:30' = 12:30 AM (hour24=0 — NOT in unusual range [4,18))
-    // Switching AM/PM to PM → 12:30 PM (hour24=12 — IS in [4,18)) → warning triggers
-    it('should show bedtime warning when AM/PM changed to PM (12:30 PM is noon, unusual bedtime)', () => {
+    // Mock lightsOutTime='00:30' = 12:30 AM. Round 4 feedback intentionally forces
+    // 12-6 bedtime entries back to AM, preventing accidental 12:30 PM bedtimes.
+    it('should keep 12:30 bedtime as AM when PM is selected', () => {
       cy.contains('Your bedtime appears to be set during daytime hours').should('not.exist');
 
       cy.contains('turn out the lights')
@@ -131,28 +138,23 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('PM').click({ force: true });
+      cy.get('[role="option"]').contains('PM').should('be.visible').click();
 
-      cy.contains('Your bedtime appears to be set during daytime hours').should('be.visible');
+      cy.contains('turn out the lights')
+        .closest('[data-slot="form-item"]')
+        .find('button[role="combobox"]')
+        .last()
+        .should('contain.text', 'AM');
+      cy.contains('Your bedtime appears to be set during daytime hours').should('not.exist');
     });
 
-    it('should clear bedtime warning when AM/PM changed back to AM (00:30 → hour 0 is safe)', () => {
-      // Trigger warning first (AM/PM → PM makes it 12:30 PM)
+    it('should continue to avoid the daytime bedtime warning for 12:30 AM', () => {
       cy.contains('turn out the lights')
         .closest('[data-slot="form-item"]')
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('PM').click({ force: true });
-      cy.contains('Your bedtime appears to be set during daytime hours').should('be.visible');
-
-      // Change back to AM (12:30 AM = 00:30 → hour 0 not in [4,18) → no warning)
-      cy.contains('turn out the lights')
-        .closest('[data-slot="form-item"]')
-        .within(() => {
-          cy.get('button[role="combobox"]').eq(2).click();
-        });
-      cy.get('[role="option"]').contains('AM').click({ force: true });
+      cy.get('[role="option"]').contains('PM').should('be.visible').click();
 
       cy.contains('Your bedtime appears to be set during daytime hours').should('not.exist');
     });
@@ -169,7 +171,7 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('PM').click({ force: true });
+      cy.get('[role="option"]').contains('PM').should('be.visible').click();
 
       cy.contains('Your wake time appears to be set during evening/nighttime hours').should(
         'be.visible'
@@ -182,7 +184,7 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('PM').click({ force: true });
+      cy.get('[role="option"]').contains('PM').should('be.visible').click();
       cy.contains('Your wake time appears to be set during evening/nighttime hours').should(
         'be.visible'
       );
@@ -192,7 +194,7 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
         .within(() => {
           cy.get('button[role="combobox"]').eq(2).click();
         });
-      cy.get('[role="option"]').contains('AM').click({ force: true });
+      cy.get('[role="option"]').contains('AM').should('be.visible').click();
 
       cy.contains('Your wake time appears to be set during evening/nighttime hours').should(
         'not.exist'
@@ -205,12 +207,15 @@ describe('Client Feedback: AM/PM Defaults & Warnings', () => {
   describe('Unscheduled-sleep hour picker (supplements item 5)', () => {
     it('should show all 12 hour options in the lights-out hour dropdown', () => {
       cy.navigateToSection('unscheduled-sleep');
-      cy.get('button[role="combobox"]').first().click();
-      const expectedHours = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
+      cy.contains('turn out the lights')
+        .closest('[data-slot="form-item"]')
+        .find('button[role="combobox"]')
+        .first()
+        .should('contain.text', '12')
+        .click();
+      const expectedHours = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
       for (const hour of expectedHours) {
-        cy.get('[role="option"]')
-          .contains(new RegExp(`^${hour}$`))
-          .should('exist');
+        cy.contains('[role="option"]', new RegExp(`^${hour}$`)).should('exist');
       }
     });
   });

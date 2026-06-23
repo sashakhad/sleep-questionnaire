@@ -134,8 +134,10 @@ export interface QuestionnaireData {
   sleepHygiene: {
     supplements: string[];
     supplementsOther: string;
+    supplementsFrequencyPerWeek: number | null;
     prescriptionMeds: string[];
     prescriptionMedsOther: string;
+    prescriptionMedsFrequencyPerWeek: number | null;
     stimulants: string;
     stimulantTime: string;
     smokesNicotine: boolean;

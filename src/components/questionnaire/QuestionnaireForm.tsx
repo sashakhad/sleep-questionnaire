@@ -243,8 +243,10 @@ export function QuestionnaireForm({
       sleepHygiene: {
         supplements: [],
         supplementsOther: '',
+        supplementsFrequencyPerWeek: null,
         prescriptionMeds: [],
         prescriptionMedsOther: '',
+        prescriptionMedsFrequencyPerWeek: null,
         stimulants: '',
         stimulantTime: '',
         smokesNicotine: false,

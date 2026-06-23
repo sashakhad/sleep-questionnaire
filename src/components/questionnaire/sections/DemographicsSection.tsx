@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { User, Info } from 'lucide-react';
+import { User } from 'lucide-react';
 
 interface DemographicsSectionProps {
   form: UseFormReturn<QuestionnaireFormData>;
@@ -105,18 +105,18 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
           <h3 className='text-muted-foreground mb-3 text-sm font-semibold tracking-wide uppercase'>
             Body Mass Index (BMI)
           </h3>
-          <div className='flex items-center space-x-4'>
+          <div className='flex items-start space-x-4'>
             <div className='bg-primary/10 text-primary flex h-14 w-14 items-center justify-center rounded-full text-xl font-bold'>
               {bmi.toFixed(1)}
             </div>
-            <div className='text-muted-foreground text-sm'>
-              {bmi < 18.5
-                ? 'Underweight'
-                : bmi < 25
-                  ? 'Normal weight'
-                  : bmi < 30
-                    ? 'Overweight'
-                    : 'Obese'}
+            <div className='text-muted-foreground space-y-2 text-sm'>
+              <p>Your BMI is shown as a reference value. BMI ranges are commonly defined as:</p>
+              <ul className='list-inside list-disc space-y-1'>
+                <li>Underweight: below 18.5</li>
+                <li>Normal weight: 18.5 to 24.9</li>
+                <li>Overweight: 25 to 29.9</li>
+                <li>Obese: 30 or higher</li>
+              </ul>
             </div>
           </div>
         </div>
@@ -140,16 +140,15 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
         )}
       />
 
-      {/* BMI and Sleep Apnea Warning */}
-      {bmi && bmi >= 30 && (
+      {/* Low BMI warning */}
+      {bmi && bmi < 18 && (
         <Alert className='alert-warning'>
-          <Info className='h-4 w-4 text-amber-600' />
+          <User className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
-            <strong>BMI and Sleep Apnea Risk</strong>
-            <br />A BMI of 30 or higher is associated with increased risk of obstructive sleep
-            apnea. This is especially important if you also experience snoring, witnessed breathing
-            pauses during sleep, or excessive daytime sleepiness. Consider discussing sleep apnea
-            screening with your healthcare provider.
+            <strong>Low BMI</strong>
+            <br />
+            Your BMI is below 18. We will include a note in your report recommending that you talk
+            with your doctor about low BMI and symptoms of eating disorders.
           </AlertDescription>
         </Alert>
       )}

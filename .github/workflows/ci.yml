@@ -51,6 +51,8 @@ jobs:
         run: pnpm exec cypress install
       - name: Cypress run
         uses: cypress-io/github-action@v6
+        env:
+          DISABLE_RATE_LIMIT: '1'
         with:
           start: pnpm start
           wait-on: 'http://localhost:3000'

@@ -93,7 +93,7 @@ describe('Client Feedback: Updated Report & Alert Text', () => {
 
     it('should show SomnaHealth Services text with specific wording from feedback item 11', () => {
       cy.contains(
-        'sleep coaches and board certified sleep doctor who can support you with evidence based treatments including CBT-I'
+        'sleep coaches and a board-certified sleep doctor who can support you with evidence-based treatments including CBT-I'
       ).should('exist');
     });
 
