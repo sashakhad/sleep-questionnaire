@@ -20,8 +20,6 @@ This is the change log for the **June 16 feedback only**. Each item lists what y
 
 **Your feedback:** "Suggest cutting these warnings on the first page. If easy it would be much preferable to show a BMI and the range of definitions rather than labeling." Also: "If BMI is < 18 add to report ... underweight ... eating disorders."
 
-![Your annotated BMI screenshot](/review/round-4/image1.png)
-
 **What changed:** The demographics page now shows the BMI number plus the standard range definitions (Underweight < 18.5 / Normal 18.5–24.9 / Overweight 25–29.9 / Obese ≥ 30) instead of a single category label. The old "BMI and Sleep Apnea Risk" warning box was removed. A short low-BMI note appears when BMI < 18, and the report adds the underweight/eating-disorder statement.
 
 **Where to see it:** [Demographics page](/dev?section=demographics) (set weight/height to produce a BMI under 18 to see the low-BMI note); the report statement shows on the [report page](/dev?section=report).
