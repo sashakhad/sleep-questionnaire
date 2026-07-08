@@ -17,6 +17,8 @@
     "tiredButCantSleep": "3-5days",
     "weaknessWhenExcited": [],
     "sleepParalysis": false,
+    "hypnagogicHallucinations": false,
+    "triedCannotNapDuringDay": false,
     "diagnosedNarcolepsy": false,
     "painAffectsSleep": false,
     "painSeverity": null,
@@ -99,8 +101,10 @@
   "sleepHygiene": {
     "supplements": ["melatonin"],
     "supplementsOther": "",
+    "supplementsFrequencyPerWeek": null,
     "prescriptionMeds": [],
     "prescriptionMedsOther": "",
+    "prescriptionMedsFrequencyPerWeek": null,
     "stimulants": "",
     "stimulantTime": "",
     "smokesNicotine": false

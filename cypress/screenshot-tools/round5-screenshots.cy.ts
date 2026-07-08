@@ -1,3 +1,12 @@
+// Screenshot-capture tool for the round-5 changelog. Lives outside cypress/e2e
+// so it is excluded from normal test runs. To regenerate the images:
+//
+//   pnpm exec cypress run \
+//     --config specPattern=cypress/screenshot-tools/*.cy.ts,screenshotsFolder=public/review/round-5/after
+//
+// then flatten the per-spec subfolder and downscale with
+// `sips --resampleWidth 1600 <file> --out <file>`.
+
 function highlightContains(text: string | RegExp) {
   cy.contains(text).first().scrollIntoView();
   cy.contains(text)
