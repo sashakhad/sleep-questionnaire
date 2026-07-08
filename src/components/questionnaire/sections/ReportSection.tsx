@@ -273,6 +273,13 @@ export function ReportSection({
               (weighted: 5× workdays + 2× weekends)
             </p>
             <p className='text-foreground/80 text-sm'>
+              <strong className='text-foreground'>24-Hour Average Sleep:</strong>{' '}
+              <span className='text-primary font-semibold'>
+                {formatHours(metrics.avg24HourSleep)}
+              </span>{' '}
+              (nightly sleep plus planned naps)
+            </p>
+            <p className='text-foreground/80 text-sm'>
               <strong className='text-foreground'>Social Jet Lag:</strong>{' '}
               <span
                 className={cn(

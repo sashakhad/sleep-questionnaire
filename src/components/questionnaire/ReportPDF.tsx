@@ -329,6 +329,13 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
               </View>
             </View>
           </View>
+
+          <View style={styles.metric}>
+            <Text style={styles.metricLabel}>24-Hour Average Sleep (incl. planned naps):</Text>
+            <Text style={styles.metricValue}>
+              {fullReport.metrics.avg24HourSleep.toFixed(1)} hours
+            </Text>
+          </View>
         </View>
 
         {/* Lifestyle Factors */}
