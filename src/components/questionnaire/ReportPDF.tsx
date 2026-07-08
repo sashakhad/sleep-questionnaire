@@ -427,10 +427,12 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
                 </Text>
                 {'\n\n'}
                 {fullReport.insomniaLikelyCircadian
-                  ? 'You report insomnia symptoms, but your delayed sleep timing suggests these symptoms are likely due to a circadian rhythm disorder. The circadian sleep pattern should be considered a preliminary assessment and treatment priority.'
+                  ? 'Based on your response, you have some symptoms of insomnia, but are most likely struggling with DSPD.'
                   : fullReport.insomniaLikelyRLS
                     ? 'You report insomnia symptoms, but your restless legs symptoms may be a primary driver of difficulty falling asleep. RLS should be considered a preliminary assessment and treatment priority.'
-                    : `You have symptoms of insomnia that could be in the ${getSeverityText(insomnia.severity)} range. We strongly recommend follow-up for a diagnosis and possible treatment.`}
+                    : fullReport.insomniaPrimaryOverDSPD
+                      ? `You have symptoms of insomnia that could be in the ${getSeverityText(insomnia.severity)} range. Based on your responses, you have some symptoms of DSPD but are more likely struggling with insomnia. We strongly recommend follow-up for a diagnosis and possible treatment.`
+                      : `You have symptoms of insomnia that could be in the ${getSeverityText(insomnia.severity)} range. We strongly recommend follow-up for a diagnosis and possible treatment.`}
                 {'\n\n'}
                 Your symptoms include:
                 {insomnia.hasSleepOnsetInsomnia && '\n• Difficulty falling asleep (>30 minutes)'}
@@ -560,7 +562,7 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
             </View>
           )}
 
-          {fullReport.chronotypeType === 'delayed' && (
+          {fullReport.chronotypeType === 'delayed' && !fullReport.insomniaPrimaryOverDSPD && (
             <View style={styles.warningBox}>
               <Text style={styles.warningText}>
                 <Text style={{ fontWeight: 'bold' }}>Symptoms of Delayed Sleep Phase Disorder</Text>
@@ -658,25 +660,7 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
           )}
 
           {/* No major issues found */}
-          {!insomnia.hasInsomnia &&
-            !sleepApnea.hasProbableSleepApnea &&
-            !sleepApnea.hasMildRespiratoryDisturbance &&
-            !report.hasCOMISA &&
-            !report.hasRLS &&
-            !report.hasNarcolepsy &&
-            fullReport.chronotypeType !== 'delayed' &&
-            !report.hasLegCrampsConcern &&
-            !report.insufficientSleep &&
-            eds.severity === 'none' &&
-            !nightmares.hasNightmareDisorder &&
-            !nightmares.hasBadDreamWarning &&
-            !report.hasAnxiety &&
-            !hasUnderweight &&
-            !chronicFatigue.hasSymptoms &&
-            !painRelated.hasCondition &&
-            !medicationRelated.hasCondition &&
-            !treatmentEffectiveness.osaTreatmentIneffective &&
-            !treatmentEffectiveness.rlsTreatmentIneffective && (
+          {fullReport.isHealthySleeper && (
               <Text style={styles.text}>
                 No major sleep disorders were identified based on your responses. However, there may
                 still be opportunities to optimize your sleep quality.
@@ -727,7 +711,7 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
             </View>
           )}
 
-          {fullReport.chronotypeType === 'delayed' && (
+          {fullReport.chronotypeType === 'delayed' && !fullReport.insomniaPrimaryOverDSPD && (
             <View style={styles.recommendationBox}>
               <Text style={styles.recommendationText}>
                 <Text style={{ fontWeight: 'bold' }}>For Delayed Sleep Phase Symptoms:</Text>
@@ -824,6 +808,59 @@ export function ReportPDF({ data, userName = 'Patient' }: ReportPDFProps) {
             )}
             <Text style={styles.recommendationText}>
               Visit our website for comprehensive information on adjusting sleep hygiene to improve your sleep health and sleep quality.
+            </Text>
+          </View>
+
+          <View style={styles.recommendationBox}>
+            <Text style={styles.recommendationText}>
+              <Text style={{ fontWeight: 'bold' }}>Sleep Health Recommendations:</Text>
+            </Text>
+            <Text style={styles.recommendationText}>
+              {fullReport.isHealthySleeper
+                ? 'We are impressed with your general sleep health. We have not identified any sleep disorders or domains in which you need guidance on your sleep health. We still encourage you to go to these links on our website to learn basics about maintaining exceptional sleep health that you can share with friends and family. Much of this information is captured in our Seven Sleep Health Principles (website link). We can guarantee that you will find much of this information both novel and fascinating.'
+                : 'We have identified symptoms of a sleep disorder and some areas in which you can improve your sleep. Much of this information is captured in our Seven Sleep Health Principles (website link). We can guarantee that you will find much of this information both novel and fascinating.'}
+            </Text>
+            {fullReport.hasInsufficientSleepSigns && !fullReport.hasInsufficientSleep && (
+              <>
+                <Text style={styles.recommendationText}>
+                  <Text style={{ fontWeight: 'bold' }}>Signs of Insufficient Sleep:</Text>
+                </Text>
+                <Text style={styles.recommendationText}>
+                  Optimal sleep is more than 6.5 hours and when sleep is less than 8 hours a night
+                  and there are signs of daytime tiredness and attention problems it is optimal to
+                  increase total sleep time. There are individual differences in sleep need and it is
+                  important to know and follow your needs. You can try increasing your sleep time for
+                  a week and observe the quality of your sleep and changes in your daytime
+                  functioning. Please go to our website for more information on determining optimal
+                  sleep duration for you.
+                </Text>
+              </>
+            )}
+            {fullReport.hasSleepTimingVariability && (
+              <>
+                <Text style={styles.recommendationText}>
+                  <Text style={{ fontWeight: 'bold' }}>Sleep Timing Variability:</Text>
+                </Text>
+                <Text style={styles.recommendationText}>
+                  Regular timing of your sleep schedule is even more important than optimal sleep
+                  duration. Your schedule suggests that there is a moderate to high level of
+                  variability in your sleep timing. You can try a more regular sleep schedule for a
+                  week and see how you feel. Please go to our website for more information on
+                  optimizing your sleep timing based on your natural preference, called chronotype
+                  and general sleep habits.
+                </Text>
+              </>
+            )}
+            <Text style={styles.recommendationText}>
+              <Text style={{ fontWeight: 'bold' }}>Your Chronotype:</Text>
+            </Text>
+            <Text style={styles.recommendationText}>
+              Based on your schedule you appear to be {fullReport.chronotypeLabel}. Whatever type you
+              fall into, it is always important to strive for a regular sleep schedule with less than
+              30 minutes change night-to-night on weekdays and less than one hour on weekends. When
+              your weeknight sleep time differs from your weekend sleep time you have social jetlag.
+              More information on healthy sleep timing, chronotypes and circadian rhythms are on our
+              website.
             </Text>
           </View>
         </View>
