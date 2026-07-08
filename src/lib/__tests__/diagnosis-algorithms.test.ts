@@ -958,9 +958,7 @@ describe('screenChronicFatigue', () => {
       },
     });
 
-    const metrics = calculateSleepMetrics(data);
-    const insomnia = diagnoseInsomnia(data, metrics);
-    const result = screenChronicFatigue(data, insomnia);
+    const result = screenChronicFatigue(data);
 
     expect(result.hasSymptoms).toBe(true);
     expect(result.symptomCount).toBeGreaterThanOrEqual(3);
@@ -979,7 +977,7 @@ describe('screenChronicFatigue', () => {
 
     const metrics = calculateSleepMetrics(data);
     const insomnia = diagnoseInsomnia(data, metrics);
-    const result = screenChronicFatigue(data, insomnia);
+    const result = screenChronicFatigue(data);
 
     expect(insomnia.hasInsomnia).toBe(true);
     expect(result.hasSymptoms).toBe(false);
@@ -1686,6 +1684,34 @@ describe('generateFullReport', () => {
 
       expect(fullReport.insomniaPrimaryOverDSPD).toBe(true);
       expect(fullReport.insomniaLikelyCircadian).toBe(false);
+    });
+
+    it('should keep insomnia attribution flags mutually exclusive when RLS confounds the differential', () => {
+      const scenario = diagnosisScenarios.find(item => item.id === 'dspd-differential-insomnia-primary');
+      expect(scenario).toBeDefined();
+      const dataWithRLS = {
+        ...scenario!.data,
+        restlessLegs: {
+          ...scenario!.data.restlessLegs,
+          troubleLyingStill: true,
+          urgeToMoveLegs: true,
+          movementRelieves: true,
+        },
+      };
+      const fullReport = generateFullReport(dataWithRLS);
+
+      // RLS disqualifies the insomnia-primary carve-out; circadian wins and
+      // suppresses the RLS attribution flag (precedence circadian > RLS).
+      expect(fullReport.hasRLS).toBe(true);
+      expect(fullReport.insomniaPrimaryOverDSPD).toBe(false);
+      expect(fullReport.insomniaLikelyCircadian).toBe(true);
+      expect(fullReport.insomniaLikelyRLS).toBe(false);
+      const attributionFlags = [
+        fullReport.insomniaPrimaryOverDSPD,
+        fullReport.insomniaLikelyCircadian,
+        fullReport.insomniaLikelyRLS,
+      ].filter(Boolean).length;
+      expect(attributionFlags).toBeLessThanOrEqual(1);
     });
 
     it('should flag insufficient sleep signs without syndrome', () => {

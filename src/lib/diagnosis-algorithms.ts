@@ -99,7 +99,6 @@ export interface SleepApneaDiagnosis {
 export interface ChronicFatigueDiagnosis {
   hasSymptoms: boolean;
   symptomCount: number;
-  hasInsomnia: boolean;
 }
 
 export interface PainRelatedSleepDisturbance {
@@ -579,28 +578,24 @@ export function hasLegCrampsConcern(
 /**
  * Screen for chronic fatigue / fibromyalgia symptoms
  *
- * Criteria: Pain anchored, plus 2+ of:
- * - Sleepiness interferes
- * - Non-restorative sleep
- * - Tiredness rating 7+
- * - Fatigue rating >7
+ * Round 5 (B2): qualified pain anchor AND tiredness >= 7 AND fatigue >= 7.
+ * Mutually exclusive with pain-related sleep disturbance.
  */
 export function screenChronicFatigue(
   data: QuestionnaireFormData,
-  insomnia: InsomniaDiagnosis,
   thresholds: ThresholdConfig = THRESHOLDS
 ): ChronicFatigueDiagnosis {
   const tiredness = data.daytime.tirednessRating ?? 0;
   const fatigue = data.daytime.fatigueRating ?? 0;
   const hasPain = painQualifies(data);
-  const hasSymptoms =
-    hasPain && tiredness >= thresholds.TIREDNESS_MODERATE && fatigue >= thresholds.FATIGUE_CHRONIC;
-  const symptomCount = hasSymptoms ? 3 : 0;
+  const tirednessMet = tiredness >= thresholds.TIREDNESS_MODERATE;
+  const fatigueMet = fatigue >= thresholds.FATIGUE_CHRONIC;
+  const hasSymptoms = hasPain && tirednessMet && fatigueMet;
+  const symptomCount = [hasPain, tirednessMet, fatigueMet].filter(Boolean).length;
 
   return {
     hasSymptoms,
     symptomCount,
-    hasInsomnia: insomnia.hasInsomnia,
   };
 }
 
@@ -1003,7 +998,7 @@ export function generateDiagnosisReport(
   const hasEDSFromNaps = hasEDSFromPlannedNaps(data, thresholds);
   const insomnia = diagnoseInsomnia(data, sleepMetrics, thresholds);
   const sleepApnea = diagnoseSleepApnea(data, thresholds);
-  const chronicFatigue = screenChronicFatigue(data, insomnia, thresholds);
+  const chronicFatigue = screenChronicFatigue(data, thresholds);
   const painRelated = diagnosePainRelatedSleepDisturbance(data, thresholds, chronicFatigue);
   const medicationRelated = diagnoseMedicationRelatedSleepDisturbance(data);
   const nightmares = diagnoseNightmares(data, thresholds);
@@ -1117,6 +1112,11 @@ export function generateScoringBreakdown(
       label: 'Weekly average sleep',
       value: formatBreakdownHours(reportMetrics.weeklyAvgTST),
       note: 'Weighted average: 5 work/school days plus 2 weekends/free days.',
+    },
+    {
+      label: '24-hour average sleep',
+      value: formatBreakdownHours(reportMetrics.avg24HourSleep),
+      note: 'Weekly average plus planned naps averaged over 7 days (round 5, D2).',
     },
     {
       label: 'Scheduled sleep efficiency',
@@ -1491,20 +1491,25 @@ export function generateFullReport(
 
   const dspdDifferentialMet =
     data.scheduledSleep.nightWakeups <= DSPD_DIFFERENTIAL_MAX_WAKES &&
+    // The stricter delayed trigger (D1) already guarantees this shift whenever
+    // chronotypeType is 'delayed'; kept because it is part of Danny's verbatim
+    // B5 differential criteria and D1 may be tuned independently.
     metrics.midSleepTimeChange >= DSPD_DIFFERENTIAL_MIN_MIDSLEEP_SHIFT_HOURS &&
     edsScore <= DSPD_DIFFERENTIAL_EDS_MAX;
   const insomniaAnchor = data.daytime.triedCannotNapDuringDay;
-  let insomniaPrimaryOverDSPD =
+  // Attribution precedence: circadian > RLS > insomnia-primary. The three flags
+  // are mutually exclusive. RLS confounds the DSPD differential, so its presence
+  // disqualifies the insomnia-primary carve-out; ambiguous cases default to
+  // circadian attribution (round-4 behavior).
+  const insomniaPrimaryOverDSPD =
     hasInsomnia &&
     chronotypeType === 'delayed' &&
     insomniaAnchor &&
-    !dspdDifferentialMet;
-  let insomniaLikelyCircadian =
+    !dspdDifferentialMet &&
+    !hasRLS;
+  const insomniaLikelyCircadian =
     hasInsomnia && chronotypeType === 'delayed' && !insomniaPrimaryOverDSPD;
   const insomniaLikelyRLS = hasInsomnia && hasRLS && !insomniaLikelyCircadian;
-  insomniaPrimaryOverDSPD = insomniaPrimaryOverDSPD && !insomniaLikelyRLS;
-  insomniaLikelyCircadian =
-    hasInsomnia && chronotypeType === 'delayed' && !insomniaPrimaryOverDSPD;
 
   const hasNightmares = diagnosisReport.nightmares.hasNightmareDisorder;
   const bmi = calculateBMI(data.demographics.height, data.demographics.weight);
