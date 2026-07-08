@@ -290,7 +290,7 @@ This is the change log for the **July 4 feedback only**. Each item lists what yo
 | B5 ambiguous cases | Default to DSPD attribution | Same as Round 4 |
 | B2 `jointMusclePain` | Unqualified pain anchor | No severity question exists |
 | Part 3 fatigue frequency | Ratings only (no day-count field) | "fatigue 7+ on >4 days/week" |
-| Timing variability | `lightsOutVaries` OR mid-sleep shift >= 1 h | Per-night variance not collected |
+| Timing variability | `lightsOutVaries` OR mid-sleep shift >= 1 h | Per-night variance not collected; a 1 h weekend shift is common, so this block will show for most respondents — confirm sensitivity |
 | RLS popup | Full triad required | Was any-of-three in Round 4 |
 | Narcolepsy vs IH | Gate only; no separate IH block | "??" in source |
 | Insufficient-answers rule | 4 core times + any daytime rating | Minimal detectable threshold |

@@ -207,6 +207,10 @@ Please confirm these Round 5 implementation choices:
 4. **B2 `jointMusclePain`:** kept as pain qualifier without severity threshold.
 5. **Part 3 fatigue frequency:** no day-count question — ratings only for insufficient-sleep signs.
 6. **Timing variability:** `lightsOutVaries` (> 1 h) OR mid-sleep shift >= 1 h as proxy.
+   Note on sensitivity: a 1-hour weekend shift is very common (even our baseline
+   test fixture trips it), so most respondents will see the variability block and
+   few will qualify for the "we are impressed" healthy-sleeper copy. Confirm this
+   is the intended sensitivity or whether the shift cutoff should be higher.
 7. **RLS popup:** full triad required (was any-of-three).
 8. **Insufficient-answers rule:** 4 core sleep times + at least one daytime rating.
 9. **Website links:** placeholders for Seven Sleep Health Principles and insufficient-sleep copy.
