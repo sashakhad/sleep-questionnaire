@@ -173,18 +173,15 @@ export function DemographicsSection({ form }: DemographicsSectionProps) {
       )}
 
       {/* Adolescent/young adult sleep info */}
-      {age && age >= 12 && age <= 25 && (
+      {age && age >= 12 && age < 25 && (
         <Alert>
           <User className='h-4 w-4' />
           <AlertDescription>
-            <strong>Sleep in Adolescents and Young Adults</strong>
-            <br />
-            Prior to the age of 25 there is a biological tendency for a delayed sleep phase, a
-            preference to stay up late and wake up late. This may conflict with school or work
-            schedules. If you&apos;re struggling with early morning obligations, you can shift your
-            schedule. In your sleep report you will receive guidance on next steps to maintain a
-            healthy schedule that does not interfere with your daily activities and improves your
-            sleep health and quality of life.
+            Between 9 and 25 years of age there is a biological tendency to stay up later and wake
+            up later. This results in difficulty waking in the morning, sleeping late on weekends
+            and may conflict with school or work schedules. In your sleep report you will receive
+            information on this sleep problem and guidance on next steps to improve your sleep
+            health and quality of life.
           </AlertDescription>
         </Alert>
       )}

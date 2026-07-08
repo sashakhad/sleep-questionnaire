@@ -28,6 +28,8 @@ export interface QuestionnaireData {
     tiredButCantSleep: 'everyday' | '5+days' | '3-5days' | '1-3days' | '<1day' | null;
     weaknessWhenExcited: string[];
     sleepParalysis: boolean;
+    hypnagogicHallucinations: boolean;
+    triedCannotNapDuringDay: boolean;
     diagnosedNarcolepsy: boolean;
     // Sleep quality section (renamed from Pain and Energy Levels)
     painAffectsSleep: boolean;

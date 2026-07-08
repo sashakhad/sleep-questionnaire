@@ -25,6 +25,8 @@ export const daytimeSchema = z.object({
   // Removed dreamsWhileFallingAsleep - cut narcolepsy dreams question
   weaknessWhenExcited: z.array(z.string()),
   sleepParalysis: z.boolean(),
+  hypnagogicHallucinations: z.boolean(),
+  triedCannotNapDuringDay: z.boolean(),
   diagnosedNarcolepsy: z.boolean(),
   // Sleep quality section (renamed from Pain and Energy Levels)
   painAffectsSleep: z.boolean(),
