@@ -101,11 +101,29 @@ What changed:
 - Medication-related sleep disturbance excludes melatonin-only use and requires a sleep-affecting medication used at least 3 nights per week.
 - Delayed sleep phase and RLS can recontextualize insomnia symptoms in the report.
 
+### Round 5: 2026-07-04 Retainer Feedback
+
+Primary source:
+
+- `docs/correspondence/feedback/2026-07-04/feedback.md`
+
+What changed:
+
+- B1 (COMISA) and B3 (sleep meds) approved — no code changes.
+- B2: chronic fatigue and pain-related sleep disturbance are now mutually exclusive; CF requires pain qualifier plus tiredness >= 7 and fatigue >= 7; pain-related requires pain qualifier plus 2+ symptoms when CF is not active.
+- B5: insomnia-vs-DSPD differential with `insomniaPrimaryOverDSPD` and updated report sentences; narcolepsy symptom path now requires EDS score >= 7 plus REM-intrusion items (including new hypnagogic hallucinations question).
+- D1: delayed DSPD trigger requires moderate-or-strong evening preference, scheduled mid-sleep after 3:30 AM, and weekend mid-sleep shift >= 1 hour.
+- D2: new `avg24HourSleep` metric includes naps (nap term uses `/7`, not Danny's `/5` — flagged).
+- Part 2–3: always-shown Sleep Health Recommendations card, `isHealthySleeper`, `hasInsufficientSleepSigns`, `hasSleepTimingVariability`, owl/lark/crow chronotype labels.
+- Part 4: mild insomnia now requires 2+ daytime symptoms; insufficient-answers guard on the patient questionnaire.
+- Form: new daytime questions (`triedCannotNapDuringDay`, `hypnagogicHallucinations`), `napsPerWeek` UI, lights-out variability reworded to >1 hour, RLS intro removed (triad-only popup), under-25 demographics copy updated.
+
 ## Authority Rules
 
 Use these precedence rules when implementing or reviewing the algorithm:
 
-1. `feedback.md` from 2026-06-16 overrides earlier guidance for leg cramps, COMISA over-triggering, chronic fatigue over-triggering, melatonin-only medication flags, nightmare nesting, and insomnia attribution under DSPD/RLS.
+1. `feedback.md` from 2026-07-04 overrides Round 4 guidance for chronic fatigue vs pain-related split, insomnia–DSPD differential, narcolepsy gating, DSPD trigger strictness, sleep-health recommendation domains, insomnia mild daytime criteria, and RLS popup behavior.
+2. `feedback.md` from 2026-06-16 overrides earlier guidance for leg cramps, COMISA over-triggering, chronic fatigue over-triggering (superseded by Round 5 for CF/pain split), melatonin-only medication flags, nightmare nesting, and insomnia attribution under DSPD/RLS (superseded by Round 5 B5 for insomnia–DSPD).
 2. `additional-comments-2.28.md` overrides earlier nightmare frequency guidance.
 3. `dl-and-cl-comments-1.11.md` overrides earlier insomnia, apnea, chronic fatigue, pain-related, and insufficient sleep logic when they conflict and when not superseded by Round 4.
 4. `questionnaire-comments.txt` remains the base source for calculations and any rule not explicitly replaced later.
@@ -196,7 +214,7 @@ Current rule:
   - SOL 30-45 minutes
   - WASO 40-60 minutes
   - poor sleep quality
-- And at least one daytime criterion:
+- And at least **two** daytime criteria (Round 5 raised from one):
   - sleepiness interferes with daily activities
   - sleep does not feel restorative
   - tiredness rating 5-7
@@ -280,31 +298,39 @@ Current rule:
 
 Interpretation note:
 
-- Later correspondence broadened the wording of the symptom questions and suggested that even one affirmative answer could trigger an informational pop-up, but it does not clearly replace the classic triad as the core disorder screen.
+- Round 5 aligned the informational pop-up to the full classic triad (all three symptoms). The always-on introductory RLS description was removed from the form.
 
 Primary source:
 
 - `docs/correspondence/SOW/questionnaire-comments.txt`
 - `docs/correspondence/round-2-edits/feedback-1.0.2026.md`
+- `docs/correspondence/feedback/2026-07-04/feedback.md`
+
+Primary source:
+
+- `docs/correspondence/round-2-edits/dl-and-cl-comments-1.11.md`
+- `docs/correspondence/feedback/2026-07-04/feedback.md`
 
 ### Narcolepsy / Hypersomnia Screen
 
 Current supported screen signals:
 
-- Previously diagnosed narcolepsy or hypersomnia
-- Cataplexy-type weakness / loss of muscle control with emotion
-- Sleep paralysis as a supportive signal
-- A dozing score `> 6` can trigger a narcolepsy / hypersomnia warning or pop-up in later review comments
+- Previously diagnosed narcolepsy or hypersomnia — positive regardless of other symptoms
+- Symptom path (Round 5): EDS score >= 7 **and** at least one REM-intrusion item:
+  - cataplexy-type weakness when excited
+  - sleep paralysis
+  - hypnagogic hallucinations (new questionnaire field)
 
 Interpretation note:
 
+- The report still uses a combined "Narcolepsy or Idiopathic Hypersomnia" heading; separate IH presentation is flagged as an open question.
 - Earlier SOW materials also referenced dreams while falling asleep or during naps, but those questions were later cut from the questionnaire.
-- The correspondence does not provide a single final, fully reconciled narcolepsy / hypersomnia decision tree that is as explicit as the round 2 insomnia or apnea logic.
 
 Primary sources:
 
 - `docs/correspondence/SOW/questionnaire-comments.txt`
 - `docs/correspondence/round-2-edits/feedback-1.0.2026.md`
+- `docs/correspondence/feedback/2026-07-04/feedback.md`
 
 ### Nightmares / Bad Dreams
 
@@ -345,39 +371,39 @@ Implementation note:
 
 ### Chronic Fatigue / Fibromyalgia / Post-Viral Symptoms
 
-Current rule:
+Current rule (Round 5 — mutually exclusive with pain-related sleep disturbance):
 
-- Pain affecting sleep or joint/muscle pain must be present
-- Plus 2 or more of the following fatigue indicators:
-  - sleepiness interferes with daily activities
-  - sleep does not feel restorative
-  - tiredness rating 7+
-  - fatigue rating 7+
+- Pain qualifier present:
+  - pain affecting sleep with severity >= 5 (above 4 on 0–10 scale), **or**
+  - joint/muscle pain endorsed (no severity field — flagged)
+- **And** tiredness rating >= 7
+- **And** fatigue rating >= 7
+
+When chronic fatigue is active, pain-related sleep disturbance is suppressed.
 
 Primary source:
 
 - `docs/correspondence/round-2-edits/dl-and-cl-comments-1.11.md`
 - `docs/correspondence/feedback/2026-06-16/feedback.md`
+- `docs/correspondence/feedback/2026-07-04/feedback.md`
 
 ### Pain-Related Sleep Disturbance
 
-Current rule:
+Current rule (Round 5):
 
-- The round 2 source text says "at least two of the following" and includes pain as one of the listed items:
-  - aches and pains and/or joint pain
+- Pain qualifier present (same definition as chronic fatigue)
+- At least 2 symptoms from:
+  - aches and pains and/or joint pain (via pain qualifier)
   - sleepiness interferes with daily activities
   - sleep does not feel restorative
   - tiredness rating 7+
   - fatigue rating 5+
-
-Best-supported reading:
-
-- Requiring pain to be present plus at least one additional listed symptom is a reasonable reading of the section title.
-- However, the correspondence itself only says "at least two of the following" and does not separately state that pain is mandatory, so this should still be confirmed with the client.
+- Chronic fatigue screen must **not** be active
 
 Primary source:
 
 - `docs/correspondence/round-2-edits/dl-and-cl-comments-1.11.md`
+- `docs/correspondence/feedback/2026-07-04/feedback.md`
 
 ### Medication-Related Sleep Disturbance
 
@@ -392,6 +418,75 @@ Current rule:
 Primary source:
 
 - `docs/correspondence/feedback/2026-06-16/feedback.md`
+
+### Delayed Sleep Phase / Insomnia Differential (Round 5)
+
+Delayed chronotype (`chronotypeType === 'delayed'`) requires **all** of:
+
+- Evening chronotype preference with moderate or strong strength (not slight)
+- Scheduled mid-sleep later than 3:30 AM (adjusted)
+- Weekend/free-day mid-sleep >= 1 hour later than work/school mid-sleep
+
+When insomnia and delayed chronotype co-occur, the report applies a differential:
+
+- **DSPD-primary** when: night wakeups <= 1, mid-sleep shift >= 1 hour, EDS score <= 5, and insomnia anchor (`triedCannotNapDuringDay`) is false or differential otherwise met
+- **Insomnia-primary** when: insomnia anchor is true and DSPD differential criteria are **not** met
+- **Ambiguous** cases default to circadian (DSPD) attribution
+
+Report copy:
+
+- DSPD-primary: "Based on your response, you have some symptoms of insomnia, but are most likely struggling with DSPD."
+- Insomnia-primary: "Based on your responses, you have some symptoms of DSPD but are more likely struggling with insomnia."
+
+Primary source:
+
+- `docs/correspondence/feedback/2026-06-16/feedback.md`
+- `docs/correspondence/feedback/2026-07-04/feedback.md`
+
+### Sleep Health Recommendations (Subclinical — Round 5)
+
+Always shown on web and PDF reports.
+
+Flags:
+
+- `isHealthySleeper`: no disorder flags, no subclinical signs, no timing variability
+- `hasInsufficientSleepSigns`: short TST (< 6.5 h scheduled or free day) **or** scheduled TST 6.5–8 h with tiredness/fatigue/sleepiness severity >= 5
+- `hasSleepTimingVariability`: mid-sleep weekday/weekend shift >= 1 hour **or** `lightsOutVaries` (> 1 hour proxy)
+
+Chronotype labels (display):
+
+- Evening/owl: scheduled mid-sleep > 4:00 AM and free-day mid-sleep > 5:00 AM (adjusted)
+- Morning/lark: scheduled mid-sleep < 1:00 AM (adjusted)
+- Centered/crow: all others
+
+24-hour average sleep (`avg24HourSleep`):
+
+```
+effectiveNapsPerWeek = napsPerWeek > 0 ? napsPerWeek : daysPerWeek
+napHoursDaily = (effectiveNapsPerWeek × nap duration minutes / 60) / 7
+avg24HourSleep = weeklyAvgTST + napHoursDaily
+```
+
+Implementation note: Danny's source used `/5` for the nap term; we use `/7` for a coherent daily average.
+
+Primary source:
+
+- `docs/correspondence/feedback/2026-07-04/feedback.md`
+
+### Questionnaire Completeness Guard (Round 5)
+
+The patient-facing questionnaire (`/`) blocks report generation when:
+
+- Any core sleep-time field is empty (scheduled/unscheduled lights-out and wake times), **or**
+- All three daytime ratings are null (tiredness, fatigue, sleepiness severity)
+
+Shows: "Thank you for completing the questionnaire. You did not answer a sufficient number of questions for us to generate an accurate report."
+
+Review and dev routes are exempt.
+
+Primary source:
+
+- `docs/correspondence/feedback/2026-07-04/feedback.md`
 
 ## Report Language Constraint
 

@@ -6,26 +6,25 @@ backend security. This document captures the open questions that require
 Danny's (or his clinical colleagues') input before we can implement them.
 Items marked **actionable now** are already underway or complete.
 
+**Updated 2026-07-04 (Round 5):** B1 (COMISA) and B3 (sleep meds) are approved.
+B2 pain/CF split, B5 insomnia–DSPD differential, narcolepsy EDS gate, D1/D2,
+and Part 2–3 sleep-health recommendations are implemented with flagged
+interpretations — see [Round 5 changes](correspondence/feedback/2026-07-04/CHANGES-IMPLEMENTED.md).
+
 ---
 
 ## 1. Algorithm — Fibromyalgia vs Chronic Fatigue Differentiation
 
 ### Current state
 
+**Updated after 2026-07-04 feedback:** chronic fatigue and pain-related sleep
+disturbance are mutually exclusive. Chronic fatigue requires pain qualifier plus
+tiredness >= 7 **and** fatigue >= 7. Pain-related requires pain qualifier plus
+2+ symptoms when CF is not active. `jointMusclePain` has no severity field and
+is treated as an unqualified pain anchor (flagged).
+
 **Updated after 2026-06-16 feedback:** the algorithm still has a single combined
-`screenChronicFatigue` screen, but it no longer fires from insomnia alone. The
-current provisional rule flags only when:
-
-- Pain affecting sleep or joint/muscle pain is present, and
-- At least 2 fatigue indicators are present: sleepiness interferes,
-  non-restorative sleep, tiredness >= 7, or fatigue >= 7.
-
-Both the report UI and the PDF show a single combined "Chronic Fatigue /
-Fibromyalgia" message. There is no separate fibromyalgia-only or CFS-only
-flag in `FullReportResult` or `ALGORITHM_REFERENCE.md`.
-
-This implements Danny's request to raise the threshold because the finding was
-appearing too often, but the exact clinical criteria still need sign-off.
+`screenChronicFatigue` screen, but it no longer fires from insomnia alone.
 
 ### What Danny / colleagues need to answer
 
@@ -66,12 +65,14 @@ appearing too often, but the exact clinical criteria still need sign-off.
 ### Current state
 
 - **Insomnia** is scored from scheduled sleep metrics: SOL, WASO, sleep
-  efficiency, and daytime symptom counts.
+  efficiency, and daytime symptom counts. Mild insomnia now requires **2+**
+  daytime symptoms (Round 5).
+- **Updated after 2026-07-04 feedback:** formal insomnia-vs-DSPD differential
+  with `insomniaPrimaryOverDSPD`, DSPD-primary report sentences, and stricter
+  delayed chronotype trigger (moderate+ evening preference, mid-sleep > 3:30 AM,
+  weekend shift >= 1 h). Ambiguous cases default to circadian attribution.
 - **Updated after 2026-06-16 feedback:** Delayed Sleep Phase Disorder (DSPD)
-  can now recontextualize insomnia in the report. If insomnia and delayed
-  chronotype both appear, the report labels insomnia symptoms as likely due to
-  a circadian rhythm disorder rather than presenting insomnia as an independent
-  priority.
+  can recontextualize insomnia in the report.
 - RLS can similarly recontextualize insomnia as likely related to probable RLS.
 - There is no formal circadian rhythm **disorder** decision tree in
   `ALGORITHM_REFERENCE.md` or the code.
@@ -173,34 +174,44 @@ Without a concrete pointer we risk changing the wrong thing.
 
 ### 5a. COMISA criteria sign-off
 
+**Resolved (Round 5):** B1 approved — no further changes.
+
 Round 4 feedback made clear that COMISA was over-triggering. The current
 implementation requires objective insomnia evidence (SOL, WASO, or sleep
-efficiency) in addition to sleep-disordered breathing. Non-restorative sleep
-alone no longer creates COMISA.
-
-**Question for Danny:** Is this objective-insomnia gate sufficient, or should
-COMISA require a stricter insomnia severity or symptom pattern?
+efficiency) in addition to sleep-disordered breathing.
 
 ### 5b. Medication-related disturbance sign-off
 
-Round 4 feedback made clear that melatonin-only use should not trigger
-medication-related sleep disturbance. The current implementation excludes
-melatonin-only and requires sleep-affecting medications used at least 3 nights
-per week.
+**Resolved (Round 5):** B3 approved — no further changes.
 
-**Question for Danny:** Which supplements or prescriptions should count as
-sleep-affecting for this warning, and is 3 nights/week the right cutoff?
+Round 4 feedback made clear that melatonin-only use should not trigger
+medication-related sleep disturbance.
 
 ### 5c. Narcolepsy screen refinement
 
-The algorithm has a narcolepsy screen (`screenNarcolepsy`), but its
-threshold logic is essentially a binary (prior diagnosis OR cataplexy + sleep
-paralysis). The report just added on the web side will now surface this.
+**Partially addressed (Round 5):** Symptom path now requires EDS score >= 7
+plus REM-intrusion (cataplexy, sleep paralysis, or hypnagogic hallucinations).
+Prior diagnosis path unchanged. Separate Idiopathic Hypersomnia presentation
+not added — source marked "??".
 
-**Question for Danny:** is this screen sensitive enough, or should we expand
-it (e.g., EDS severity + sleep paralysis + cataplexy equivalents)?
+**Still open:** Confirm REM-intrusion item list and whether IH deserves its own
+report block.
 
-### 5d. Validation study data structure
+### 5d. Round 5 interpretation sign-offs
+
+Please confirm these Round 5 implementation choices:
+
+1. **D2 nap term:** we use `/7` (daily average) instead of Danny's `/5`.
+2. **D1 / B5 weekend shift:** `>= 1 hour` later mid-sleep on free days.
+3. **B5 mid-sleep wording:** interpreted as weekend mid-sleep >= 1 h later than weekday.
+4. **B2 `jointMusclePain`:** kept as pain qualifier without severity threshold.
+5. **Part 3 fatigue frequency:** no day-count question — ratings only for insufficient-sleep signs.
+6. **Timing variability:** `lightsOutVaries` (> 1 h) OR mid-sleep shift >= 1 h as proxy.
+7. **RLS popup:** full triad required (was any-of-three).
+8. **Insufficient-answers rule:** 4 core sleep times + at least one daytime rating.
+9. **Website links:** placeholders for Seven Sleep Health Principles and insufficient-sleep copy.
+
+### 5e. Validation study data structure
 
 Danny mentioned his colleague's sleep lab could run 1,000 patients through
 the questionnaire and run a validation study against actual diagnoses.
@@ -213,7 +224,7 @@ export to CSV. Should we add:
 - An anonymized "scoring breakdown" dump?
 - A stable patient identifier that the lab can use to cross-reference?
 
-### 5e. AI Solutions partnership
+### 5f. AI Solutions partnership
 
 Danny mentioned talking with "AI Solutions" about using the questionnaire.
 
@@ -230,11 +241,13 @@ or is this still exploratory?
 | Server-side algorithm protection | **Actionable — done** (patient-facing EDS weight exposure fixed, rate limiting + auth gate on debug added) |
 | Missing report sections (narcolepsy, bad dreams, anxiety) | **Actionable — done** |
 | Tuning dashboard redesign | **Actionable — done** (decision-tree view replaces the old columns) |
-| Fibromyalgia vs CFS differentiation | **Partially addressed** — threshold raised; still awaiting clinical split criteria |
-| Insomnia vs circadian rhythm differentiation | **Partially addressed** — report relabeling added; formal circadian decision tree still open |
-| Thin report section language | **Partially addressed** — 2026-06-16 copy implemented; remaining thin sections need final review |
+| Round 5 sleep-health recommendations | **Actionable — done** — healthy-sleeper copy, subclinical flags, owl/lark/crow labels |
+| Round 5 insomnia–DSPD–narcolepsy differential | **Partially addressed** — implemented; mid-sleep wording and ambiguous cases need sign-off |
+| Fibromyalgia vs CFS differentiation | **Partially addressed** — B2 mutual exclusion implemented; still awaiting clinical split criteria |
+| Insomnia vs circadian rhythm differentiation | **Partially addressed** — B5 differential implemented; formal circadian decision tree still open |
+| Thin report section language | **Partially addressed** — 2026-06-16 and 2026-07-04 copy implemented; remaining thin sections need final review |
 | Gender terminology updates | **Blocked** — awaiting specific wording |
-| COMISA over-triggering | **Partially addressed** — objective-insomnia gate added; needs sign-off |
-| Medication-related sleep disturbance | **Partially addressed** — melatonin-only excluded; med list/cutoff needs sign-off |
-| Narcolepsy screen sensitivity | **Blocked** — awaiting Danny's clinical input |
+| COMISA over-triggering | **Resolved (Round 5)** — B1 approved |
+| Medication-related sleep disturbance | **Resolved (Round 5)** — B3 approved |
+| Narcolepsy screen sensitivity | **Partially addressed (Round 5)** — EDS >= 7 + REM intrusion; IH block still open |
 | Validation study data structure | **Blocked** — awaiting lab format specs |
