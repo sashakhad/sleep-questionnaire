@@ -430,7 +430,7 @@ export function diagnoseInsomnia(
   if (hasModerateToSevereSleepDisturbance && moderateDaytimeSymptoms >= 2) {
     severity = 'moderate-to-severe';
     hasInsomnia = true;
-  } else if (hasMildSleepDisturbance && mildDaytimeSymptoms >= 1) {
+  } else if (hasMildSleepDisturbance && mildDaytimeSymptoms >= 2) {
     severity = 'mild';
     hasInsomnia = true;
   }
@@ -592,18 +592,10 @@ export function screenChronicFatigue(
 ): ChronicFatigueDiagnosis {
   const tiredness = data.daytime.tirednessRating ?? 0;
   const fatigue = data.daytime.fatigueRating ?? 0;
-  const hasPainAnchor = data.daytime.painAffectsSleep || data.daytime.jointMusclePain;
-
-  const symptoms = [
-    data.daytime.sleepinessInterferes,
-    data.daytime.nonRestorativeSleep,
-    tiredness >= thresholds.TIREDNESS_MODERATE,
-    fatigue >= thresholds.FATIGUE_CHRONIC,
-  ];
-
-  const fatigueIndicatorCount = symptoms.filter(Boolean).length;
-  const symptomCount = fatigueIndicatorCount + (hasPainAnchor ? 1 : 0);
-  const hasSymptoms = hasPainAnchor && fatigueIndicatorCount >= 2;
+  const hasPain = painQualifies(data);
+  const hasSymptoms =
+    hasPain && tiredness >= thresholds.TIREDNESS_MODERATE && fatigue >= thresholds.FATIGUE_CHRONIC;
+  const symptomCount = hasSymptoms ? 3 : 0;
 
   return {
     hasSymptoms,
@@ -628,13 +620,15 @@ export function screenChronicFatigue(
  */
 export function diagnosePainRelatedSleepDisturbance(
   data: QuestionnaireFormData,
-  thresholds: ThresholdConfig = THRESHOLDS
+  thresholds: ThresholdConfig = THRESHOLDS,
+  chronicFatigue?: ChronicFatigueDiagnosis
 ): PainRelatedSleepDisturbance {
   const tiredness = data.daytime.tirednessRating ?? 0;
   const fatigue = data.daytime.fatigueRating ?? 0;
+  const hasPain = painQualifies(data);
 
   const symptoms = [
-    data.daytime.painAffectsSleep || data.daytime.jointMusclePain,
+    hasPain,
     data.daytime.sleepinessInterferes,
     data.daytime.nonRestorativeSleep,
     tiredness >= thresholds.TIREDNESS_MODERATE,
@@ -642,10 +636,10 @@ export function diagnosePainRelatedSleepDisturbance(
   ];
 
   const symptomCount = symptoms.filter(Boolean).length;
-  const hasPain = data.daytime.painAffectsSleep || data.daytime.jointMusclePain;
+  const chronicFatigueActive = chronicFatigue?.hasSymptoms ?? false;
 
   return {
-    hasCondition: hasPain && symptomCount >= 2,
+    hasCondition: hasPain && symptomCount >= 2 && !chronicFatigueActive,
     symptomCount,
   };
 }
@@ -657,6 +651,34 @@ export function diagnosePainRelatedSleepDisturbance(
 const SLEEP_AFFECTING_SUPPLEMENTS = ['benadryl', 'tylenol_pm', 'nyquil', 'unisom'];
 const SLEEP_AFFECTING_PRESCRIPTIONS = ['antidepressants', 'antipsychotic', 'benzos', 'z_drugs'];
 const MEDICATION_RELATED_MIN_NIGHTS = 3;
+
+// Round 5 (7/4 feedback) — module-level clinical cutoffs (not in tuning UI)
+const NARCOLEPSY_EDS_MIN = 7;
+const DSPD_DIFFERENTIAL_MAX_WAKES = 1;
+const DSPD_DIFFERENTIAL_MIN_MIDSLEEP_SHIFT_HOURS = 1;
+const DSPD_DIFFERENTIAL_EDS_MAX = 5;
+const PAIN_SEVERITY_QUALIFIER_MIN = 5; // "above 4 on a scale of 10"
+const INSUFFICIENT_SLEEP_SIGNS_TST_LOW = 6.5;
+const INSUFFICIENT_SLEEP_SIGNS_TST_HIGH = 8;
+const INSUFFICIENT_SLEEP_SIGNS_DAYTIME_MIN = 5; // "fatigue >4 / sleepiness >4" = >=5
+const DSPD_SCHEDULED_MIDSLEEP_MIN = 1650; // 3:30 AM adjusted
+const CHRONOTYPE_OWL_SCHEDULED_MIN = 1680; // 4:00 AM adjusted
+const CHRONOTYPE_OWL_UNSCHEDULED_MIN = 1740; // 5:00 AM adjusted
+const CHRONOTYPE_LARK_SCHEDULED_MAX = 1500; // 1:00 AM adjusted
+
+function painQualifies(data: QuestionnaireFormData): boolean {
+  return (
+    (data.daytime.painAffectsSleep && (data.daytime.painSeverity ?? 0) >= PAIN_SEVERITY_QUALIFIER_MIN) ||
+    data.daytime.jointMusclePain
+  );
+}
+
+function adjustedMidSleepMinutes(timeStr: string): number {
+  const hour = parseInt(timeStr.split(':')[0] ?? '0', 10);
+  const minute = parseInt(timeStr.split(':')[1] ?? '0', 10);
+  const totalMinutes = hour * 60 + minute;
+  return hour < 12 ? totalMinutes + 1440 : totalMinutes;
+}
 
 /**
  * Check for medication-related sleep disturbance
@@ -802,13 +824,22 @@ export function determineChronotype(data: QuestionnaireFormData, metrics: SleepM
 /**
  * Screen for narcolepsy symptoms
  */
-export function screenNarcolepsy(data: QuestionnaireFormData): boolean {
-  return (
+export function screenNarcolepsy(data: QuestionnaireFormData, edsScore: number): boolean {
+  const hasPriorDiagnosis =
     data.daytime.diagnosedNarcolepsy ||
     data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('narcolepsy') ||
-    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('hypersomnia') ||
-    (data.daytime.weaknessWhenExcited.length > 0 && data.daytime.sleepParalysis)
-  );
+    data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('hypersomnia');
+
+  if (hasPriorDiagnosis) {
+    return true;
+  }
+
+  const hasRemIntrusion =
+    data.daytime.weaknessWhenExcited.length > 0 ||
+    data.daytime.sleepParalysis ||
+    data.daytime.hypnagogicHallucinations;
+
+  return edsScore >= NARCOLEPSY_EDS_MIN && hasRemIntrusion;
 }
 
 // =============================================================================
@@ -854,6 +885,16 @@ function calculateReportDisplayMetrics(data: QuestionnaireFormData): ReportDispl
   const unscheduledMidSleep = unscheduledBedtime + unscheduledSOL + unscheduledTSTMins / 2;
 
   const weeklyAvgTST = ((scheduledTSTMins / 60) * 5 + (unscheduledTSTMins / 60) * 2) / 7;
+
+  const effectiveNapsPerWeek =
+    data.daytime.plannedNaps.napsPerWeek > 0
+      ? data.daytime.plannedNaps.napsPerWeek
+      : data.daytime.plannedNaps.daysPerWeek;
+  // Danny wrote /5 for the nap term; we use /7 for a mathematically coherent daily average.
+  const napHoursDaily =
+    (effectiveNapsPerWeek * parseMinuteIncrement(data.daytime.plannedNaps.duration) / 60) / 7;
+  const avg24HourSleep = weeklyAvgTST + napHoursDaily;
+
   const socialJetLag = (unscheduledTSTMins - scheduledTSTMins) / 60;
 
   let midSleepDiff = unscheduledMidSleep - scheduledMidSleep;
@@ -876,6 +917,7 @@ function calculateReportDisplayMetrics(data: QuestionnaireFormData): ReportDispl
     midSleepScheduled: minutesToTimeString(scheduledMidSleep % 1440),
     midSleepUnscheduled: minutesToTimeString(unscheduledMidSleep % 1440),
     weeklyAvgTST,
+    avg24HourSleep,
     socialJetLag,
     midSleepTimeChange,
   };
@@ -891,27 +933,32 @@ function mapInsomniaSeverityToReportLabel(insomnia: InsomniaDiagnosis): Insomnia
 
 function getReportChronotype(
   metrics: ReportDisplayMetrics,
-  preference: string
+  preference: string,
+  preferenceStrength: string | null
 ): { type: ChronotypeType; chronotypeLabel: string } {
-  const midSleepHour = parseInt(metrics.midSleepUnscheduled.split(':')[0] ?? '0');
-  const midSleepMinute = parseInt(metrics.midSleepUnscheduled.split(':')[1] ?? '0');
-  const midSleepTotalMinutes = midSleepHour * 60 + midSleepMinute;
-  // Adjust times past midnight so they sort correctly (e.g. 2am > midnight > 11pm)
-  const adjustedMidSleep = midSleepHour < 12 ? midSleepTotalMinutes + 1440 : midSleepTotalMinutes;
+  const scheduledAdjusted = adjustedMidSleepMinutes(metrics.midSleepScheduled);
+  const unscheduledAdjusted = adjustedMidSleepMinutes(metrics.midSleepUnscheduled);
 
-  let chronotypeLabel = 'Neutral';
-  if (adjustedMidSleep <= 1440) {
-    chronotypeLabel = 'Probable Lark (Morning Person)';
-  } else if (adjustedMidSleep >= 1740) {
-    chronotypeLabel = 'Probable Owl (Night Person)';
-  } else {
-    chronotypeLabel = 'Intermediate';
+  let chronotypeLabel = 'Centered chronotype (crow-like preference)';
+  if (
+    scheduledAdjusted > CHRONOTYPE_OWL_SCHEDULED_MIN &&
+    unscheduledAdjusted > CHRONOTYPE_OWL_UNSCHEDULED_MIN
+  ) {
+    chronotypeLabel = 'Evening chronotype (owl-like preference)';
+  } else if (scheduledAdjusted < CHRONOTYPE_LARK_SCHEDULED_MAX) {
+    chronotypeLabel = 'Morning chronotype (lark-like preference)';
   }
 
   let type: ChronotypeType = 'normal';
-  if (preference === 'late' || adjustedMidSleep >= 1680) {
+  const hasModerateOrStrongEveningPreference =
+    preference === 'late' && preferenceStrength !== null && preferenceStrength !== 'slight';
+  if (
+    hasModerateOrStrongEveningPreference &&
+    scheduledAdjusted > DSPD_SCHEDULED_MIDSLEEP_MIN &&
+    metrics.midSleepTimeChange >= DSPD_DIFFERENTIAL_MIN_MIDSLEEP_SHIFT_HOURS
+  ) {
     type = 'delayed';
-  } else if (preference === 'early' || adjustedMidSleep <= 1500) {
+  } else if (preference === 'early' || scheduledAdjusted <= CHRONOTYPE_LARK_SCHEDULED_MAX) {
     type = 'advanced';
   }
 
@@ -957,7 +1004,7 @@ export function generateDiagnosisReport(
   const insomnia = diagnoseInsomnia(data, sleepMetrics, thresholds);
   const sleepApnea = diagnoseSleepApnea(data, thresholds);
   const chronicFatigue = screenChronicFatigue(data, insomnia, thresholds);
-  const painRelated = diagnosePainRelatedSleepDisturbance(data, thresholds);
+  const painRelated = diagnosePainRelatedSleepDisturbance(data, thresholds, chronicFatigue);
   const medicationRelated = diagnoseMedicationRelatedSleepDisturbance(data);
   const nightmares = diagnoseNightmares(data, thresholds);
   const treatmentEffectiveness = checkTreatmentEffectiveness(data);
@@ -967,7 +1014,7 @@ export function generateDiagnosisReport(
   const comisa = hasCOMISA(insomnia, sleepApnea);
   const hasRLS = diagnoseRLS(data);
   const legCrampsConcern = hasLegCrampsConcern(data, thresholds);
-  const hasNarcolepsy = screenNarcolepsy(data);
+  const hasNarcolepsy = screenNarcolepsy(data, eds.score);
   const chronotype = determineChronotype(data, sleepMetrics);
 
   // Additional flags
@@ -1047,14 +1094,9 @@ export function generateScoringBreakdown(
     tiredness >= thresholds.TIREDNESS_MODERATE,
     fatigue >= thresholds.FATIGUE_MODERATE,
   ].filter(Boolean).length;
-  const chronicFatigueSymptomCount = diagnosisReport.chronicFatigue.symptomCount;
-  const chronicFatiguePainAnchor = data.daytime.painAffectsSleep || data.daytime.jointMusclePain;
-  const chronicFatigueIndicatorCount = [
-    data.daytime.sleepinessInterferes,
-    data.daytime.nonRestorativeSleep,
-    tiredness >= thresholds.TIREDNESS_MODERATE,
-    fatigue >= thresholds.FATIGUE_CHRONIC,
-  ].filter(Boolean).length;
+  const chronicFatiguePainAnchor = painQualifies(data);
+  const chronicFatigueTirednessMet = tiredness >= thresholds.TIREDNESS_MODERATE;
+  const chronicFatigueFatigueMet = fatigue >= thresholds.FATIGUE_CHRONIC;
   const painRelatedSymptomCount = diagnosisReport.painRelated.symptomCount;
   const nightmareCount = diagnosisReport.nightmares.nightmaresPerWeek;
   const badDreamCount = diagnosisReport.nightmares.badDreamsPerWeek;
@@ -1347,14 +1389,20 @@ export function generateScoringBreakdown(
         createScoringCriterion(
           'Pain anchor',
           formatBreakdownBoolean(chronicFatiguePainAnchor),
-          'Pain affecting sleep or joint/muscle pain must be present',
+          'Pain >4/week or severity ≥5, or joint/muscle pain',
           chronicFatiguePainAnchor
         ),
         createScoringCriterion(
-          'Fatigue indicator count',
-          `${chronicFatigueIndicatorCount} indicators (${chronicFatigueSymptomCount} total including pain)`,
-          '2 or more fatigue indicators with the pain anchor',
-          chronicFatigueIndicatorCount >= 2
+          'Tiredness rating',
+          String(tiredness),
+          `${thresholds.TIREDNESS_MODERATE}+`,
+          chronicFatigueTirednessMet
+        ),
+        createScoringCriterion(
+          'Fatigue rating',
+          String(fatigue),
+          `${thresholds.FATIGUE_CHRONIC}+`,
+          chronicFatigueFatigueMet
         ),
       ],
     },
@@ -1365,14 +1413,14 @@ export function generateScoringBreakdown(
       criteria: [
         createScoringCriterion(
           'Pain present',
-          formatBreakdownBoolean(data.daytime.painAffectsSleep || data.daytime.jointMusclePain),
-          'Pain or joint/muscle pain must be present',
-          data.daytime.painAffectsSleep || data.daytime.jointMusclePain
+          formatBreakdownBoolean(painQualifies(data)),
+          'Qualified pain anchor required',
+          painQualifies(data)
         ),
         createScoringCriterion(
           'Symptom count',
           String(painRelatedSymptomCount),
-          '2 or more combined symptoms',
+          '2 or more combined symptoms (excludes chronic fatigue)',
           painRelatedSymptomCount >= 2
         ),
       ],
@@ -1426,11 +1474,13 @@ export function generateFullReport(
   const metrics = calculateReportDisplayMetrics(data);
   const { type: chronotypeType, chronotypeLabel } = getReportChronotype(
     metrics,
-    data.chronotype.preference
+    data.chronotype.preference,
+    data.chronotype.preferenceStrength
   );
   const insomniaSeverity = mapInsomniaSeverityToReportLabel(diagnosisReport.insomnia);
   const hasInsomnia = diagnosisReport.insomnia.hasInsomnia;
   const avgWeeklySleep = metrics.weeklyAvgTST;
+  const edsScore = diagnosisReport.eds.score;
   const hasEDSSymptoms =
     (diagnosisReport.eds.hasDifficultyStayingAwake && diagnosisReport.eds.severity !== 'none') ||
     diagnosisReport.hasEDSFromNaps;
@@ -1438,8 +1488,24 @@ export function generateFullReport(
   const hasOSA = diagnosisReport.sleepApnea.hasProbableSleepApnea;
   const hasCOMISA = diagnosisReport.hasCOMISA;
   const hasRLS = diagnosisReport.hasRLS;
-  const insomniaLikelyCircadian = hasInsomnia && chronotypeType === 'delayed';
+
+  const dspdDifferentialMet =
+    data.scheduledSleep.nightWakeups <= DSPD_DIFFERENTIAL_MAX_WAKES &&
+    metrics.midSleepTimeChange >= DSPD_DIFFERENTIAL_MIN_MIDSLEEP_SHIFT_HOURS &&
+    edsScore <= DSPD_DIFFERENTIAL_EDS_MAX;
+  const insomniaAnchor = data.daytime.triedCannotNapDuringDay;
+  let insomniaPrimaryOverDSPD =
+    hasInsomnia &&
+    chronotypeType === 'delayed' &&
+    insomniaAnchor &&
+    !dspdDifferentialMet;
+  let insomniaLikelyCircadian =
+    hasInsomnia && chronotypeType === 'delayed' && !insomniaPrimaryOverDSPD;
   const insomniaLikelyRLS = hasInsomnia && hasRLS && !insomniaLikelyCircadian;
+  insomniaPrimaryOverDSPD = insomniaPrimaryOverDSPD && !insomniaLikelyRLS;
+  insomniaLikelyCircadian =
+    hasInsomnia && chronotypeType === 'delayed' && !insomniaPrimaryOverDSPD;
+
   const hasNightmares = diagnosisReport.nightmares.hasNightmareDisorder;
   const bmi = calculateBMI(data.demographics.height, data.demographics.weight);
   const hasUnderweight = bmi !== null && bmi < 18;
@@ -1480,16 +1546,68 @@ export function generateFullReport(
     !!data.sleepDisorderDiagnoses.diagnosedDisorders?.includes('rls') ||
     data.sleepDisorderDiagnoses.diagnosedRLS;
 
+  const tirednessRating = data.daytime.tirednessRating ?? 0;
+  const fatigueRating = data.daytime.fatigueRating ?? 0;
+  const sleepinessSeverity = data.daytime.sleepinessSeverity ?? 0;
+  const hasInsufficientSleepSigns =
+    metrics.scheduledTST < INSUFFICIENT_SLEEP_SIGNS_TST_LOW ||
+    metrics.unscheduledTST < INSUFFICIENT_SLEEP_SIGNS_TST_LOW ||
+    (metrics.scheduledTST >= INSUFFICIENT_SLEEP_SIGNS_TST_LOW &&
+      metrics.scheduledTST < INSUFFICIENT_SLEEP_SIGNS_TST_HIGH &&
+      (tirednessRating >= INSUFFICIENT_SLEEP_SIGNS_DAYTIME_MIN ||
+        fatigueRating >= INSUFFICIENT_SLEEP_SIGNS_DAYTIME_MIN ||
+        sleepinessSeverity >= INSUFFICIENT_SLEEP_SIGNS_DAYTIME_MIN));
+
+  const hasSleepTimingVariability =
+    Math.abs(metrics.midSleepTimeChange) >= DSPD_DIFFERENTIAL_MIN_MIDSLEEP_SHIFT_HOURS ||
+    data.scheduledSleep.lightsOutVaries;
+
+  const hasInsufficientSleep = diagnosisReport.insufficientSleep;
+  const hasChronicFatigueSymptoms = diagnosisReport.chronicFatigue.hasSymptoms;
+  const hasPainRelatedSleepDisturbance = diagnosisReport.painRelated.hasCondition;
+  const hasMedicationRelatedSleepDisturbance =
+    diagnosisReport.medicationRelated.hasCondition;
+  const osaTreatmentIneffective =
+    diagnosisReport.treatmentEffectiveness.osaTreatmentIneffective;
+  const rlsTreatmentIneffective =
+    diagnosisReport.treatmentEffectiveness.rlsTreatmentIneffective;
+
+  const isHealthySleeper =
+    !hasInsomnia &&
+    !hasEDS &&
+    !hasOSA &&
+    !hasCOMISA &&
+    !hasRLS &&
+    !hasNightmares &&
+    !diagnosisReport.nightmares.hasBadDreamWarning &&
+    !diagnosisReport.hasNarcolepsy &&
+    chronotypeType !== 'delayed' &&
+    !diagnosisReport.hasAnxiety &&
+    !hasUnderweight &&
+    !hasPoorHygiene &&
+    !hasInsufficientSleep &&
+    !hasChronicFatigueSymptoms &&
+    !hasPainAffectingSleep &&
+    !hasPainRelatedSleepDisturbance &&
+    !hasMedicationRelatedSleepDisturbance &&
+    !hasMildRespiratoryDisturbance &&
+    !diagnosisReport.hasLegCrampsConcern &&
+    !osaTreatmentIneffective &&
+    !rlsTreatmentIneffective &&
+    !hasInsufficientSleepSigns &&
+    !hasSleepTimingVariability;
+
   const fullReport: FullReportResult = {
     metrics,
     chronotypeLabel,
     chronotypeType,
-    edsScore: diagnosisReport.eds.score,
+    edsScore,
     edsSeverity,
     hasEDSFromNaps: diagnosisReport.hasEDSFromNaps,
     hasInsomnia,
     insomniaLikelyCircadian,
     insomniaLikelyRLS,
+    insomniaPrimaryOverDSPD,
     insomniaSeverity,
     hasOSA,
     hasCOMISA,
@@ -1499,22 +1617,25 @@ export function generateFullReport(
     hasNarcolepsy: diagnosisReport.hasNarcolepsy,
     hasAnxiety: diagnosisReport.hasAnxiety,
     hasEDS,
-    hasInsufficientSleep: diagnosisReport.insufficientSleep,
+    hasInsufficientSleep,
     hasMildRespiratoryDisturbance,
     hasPoorHygiene,
     hasLegCrampsConcern: diagnosisReport.hasLegCrampsConcern,
-    hasChronicFatigueSymptoms: diagnosisReport.chronicFatigue.hasSymptoms,
+    hasChronicFatigueSymptoms,
     hasPainAffectingSleep,
-    hasPainRelatedSleepDisturbance: diagnosisReport.painRelated.hasCondition,
-    hasMedicationRelatedSleepDisturbance: diagnosisReport.medicationRelated.hasCondition,
-    osaTreatmentIneffective: diagnosisReport.treatmentEffectiveness.osaTreatmentIneffective,
-    rlsTreatmentIneffective: diagnosisReport.treatmentEffectiveness.rlsTreatmentIneffective,
+    hasPainRelatedSleepDisturbance,
+    hasMedicationRelatedSleepDisturbance,
+    osaTreatmentIneffective,
+    rlsTreatmentIneffective,
     hasDiagnosedOSA,
     hasDiagnosedRLS,
     hasSevereTiredness: diagnosisReport.hasSevereTiredness,
     hasParasomniaSafetyRisk,
     hasMedicationAlcoholRisk,
     hasUnderweight,
+    hasInsufficientSleepSigns,
+    hasSleepTimingVariability,
+    isHealthySleeper,
     avgWeeklySleep,
   };
 
