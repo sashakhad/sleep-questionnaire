@@ -1,5 +1,6 @@
 export type ReviewDocumentSlug =
   | 'round-4-changes'
+  | 'round-5-changes'
   | 'algorithm-reference'
   | 'client-review-guide';
 
@@ -19,6 +20,14 @@ export const reviewDocumentDefinitions: ReviewDocumentDefinition[] = [
     description:
       'A per-item change log for the June 16 feedback: what was requested, what changed, where to verify it live, and what still needs your sign-off.',
     repoPath: 'docs/correspondence/feedback/2026-06-16/CHANGES-IMPLEMENTED.md',
+  },
+  {
+    slug: 'round-5-changes',
+    title: 'Round 5 Feedback (7/4) — Changes Implemented',
+    shortLabel: '7/4 changes',
+    description:
+      'A per-item change log for the July 4 feedback: pain/chronic-fatigue split, insomnia–DSPD–narcolepsy differential, sleep-health recommendations, and form updates.',
+    repoPath: 'docs/correspondence/feedback/2026-07-04/CHANGES-IMPLEMENTED.md',
   },
   {
     slug: 'algorithm-reference',

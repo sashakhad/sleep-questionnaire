@@ -12,6 +12,7 @@ export interface ReportDisplayMetrics {
   midSleepScheduled: string;
   midSleepUnscheduled: string;
   weeklyAvgTST: number;
+  avg24HourSleep: number;
   socialJetLag: number;
   midSleepTimeChange: number;
 }
@@ -55,6 +56,7 @@ export interface FullReportResult {
   hasInsomnia: boolean;
   insomniaLikelyCircadian: boolean;
   insomniaLikelyRLS: boolean;
+  insomniaPrimaryOverDSPD: boolean;
   insomniaSeverity: InsomniaSeverityLabel;
   hasOSA: boolean;
   hasCOMISA: boolean;
@@ -80,6 +82,9 @@ export interface FullReportResult {
   hasParasomniaSafetyRisk: boolean;
   hasMedicationAlcoholRisk: boolean;
   hasUnderweight: boolean;
+  hasInsufficientSleepSigns: boolean;
+  hasSleepTimingVariability: boolean;
+  isHealthySleeper: boolean;
   avgWeeklySleep: number;
   algorithmBreakdown?: ScoringBreakdown;
 }

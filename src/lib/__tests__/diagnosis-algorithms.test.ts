@@ -66,6 +66,8 @@ function createBaseQuestionnaireData(
       tiredButCantSleep: null,
       weaknessWhenExcited: [],
       sleepParalysis: false,
+      hypnagogicHallucinations: false,
+      triedCannotNapDuringDay: false,
       diagnosedNarcolepsy: false,
       painAffectsSleep: false,
       painSeverity: null,
@@ -600,6 +602,7 @@ describe('diagnoseInsomnia', () => {
       },
       daytime: {
         sleepinessInterferes: true,
+        tirednessRating: 5,
       },
     });
 
@@ -955,9 +958,7 @@ describe('screenChronicFatigue', () => {
       },
     });
 
-    const metrics = calculateSleepMetrics(data);
-    const insomnia = diagnoseInsomnia(data, metrics);
-    const result = screenChronicFatigue(data, insomnia);
+    const result = screenChronicFatigue(data);
 
     expect(result.hasSymptoms).toBe(true);
     expect(result.symptomCount).toBeGreaterThanOrEqual(3);
@@ -976,7 +977,7 @@ describe('screenChronicFatigue', () => {
 
     const metrics = calculateSleepMetrics(data);
     const insomnia = diagnoseInsomnia(data, metrics);
-    const result = screenChronicFatigue(data, insomnia);
+    const result = screenChronicFatigue(data);
 
     expect(insomnia.hasInsomnia).toBe(true);
     expect(result.hasSymptoms).toBe(false);
@@ -992,6 +993,7 @@ describe('diagnosePainRelatedSleepDisturbance', () => {
     const data = createBaseQuestionnaireData({
       daytime: {
         painAffectsSleep: true,
+        painSeverity: 7,
         sleepinessInterferes: true,
         nonRestorativeSleep: true,
       },
@@ -1224,10 +1226,10 @@ describe('screenNarcolepsy', () => {
       },
     });
 
-    expect(screenNarcolepsy(data)).toBe(true);
+    expect(screenNarcolepsy(data, 0)).toBe(true);
   });
 
-  it('should detect cataplexy symptoms', () => {
+  it('should detect REM-intrusion symptoms when EDS score is at least 7', () => {
     const data = createBaseQuestionnaireData({
       daytime: {
         weaknessWhenExcited: ['feel_weak', 'brace_myself'],
@@ -1235,7 +1237,8 @@ describe('screenNarcolepsy', () => {
       },
     });
 
-    expect(screenNarcolepsy(data)).toBe(true);
+    expect(screenNarcolepsy(data, 7)).toBe(true);
+    expect(screenNarcolepsy(data, 6)).toBe(false);
   });
 });
 
@@ -1312,7 +1315,7 @@ describe('generateFullReport', () => {
   it('should detect insomnia when SOL is high and daytime impairment is present', () => {
     const data = createBaseQuestionnaireData({
       scheduledSleep: { minutesToFallAsleep: '40' },
-      daytime: { sleepinessInterferes: true },
+      daytime: { sleepinessInterferes: true, tirednessRating: 5 },
       mentalHealth: { cancelsAfterPoorSleep: '1-2week' },
     });
     const result = generateFullReport(data);
@@ -1333,7 +1336,7 @@ describe('generateFullReport', () => {
   it('should detect COMISA when insomnia and OSA coexist', () => {
     const data = createBaseQuestionnaireData({
       scheduledSleep: { minutesToFallAsleep: '40' },
-      daytime: { sleepinessInterferes: true },
+      daytime: { sleepinessInterferes: true, tirednessRating: 5 },
       mentalHealth: { cancelsAfterPoorSleep: '1-2week' },
       breathingDisorders: { snores: true, stopsBreathing: true },
     });
@@ -1433,9 +1436,18 @@ describe('generateFullReport', () => {
 
   it('should mark insomnia as likely circadian when delayed chronotype is present', () => {
     const data = createBaseQuestionnaireData({
-      scheduledSleep: { minutesToFallAsleep: '50' },
+      scheduledSleep: {
+        lightsOutTime: '02:00',
+        minutesToFallAsleep: '50',
+        wakeupTime: '09:00',
+      },
+      unscheduledSleep: {
+        lightsOutTime: '03:30',
+        minutesToFallAsleep: '20',
+        wakeupTime: '11:00',
+      },
       daytime: { sleepinessInterferes: true, nonRestorativeSleep: true },
-      chronotype: { preference: 'late' },
+      chronotype: { preference: 'late', preferenceStrength: 'moderate' },
     });
     const result = generateFullReport(data);
 
@@ -1545,7 +1557,15 @@ describe('generateFullReport', () => {
 
   it('should detect delayed chronotype when preference is late', () => {
     const data = createBaseQuestionnaireData({
-      chronotype: { preference: 'late' },
+      chronotype: { preference: 'late', preferenceStrength: 'moderate' },
+      scheduledSleep: {
+        lightsOutTime: '02:00',
+        wakeupTime: '09:00',
+      },
+      unscheduledSleep: {
+        lightsOutTime: '03:30',
+        wakeupTime: '11:00',
+      },
     });
     expect(generateFullReport(data).chronotypeType).toBe('delayed');
   });
@@ -1617,6 +1637,92 @@ describe('generateFullReport', () => {
 
     expect(result.hasNightmares).toBe(true);
     expect(nightmareBreakdown?.criteria[1]?.threshold).toBe('1+ per week');
+  });
+
+  describe('round 5 clinical rules', () => {
+    it('should keep pain-related and chronic fatigue mutually exclusive', () => {
+      const data = createBaseQuestionnaireData({
+        daytime: {
+          jointMusclePain: true,
+          sleepinessInterferes: true,
+          tirednessRating: 8,
+          fatigueRating: 8,
+        },
+      });
+      const report = generateDiagnosisReport(data);
+
+      expect(report.chronicFatigue.hasSymptoms).toBe(true);
+      expect(report.painRelated.hasCondition).toBe(false);
+    });
+
+    it('should require two daytime symptoms for mild insomnia', () => {
+      const data = createBaseQuestionnaireData({
+        scheduledSleep: { minutesToFallAsleep: '40' },
+        daytime: { sleepinessInterferes: true },
+      });
+      const metrics = calculateSleepMetrics(data);
+      const insomnia = diagnoseInsomnia(data, metrics);
+
+      expect(insomnia.hasInsomnia).toBe(false);
+    });
+
+    it('should compute avg24HourSleep including naps', () => {
+      const data = createBaseQuestionnaireData({
+        daytime: {
+          plannedNaps: { daysPerWeek: 5, napsPerWeek: 5, duration: '30' },
+        },
+      });
+      const fullReport = generateFullReport(data);
+
+      expect(fullReport.metrics.avg24HourSleep).toBeGreaterThan(fullReport.metrics.weeklyAvgTST);
+    });
+
+    it('should flag insomniaPrimaryOverDSPD when insomnia anchor is present', () => {
+      const scenario = diagnosisScenarios.find(item => item.id === 'dspd-differential-insomnia-primary');
+      expect(scenario).toBeDefined();
+      const fullReport = generateFullReport(scenario!.data);
+
+      expect(fullReport.insomniaPrimaryOverDSPD).toBe(true);
+      expect(fullReport.insomniaLikelyCircadian).toBe(false);
+    });
+
+    it('should keep insomnia attribution flags mutually exclusive when RLS confounds the differential', () => {
+      const scenario = diagnosisScenarios.find(item => item.id === 'dspd-differential-insomnia-primary');
+      expect(scenario).toBeDefined();
+      const dataWithRLS = {
+        ...scenario!.data,
+        restlessLegs: {
+          ...scenario!.data.restlessLegs,
+          troubleLyingStill: true,
+          urgeToMoveLegs: true,
+          movementRelieves: true,
+        },
+      };
+      const fullReport = generateFullReport(dataWithRLS);
+
+      // RLS disqualifies the insomnia-primary carve-out; circadian wins and
+      // suppresses the RLS attribution flag (precedence circadian > RLS).
+      expect(fullReport.hasRLS).toBe(true);
+      expect(fullReport.insomniaPrimaryOverDSPD).toBe(false);
+      expect(fullReport.insomniaLikelyCircadian).toBe(true);
+      expect(fullReport.insomniaLikelyRLS).toBe(false);
+      const attributionFlags = [
+        fullReport.insomniaPrimaryOverDSPD,
+        fullReport.insomniaLikelyCircadian,
+        fullReport.insomniaLikelyRLS,
+      ].filter(Boolean).length;
+      expect(attributionFlags).toBeLessThanOrEqual(1);
+    });
+
+    it('should flag insufficient sleep signs without syndrome', () => {
+      const scenario = diagnosisScenarios.find(item => item.id === 'insufficient-sleep-signs');
+      expect(scenario).toBeDefined();
+      const fullReport = generateFullReport(scenario!.data);
+
+      expect(fullReport.hasInsufficientSleepSigns).toBe(true);
+      expect(fullReport.hasInsufficientSleep).toBe(false);
+      expect(fullReport.isHealthySleeper).toBe(false);
+    });
   });
 
   describe('named clinical scenarios', () => {

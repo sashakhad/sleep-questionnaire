@@ -15,7 +15,7 @@ describe('Scheduled Sleep section', () => {
   });
 
   it('should display lights out varies radio', () => {
-    cy.contains('Does your lights out time vary more than 2 hours?').should('exist');
+    cy.contains('Does your lights out time vary by more than 1 hour?').should('exist');
   });
 
   it('should display time to fall asleep selector', () => {
@@ -121,8 +121,8 @@ describe('Restless Legs section', () => {
     assertSectionVisible(SECTION_TITLES['restless-legs']);
   });
 
-  it('should display RLS info alert', () => {
-    cy.contains('Restless legs syndrome is a relatively common disorder').should('exist');
+  it('should not display the always-on RLS info alert', () => {
+    cy.contains('Restless legs syndrome is a relatively common disorder').should('not.exist');
   });
 
   it('should display all RLS symptom checkboxes', () => {

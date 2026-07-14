@@ -50,6 +50,7 @@ import { LifestyleSection } from './sections/LifestyleSection';
 import { MentalHealthSection } from './sections/MentalHealthSection';
 import { SleepDisorderDiagnosesSection } from './sections/SleepDisorderDiagnosesSection';
 import { ReportSection } from './sections/ReportSection';
+import { hasSufficientAnswers } from '@/lib/questionnaire-completeness';
 
 export const sections: QuestionnaireSection[] = [
   'intro',
@@ -114,6 +115,7 @@ export function QuestionnaireForm({
   );
   const currentSection = sections[currentSectionIndex]!;
   const [reportData, setReportData] = useState<FullReportResult | null>(null);
+  const [reportInsufficientAnswers, setReportInsufficientAnswers] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
   const [selectedScenarioId, setSelectedScenarioId] = useState(
@@ -161,6 +163,8 @@ export function QuestionnaireForm({
         tiredButCantSleep: null,
         weaknessWhenExcited: [],
         sleepParalysis: false,
+        hypnagogicHallucinations: false,
+        triedCannotNapDuringDay: false,
         diagnosedNarcolepsy: false,
         painAffectsSleep: false,
         painSeverity: null,
@@ -380,6 +384,15 @@ export function QuestionnaireForm({
     const data = form.getValues();
     setReportLoading(true);
     setReportError(null);
+    setReportInsufficientAnswers(false);
+
+    if (!reviewMode && !prefill && !hasSufficientAnswers(data)) {
+      setReportInsufficientAnswers(true);
+      setReportData(null);
+      setReportLoading(false);
+      handleNext();
+      return;
+    }
 
     if (shouldPersistResponses) {
       // Save response to database (fire-and-forget — non-blocking)
@@ -509,6 +522,18 @@ export function QuestionnaireForm({
                 Try Again
               </Button>
             </div>
+          );
+        }
+        if (reportInsufficientAnswers) {
+          return (
+            <Card className='shadow-sleep border-0'>
+              <CardContent className='pt-6'>
+                <p className='text-foreground text-sm'>
+                  Thank you for completing the questionnaire. You did not answer a sufficient number
+                  of questions for us to generate an accurate report.
+                </p>
+              </CardContent>
+            </Card>
           );
         }
         if (!reportData) {

@@ -127,24 +127,23 @@ describe('Daytime and Restless Legs Conditionals', () => {
       cy.contains('How many nights per week do you experience leg cramps?').should('not.exist');
     });
 
-    it('should show RLS warning when troubleLyingStill is checked', () => {
+    it('should show RLS warning only when the full triad is endorsed', () => {
       cy.checkCheckbox('I have trouble lying still while trying to fall asleep at night');
-      cy.contains('Your answers suggest that you may have restless legs syndrome').should('exist');
-    });
+      cy.contains('Your answers suggest that you may have restless legs syndrome').should('not.exist');
 
-    it('should show RLS warning when urgeToMoveLegs is checked', () => {
       cy.checkCheckbox('I have an urge to move my legs while lying in bed at night');
-      cy.contains('Your answers suggest that you may have restless legs syndrome').should('exist');
-    });
+      cy.contains('Your answers suggest that you may have restless legs syndrome').should('not.exist');
 
-    it('should show RLS warning when movementRelieves is checked', () => {
       cy.checkCheckbox('Movement relieves the uncomfortable feelings in my legs');
       cy.contains('Your answers suggest that you may have restless legs syndrome').should('exist');
     });
 
-    it('should hide RLS warning when only checked symptom is unchecked', () => {
+    it('should hide RLS warning when one triad symptom is unchecked', () => {
       cy.checkCheckbox('I have trouble lying still while trying to fall asleep at night');
+      cy.checkCheckbox('I have an urge to move my legs while lying in bed at night');
+      cy.checkCheckbox('Movement relieves the uncomfortable feelings in my legs');
       cy.contains('Your answers suggest that you may have restless legs syndrome').should('exist');
+
       cy.uncheckCheckbox('I have trouble lying still while trying to fall asleep at night');
       cy.contains('Your answers suggest that you may have restless legs syndrome').should('not.exist');
     });

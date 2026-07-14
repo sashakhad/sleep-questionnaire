@@ -26,6 +26,10 @@ describe('Report & Diagnosis Verification', () => {
       });
     });
 
+    it('should show Sleep Health Recommendations section', () => {
+      cy.contains('Sleep Health Recommendations').should('exist');
+    });
+
     it('should show Download PDF button', () => {
       cy.contains('button', 'Download PDF').should('exist');
     });

@@ -273,6 +273,13 @@ export function ReportSection({
               (weighted: 5× workdays + 2× weekends)
             </p>
             <p className='text-foreground/80 text-sm'>
+              <strong className='text-foreground'>24-Hour Average Sleep:</strong>{' '}
+              <span className='text-primary font-semibold'>
+                {formatHours(metrics.avg24HourSleep)}
+              </span>{' '}
+              (nightly sleep plus planned naps)
+            </p>
+            <p className='text-foreground/80 text-sm'>
               <strong className='text-foreground'>Social Jet Lag:</strong>{' '}
               <span
                 className={cn(
@@ -345,10 +352,12 @@ export function ReportSection({
                   </h4>
                   <p className='text-muted-foreground text-sm'>
                     {report.insomniaLikelyCircadian
-                      ? 'You report insomnia symptoms, but your delayed sleep timing suggests these symptoms are likely due to a circadian rhythm disorder. The circadian sleep pattern should be considered a preliminary assessment and treatment priority.'
+                      ? 'Based on your response, you have some symptoms of insomnia, but are most likely struggling with DSPD.'
                       : report.insomniaLikelyRLS
                         ? 'You report insomnia symptoms, but your restless legs symptoms may be a primary driver of difficulty falling asleep. RLS should be considered a preliminary assessment and treatment priority.'
-                        : 'Difficulty falling asleep and/or staying asleep with daytime impairment. See our website for more information and guidance.'}
+                        : report.insomniaPrimaryOverDSPD
+                          ? 'Difficulty falling asleep and/or staying asleep with daytime impairment. Based on your responses, you have some symptoms of DSPD but are more likely struggling with insomnia. See our website for more information and guidance.'
+                          : 'Difficulty falling asleep and/or staying asleep with daytime impairment. See our website for more information and guidance.'}
                   </p>
                 </div>
               </div>
@@ -505,7 +514,7 @@ export function ReportSection({
               </div>
             )}
 
-            {report.chronotypeType === 'delayed' && (
+            {report.chronotypeType === 'delayed' && !report.insomniaPrimaryOverDSPD && (
               <div className='flex items-start space-x-3'>
                 <Info className='text-primary mt-0.5 h-5 w-5' />
                 <div>
@@ -672,27 +681,7 @@ export function ReportSection({
               </div>
             )}
 
-            {!report.hasInsomnia &&
-              !report.hasEDS &&
-              !report.hasOSA &&
-              !report.hasCOMISA &&
-              !report.hasRLS &&
-              !report.hasNightmares &&
-              !report.hasBadDreamWarning &&
-              !report.hasNarcolepsy &&
-              report.chronotypeType !== 'delayed' &&
-              !report.hasAnxiety &&
-              !report.hasUnderweight &&
-              !report.hasPoorHygiene &&
-              !report.hasInsufficientSleep &&
-              !report.hasChronicFatigueSymptoms &&
-              !report.hasPainAffectingSleep &&
-              !report.hasPainRelatedSleepDisturbance &&
-              !report.hasMedicationRelatedSleepDisturbance &&
-              !report.hasMildRespiratoryDisturbance &&
-              !report.hasLegCrampsConcern &&
-              !report.osaTreatmentIneffective &&
-              !report.rlsTreatmentIneffective && (
+            {report.isHealthySleeper && (
                 <div className='flex items-start space-x-3'>
                   <CheckCircle className='mt-0.5 h-5 w-5 text-green-500' />
                   <div>
@@ -845,7 +834,7 @@ export function ReportSection({
               </div>
             )}
 
-            {report.chronotypeType === 'delayed' && (
+            {report.chronotypeType === 'delayed' && !report.insomniaPrimaryOverDSPD && (
               <div>
                 <h4 className='mb-2 font-semibold'>For Delayed Sleep Phase Symptoms:</h4>
                 <p className='text-foreground/80 text-sm'>
@@ -932,6 +921,66 @@ export function ReportSection({
                   improve your sleep health and sleep quality.
                 </p>
               </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Sleep Health Recommendations — always shown */}
+      <Card className='shadow-sleep overflow-hidden border-0'>
+        <CardHeader className='bg-gradient-sleep-header text-white'>
+          <CardTitle className='flex items-center space-x-2 text-white'>
+            <Heart className='h-5 w-5' />
+            <span>Sleep Health Recommendations</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className='pt-6'>
+          <div className='space-y-4 text-sm'>
+            <p className='text-foreground/80'>
+              {report.isHealthySleeper
+                ? 'We are impressed with your general sleep health. We have not identified any sleep disorders or domains in which you need guidance on your sleep health. We still encourage you to go to these links on our website to learn basics about maintaining exceptional sleep health that you can share with friends and family. Much of this information is captured in our Seven Sleep Health Principles (website link). We can guarantee that you will find much of this information both novel and fascinating.'
+                : 'We have identified symptoms of a sleep disorder and some areas in which you can improve your sleep. Much of this information is captured in our Seven Sleep Health Principles (website link). We can guarantee that you will find much of this information both novel and fascinating.'}
+            </p>
+
+            {report.hasInsufficientSleepSigns && !report.hasInsufficientSleep && (
+              <div>
+                <h4 className='mb-2 font-semibold'>Signs of Insufficient Sleep</h4>
+                <p className='text-foreground/80'>
+                  Optimal sleep is more than 6.5 hours and when sleep is less than 8 hours a night
+                  and there are signs of daytime tiredness and attention problems it is optimal to
+                  increase total sleep time. There are individual differences in sleep need and it
+                  is important to know and follow your needs. You can try increasing your sleep time
+                  for a week and observe the quality of your sleep and changes in your daytime
+                  functioning. Please go to our website for more information on determining optimal
+                  sleep duration for you.
+                </p>
+              </div>
+            )}
+
+            {report.hasSleepTimingVariability && (
+              <div>
+                <h4 className='mb-2 font-semibold'>Sleep Timing Variability</h4>
+                <p className='text-foreground/80'>
+                  Regular timing of your sleep schedule is even more important than optimal sleep
+                  duration. Your schedule suggests that there is a moderate to high level of
+                  variability in your sleep timing. You can try a more regular sleep schedule for a
+                  week and see how you feel. Please go to our website for more information on
+                  optimizing your sleep timing based on your natural preference, called chronotype
+                  and general sleep habits.
+                </p>
+              </div>
+            )}
+
+            <div>
+              <h4 className='mb-2 font-semibold'>Your Chronotype</h4>
+              <p className='text-foreground/80'>
+                Based on your schedule you appear to be {report.chronotypeLabel}. Whatever type you
+                fall into, it is always important to strive for a regular sleep schedule with less
+                than 30 minutes change night-to-night on weekdays and less than one hour on
+                weekends. When your weeknight sleep time differs from your weekend sleep time you
+                have social jetlag. More information on healthy sleep timing, chronotypes and
+                circadian rhythms are on our website.
+              </p>
             </div>
           </div>
         </CardContent>

@@ -3,16 +3,16 @@ import { QuestionnaireFormData } from '@/validations/questionnaire';
 import { CheckboxField } from '../form-fields/CheckboxField';
 import { NumberField } from '../form-fields/NumberField';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Info } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 interface RestlessLegsSectionProps {
   form: UseFormReturn<QuestionnaireFormData>;
 }
 
 export function RestlessLegsSection({ form }: RestlessLegsSectionProps) {
-  const hasSymptoms =
-    form.watch('restlessLegs.troubleLyingStill') ||
-    form.watch('restlessLegs.urgeToMoveLegs') ||
+  const hasClassicRlsTriad =
+    form.watch('restlessLegs.troubleLyingStill') &&
+    form.watch('restlessLegs.urgeToMoveLegs') &&
     form.watch('restlessLegs.movementRelieves');
 
   const hasLegCramps = form.watch('restlessLegs.legCramps');
@@ -21,16 +21,6 @@ export function RestlessLegsSection({ form }: RestlessLegsSectionProps) {
   return (
     <div className='space-y-6'>
       <div className='text-lg font-medium'>Restless Legs Syndrome (RLS) and Movement Disorders</div>
-
-      <Alert className='alert-info'>
-        <Info className='text-primary h-4 w-4' />
-        <AlertDescription className='text-foreground/90'>
-          Restless legs syndrome is a relatively common disorder that increases discomfort in bed
-          and interferes with your ability to fall asleep. RLS can be associated with insufficient
-          availability of dopamine, low levels of ferritin, pregnancy, or as an unwanted effect of
-          some medications including SSRIs.
-        </AlertDescription>
-      </Alert>
 
       {/* RLS Symptoms */}
       <div className='space-y-4'>
@@ -83,14 +73,17 @@ export function RestlessLegsSection({ form }: RestlessLegsSectionProps) {
         )}
       </div>
 
-      {/* Warning message if RLS symptoms detected */}
-      {hasSymptoms && (
+      {/* Warning message if full RLS triad endorsed */}
+      {hasClassicRlsTriad && (
         <Alert className='alert-warning'>
           <AlertCircle className='h-4 w-4 text-amber-600' />
           <AlertDescription className='text-amber-900'>
-            Your answers suggest that you may have restless legs syndrome. We will make additional
-            recommendations in your report and provide specific guidance and treatment
-            recommendations on our website.
+            Restless legs syndrome is a relatively common disorder that increases discomfort in bed
+            and interferes with your ability to fall asleep. RLS can be associated with insufficient
+            availability of dopamine, low levels of ferritin, pregnancy, or as an unwanted effect of
+            some medications including SSRIs. Your answers suggest that you may have restless legs
+            syndrome. We will make additional recommendations in your report and provide specific
+            guidance and treatment recommendations on our website.
           </AlertDescription>
         </Alert>
       )}

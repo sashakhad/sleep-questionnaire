@@ -101,6 +101,14 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
 
         {form.watch('daytime.plannedNaps.daysPerWeek') > 0 && (
           <>
+            <NumberField
+              control={form.control}
+              name='daytime.plannedNaps.napsPerWeek'
+              label='About how many naps do you take in a typical week?'
+              min={0}
+              max={21}
+              placeholder='0-21'
+            />
             <SelectField
               control={form.control}
               name='daytime.plannedNaps.duration'
@@ -124,6 +132,12 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
           </>
         )}
       </div>
+
+      <CheckboxField
+        control={form.control}
+        name='daytime.triedCannotNapDuringDay'
+        label="I've tried, but I cannot fall asleep during the day"
+      />
 
       {/* Fall asleep during activities */}
       <div className='border-border bg-card/50 space-y-4 rounded-xl border p-5'>
@@ -257,6 +271,12 @@ export function DaytimeSection({ form }: DaytimeSectionProps) {
         name='daytime.sleepParalysis'
         label='I sometimes wake up and feel like my body is paralyzed'
         description='This may be related to narcolepsy or sleep disorders'
+      />
+
+      <CheckboxField
+        control={form.control}
+        name='daytime.hypnagogicHallucinations'
+        label="I see or hear things that aren't there as I'm falling asleep or waking up"
       />
 
       {/* Narcolepsy/Hypersomnia questions - only show if fall asleep during activities AND sleepiness interferes */}

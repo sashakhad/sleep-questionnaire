@@ -110,7 +110,7 @@ export function ScheduledSleepSection({ form }: ScheduledSleepSectionProps) {
       <YesNoRadioField
         control={form.control}
         name='scheduledSleep.lightsOutVaries'
-        label='Does your lights out time vary more than 2 hours?'
+        label='Does your lights out time vary by more than 1 hour?'
         description='This may indicate irregular sleep patterns'
       />
 
