@@ -650,6 +650,7 @@ const MEDICATION_RELATED_MIN_NIGHTS = 3;
 // Round 5 (7/4 feedback) — module-level clinical cutoffs (not in tuning UI)
 const NARCOLEPSY_EDS_MIN = 7;
 const DSPD_DIFFERENTIAL_MAX_WAKES = 1;
+// Danny 7/14 sign-off: DSPD weekend mid-sleep shift uses strict > 1 hour (not >=).
 const DSPD_DIFFERENTIAL_MIN_MIDSLEEP_SHIFT_HOURS = 1;
 const DSPD_DIFFERENTIAL_EDS_MAX = 5;
 const PAIN_SEVERITY_QUALIFIER_MIN = 5; // "above 4 on a scale of 10"
@@ -885,9 +886,9 @@ function calculateReportDisplayMetrics(data: QuestionnaireFormData): ReportDispl
     data.daytime.plannedNaps.napsPerWeek > 0
       ? data.daytime.plannedNaps.napsPerWeek
       : data.daytime.plannedNaps.daysPerWeek;
-  // Danny wrote /5 for the nap term; we use /7 for a mathematically coherent daily average.
+  // Danny 7/14 sign-off: divide by 5 because the naps query is weekdays-only.
   const napHoursDaily =
-    (effectiveNapsPerWeek * parseMinuteIncrement(data.daytime.plannedNaps.duration) / 60) / 7;
+    (effectiveNapsPerWeek * parseMinuteIncrement(data.daytime.plannedNaps.duration) / 60) / 5;
   const avg24HourSleep = weeklyAvgTST + napHoursDaily;
 
   const socialJetLag = (unscheduledTSTMins - scheduledTSTMins) / 60;
@@ -950,7 +951,7 @@ function getReportChronotype(
   if (
     hasModerateOrStrongEveningPreference &&
     scheduledAdjusted > DSPD_SCHEDULED_MIDSLEEP_MIN &&
-    metrics.midSleepTimeChange >= DSPD_DIFFERENTIAL_MIN_MIDSLEEP_SHIFT_HOURS
+    metrics.midSleepTimeChange > DSPD_DIFFERENTIAL_MIN_MIDSLEEP_SHIFT_HOURS
   ) {
     type = 'delayed';
   } else if (preference === 'early' || scheduledAdjusted <= CHRONOTYPE_LARK_SCHEDULED_MAX) {
@@ -1116,7 +1117,7 @@ export function generateScoringBreakdown(
     {
       label: '24-hour average sleep',
       value: formatBreakdownHours(reportMetrics.avg24HourSleep),
-      note: 'Weekly average plus planned naps averaged over 7 days (round 5, D2).',
+      note: 'Weekly average plus planned naps averaged over 5 weekdays (round 5 D2; Danny 7/14).',
     },
     {
       label: 'Scheduled sleep efficiency',
@@ -1493,8 +1494,8 @@ export function generateFullReport(
     data.scheduledSleep.nightWakeups <= DSPD_DIFFERENTIAL_MAX_WAKES &&
     // The stricter delayed trigger (D1) already guarantees this shift whenever
     // chronotypeType is 'delayed'; kept because it is part of Danny's verbatim
-    // B5 differential criteria and D1 may be tuned independently.
-    metrics.midSleepTimeChange >= DSPD_DIFFERENTIAL_MIN_MIDSLEEP_SHIFT_HOURS &&
+    // B5 differential criteria and D1 may be tuned independently. Strict > 1h (7/14).
+    metrics.midSleepTimeChange > DSPD_DIFFERENTIAL_MIN_MIDSLEEP_SHIFT_HOURS &&
     edsScore <= DSPD_DIFFERENTIAL_EDS_MAX;
   const insomniaAnchor = data.daytime.triedCannotNapDuringDay;
   // Attribution precedence: circadian > RLS > insomnia-primary. The three flags

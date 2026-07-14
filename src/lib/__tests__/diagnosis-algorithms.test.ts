@@ -1666,15 +1666,57 @@ describe('generateFullReport', () => {
       expect(insomnia.hasInsomnia).toBe(false);
     });
 
-    it('should compute avg24HourSleep including naps', () => {
+    it('should compute avg24HourSleep including naps with weekday /5 nap term', () => {
       const data = createBaseQuestionnaireData({
         daytime: {
           plannedNaps: { daysPerWeek: 5, napsPerWeek: 5, duration: '30' },
         },
       });
       const fullReport = generateFullReport(data);
+      // 5 naps × 0.5h / 5 weekdays = 0.5h added to weeklyAvgTST
+      expect(fullReport.metrics.avg24HourSleep).toBeCloseTo(
+        fullReport.metrics.weeklyAvgTST + 0.5,
+        5
+      );
+    });
 
-      expect(fullReport.metrics.avg24HourSleep).toBeGreaterThan(fullReport.metrics.weeklyAvgTST);
+    it('should require weekend mid-sleep shift strictly greater than 1 hour for delayed', () => {
+      const exactlyOneHour = createBaseQuestionnaireData({
+        chronotype: { preference: 'late', preferenceStrength: 'moderate' },
+        scheduledSleep: {
+          lightsOutTime: '02:00',
+          minutesToFallAsleep: '20',
+          minutesAwakeAtNight: '10',
+          wakeupTime: '09:00',
+        },
+        // Mid-sleep shift tuned to ~1.0 hour — must NOT fire delayed under strict >
+        unscheduledSleep: {
+          lightsOutTime: '03:00',
+          minutesToFallAsleep: '20',
+          minutesAwakeAtNight: '10',
+          wakeupTime: '10:00',
+        },
+      });
+      const moreThanOneHour = createBaseQuestionnaireData({
+        chronotype: { preference: 'late', preferenceStrength: 'moderate' },
+        scheduledSleep: {
+          lightsOutTime: '02:00',
+          minutesToFallAsleep: '20',
+          minutesAwakeAtNight: '10',
+          wakeupTime: '09:00',
+        },
+        unscheduledSleep: {
+          lightsOutTime: '03:30',
+          minutesToFallAsleep: '20',
+          minutesAwakeAtNight: '10',
+          wakeupTime: '10:30',
+        },
+      });
+
+      expect(generateFullReport(exactlyOneHour).metrics.midSleepTimeChange).toBeCloseTo(1, 1);
+      expect(generateFullReport(exactlyOneHour).chronotypeType).not.toBe('delayed');
+      expect(generateFullReport(moreThanOneHour).metrics.midSleepTimeChange).toBeGreaterThan(1);
+      expect(generateFullReport(moreThanOneHour).chronotypeType).toBe('delayed');
     });
 
     it('should flag insomniaPrimaryOverDSPD when insomnia anchor is present', () => {
