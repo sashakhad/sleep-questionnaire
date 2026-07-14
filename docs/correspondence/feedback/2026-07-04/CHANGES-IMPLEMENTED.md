@@ -104,7 +104,7 @@ This is the change log for the **July 4 feedback only**. Each item lists what yo
 
 **Your feedback:** Fire when chronotype preference > mild evening preference, mid-sleep > 3:30 AM, and weekday mid-sleep − weekend mid-sleep difference.
 
-**What changed:** `chronotypeType === 'delayed'` now requires **all three**: moderate-or-strong late preference, scheduled mid-sleep after 3:30 AM (adjusted), and weekend mid-sleep >= 1 h later than weekday. The weekday−weekend term had no operator in source — we used >= 1 hour to match B5.
+**What changed:** `chronotypeType === 'delayed'` now requires **all three**: moderate-or-strong late preference, scheduled mid-sleep after 3:30 AM (adjusted), and weekend mid-sleep **> 1 h** later than weekday (strict greater-than; Danny confirmed 7/14).
 
 **Where to see it:** [Algorithm Viewer](/review) — inspect delayed chronotype scenarios
 
@@ -118,7 +118,7 @@ This is the change log for the **July 4 feedback only**. Each item lists what yo
 
 **Your feedback:** "Total sleep=(naps # week x approximate naptime / 5) + ((weekday hours/nightx5 +weeknightx2)/7)"
 
-**What changed:** New `avg24HourSleep` metric: weekly average TST plus nap hours daily. Danny wrote `/5` for the nap term; we use `/7` for a mathematically coherent daily average. `weeklyAvgTST` unchanged; syndrome/EDS gates still use weekly average.
+**What changed:** New `avg24HourSleep` metric: weekly average TST plus nap hours. Nap term uses `/5` because the naps query is weekdays-only (Danny confirmed 7/14). `weeklyAvgTST` unchanged; syndrome/EDS gates still use weekly average.
 
 **Where to see it:** [Algorithm Viewer](/review) — metrics panel on any scenario with planned naps
 
@@ -282,16 +282,16 @@ This is the change log for the **July 4 feedback only**. Each item lists what yo
 
 ## Decisions flagged for your review
 
-| Topic | Our implementation | Please confirm |
+| Topic | Our implementation | Status (7/14) |
 | --- | --- | --- |
-| D2 nap term | `/7` not Danny's `/5` | Daily-average math |
-| D1 weekend shift | `>= 1 hour` | No operator in source |
-| B5 mid-sleep comparison | Weekend >= 1 h later than weekday | Ambiguous source wording |
+| D2 nap term | `/5` (weekdays-only naps) | Confirmed |
+| D1 weekend shift | strict `> 1 hour` | Confirmed |
+| B5 mid-sleep comparison | Weekend > 1 h later than weekday | Confirmed with D1 |
 | B5 ambiguous cases | Default to DSPD attribution | Same as Round 4 |
 | B2 `jointMusclePain` | Unqualified pain anchor | No severity question exists |
-| Part 3 fatigue frequency | Ratings only (no day-count field) | "fatigue 7+ on >4 days/week" |
-| Timing variability | `lightsOutVaries` OR mid-sleep shift >= 1 h | Per-night variance not collected; a 1 h weekend shift is common, so this block will show for most respondents — confirm sensitivity |
+| Part 3 fatigue frequency | Ratings only (no day-count field) | Open if you want a frequency question |
+| Timing variability | `lightsOutVaries` OR mid-sleep shift >= 1 h | Per-night variance not collected; sensitivity note still open |
 | RLS popup | Full triad required | Was any-of-three in Round 4 |
-| Narcolepsy vs IH | Gate only; no separate IH block | "??" in source |
+| Narcolepsy vs IH | Combined heading kept | Confirmed |
 | Insufficient-answers rule | 4 core times + any daytime rating | Minimal detectable threshold |
-| Website links | Placeholders remain | Need URLs for Seven Sleep Health Principles |
+| Website links | Placeholders remain (`website link` / `[]`) | Site not set up yet — your web developer can replace these markers |

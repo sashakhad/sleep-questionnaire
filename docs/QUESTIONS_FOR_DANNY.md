@@ -201,9 +201,9 @@ report block.
 
 Please confirm these Round 5 implementation choices:
 
-1. **D2 nap term:** we use `/7` (daily average) instead of Danny's `/5`.
-2. **D1 / B5 weekend shift:** `>= 1 hour` later mid-sleep on free days.
-3. **B5 mid-sleep wording:** interpreted as weekend mid-sleep >= 1 h later than weekday.
+1. **D2 nap term:** `/5` (weekdays-only) — **resolved 2026-07-14**.
+2. **D1 / B5 weekend shift:** strict `> 1 hour` later mid-sleep on free days — **resolved 2026-07-14**.
+3. **B5 mid-sleep wording:** interpreted as weekend mid-sleep > 1 h later than weekday.
 4. **B2 `jointMusclePain`:** kept as pain qualifier without severity threshold.
 5. **Part 3 fatigue frequency:** no day-count question — ratings only for insufficient-sleep signs.
 6. **Timing variability:** `lightsOutVaries` (> 1 h) OR mid-sleep shift >= 1 h as proxy.
@@ -213,7 +213,10 @@ Please confirm these Round 5 implementation choices:
    is the intended sensitivity or whether the shift cutoff should be higher.
 7. **RLS popup:** full triad required (was any-of-three).
 8. **Insufficient-answers rule:** 4 core sleep times + at least one daytime rating.
-9. **Website links:** placeholders for Seven Sleep Health Principles and insufficient-sleep copy.
+9. **Website links:** placeholders remain — Danny 7/14: site not set up yet; his
+   website developer will integrate. Keep `(website link)` / `[]` markers so they
+   are easy to find and replace.
+10. **Narcolepsy vs IH:** keep combined heading — **resolved 2026-07-14**.
 
 ### 5e. Validation study data structure
 

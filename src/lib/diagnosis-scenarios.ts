@@ -892,11 +892,11 @@ export const diagnosisScenarios: DiagnosisScenario[] = [
         wakeupTime: '10:30',
       },
       unscheduledSleep: {
-        lightsOutTime: '03:00',
+        lightsOutTime: '03:30',
         minutesToFallAsleep: '20',
         nightWakeups: 1,
         minutesAwakeAtNight: '20',
-        wakeupTime: '11:30',
+        wakeupTime: '12:00',
       },
       daytime: {
         sleepinessInterferes: true,
