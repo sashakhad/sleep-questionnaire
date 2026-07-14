@@ -112,8 +112,8 @@ What changed:
 - B1 (COMISA) and B3 (sleep meds) approved — no code changes.
 - B2: chronic fatigue and pain-related sleep disturbance are now mutually exclusive; CF requires pain qualifier plus tiredness >= 7 and fatigue >= 7; pain-related requires pain qualifier plus 2+ symptoms when CF is not active.
 - B5: insomnia-vs-DSPD differential with `insomniaPrimaryOverDSPD` and updated report sentences; narcolepsy symptom path now requires EDS score >= 7 plus REM-intrusion items (including new hypnagogic hallucinations question).
-- D1: delayed DSPD trigger requires moderate-or-strong evening preference, scheduled mid-sleep after 3:30 AM, and weekend mid-sleep shift >= 1 hour.
-- D2: new `avg24HourSleep` metric includes naps (nap term uses `/7`, not Danny's `/5` — flagged).
+- D1: delayed DSPD trigger requires moderate-or-strong evening preference, scheduled mid-sleep after 3:30 AM, and weekend mid-sleep shift **> 1 hour** (strict; confirmed 2026-07-14).
+- D2: new `avg24HourSleep` metric includes naps (nap term uses `/5` — weekday-only naps query; confirmed 2026-07-14).
 - Part 2–3: always-shown Sleep Health Recommendations card, `isHealthySleeper`, `hasInsufficientSleepSigns`, `hasSleepTimingVariability`, owl/lark/crow chronotype labels.
 - Part 4: mild insomnia now requires 2+ daytime symptoms; insufficient-answers guard on the patient questionnaire.
 - Form: new daytime questions (`triedCannotNapDuringDay`, `hypnagogicHallucinations`), `napsPerWeek` UI, lights-out variability reworded to >1 hour, RLS intro removed (triad-only popup), under-25 demographics copy updated.
@@ -425,7 +425,7 @@ Delayed chronotype (`chronotypeType === 'delayed'`) requires **all** of:
 
 - Evening chronotype preference with moderate or strong strength (not slight)
 - Scheduled mid-sleep later than 3:30 AM (adjusted)
-- Weekend/free-day mid-sleep >= 1 hour later than work/school mid-sleep
+- Weekend/free-day mid-sleep **> 1 hour** later than work/school mid-sleep (strict greater-than; Danny 7/14)
 
 When insomnia and delayed chronotype co-occur, the report applies a differential:
 
@@ -463,11 +463,11 @@ Chronotype labels (display):
 
 ```
 effectiveNapsPerWeek = napsPerWeek > 0 ? napsPerWeek : daysPerWeek
-napHoursDaily = (effectiveNapsPerWeek × nap duration minutes / 60) / 7
+napHoursDaily = (effectiveNapsPerWeek × nap duration minutes / 60) / 5
 avg24HourSleep = weeklyAvgTST + napHoursDaily
 ```
 
-Implementation note: Danny's source used `/5` for the nap term; we use `/7` for a coherent daily average.
+Implementation note: Divide by 5 because the naps query is weekdays-only (Danny 7/14 sign-off).
 
 Primary source:
 
