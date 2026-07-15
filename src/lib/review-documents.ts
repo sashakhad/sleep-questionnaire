@@ -1,6 +1,7 @@
 export type ReviewDocumentSlug =
   | 'round-4-changes'
   | 'round-5-changes'
+  | 'round-6-changes'
   | 'algorithm-reference'
   | 'client-review-guide';
 
@@ -28,6 +29,14 @@ export const reviewDocumentDefinitions: ReviewDocumentDefinition[] = [
     description:
       'A per-item change log for the July 4 feedback: pain/chronic-fatigue split, insomnia–DSPD–narcolepsy differential, sleep-health recommendations, and form updates.',
     repoPath: 'docs/correspondence/feedback/2026-07-04/CHANGES-IMPLEMENTED.md',
+  },
+  {
+    slug: 'round-6-changes',
+    title: 'Round 6 Feedback (7/15) — Changes Implemented',
+    shortLabel: '7/15 fixes',
+    description:
+      'Fixes from the July 15 glitch report: 0-minute SOL/WASO validation and mobile time-picker close behavior.',
+    repoPath: 'docs/correspondence/feedback/2026-07-15/CHANGES-IMPLEMENTED.md',
   },
   {
     slug: 'algorithm-reference',
