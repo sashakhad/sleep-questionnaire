@@ -175,6 +175,19 @@ function MobileGridPopover({
     ? `${parsed.hour}:${parsed.minute} ${parsed.period}`
     : null
 
+  function handlePick(type: 'hour' | 'minute' | 'period', value: string) {
+    onChangeValue(type, value)
+
+    const nextHour = type === 'hour' ? value : parsed?.hour
+    const nextMinute = type === 'minute' ? value : parsed?.minute
+    const nextPeriod = type === 'period' ? value : parsed?.period
+
+    // Close once hour, minute, and period are all set (fixes stuck-open mobile picker).
+    if (nextHour && nextMinute && nextPeriod) {
+      setOpen(false)
+    }
+  }
+
   return (
     <div className="md:hidden">
       <Popover open={open} onOpenChange={setOpen}>
@@ -200,7 +213,7 @@ function MobileGridPopover({
                   <GridButton
                     key={h}
                     selected={parsed?.hour === h}
-                    onClick={() => onChangeValue('hour', h)}
+                    onClick={() => handlePick('hour', h)}
                   >
                     {h}
                   </GridButton>
@@ -215,7 +228,7 @@ function MobileGridPopover({
                   <GridButton
                     key={m}
                     selected={parsed?.minute === m}
-                    onClick={() => onChangeValue('minute', m)}
+                    onClick={() => handlePick('minute', m)}
                   >
                     :{m}
                   </GridButton>
@@ -229,7 +242,7 @@ function MobileGridPopover({
                   <GridButton
                     key={p}
                     selected={parsed?.period === p}
-                    onClick={() => onChangeValue('period', p)}
+                    onClick={() => handlePick('period', p)}
                   >
                     {p}
                   </GridButton>

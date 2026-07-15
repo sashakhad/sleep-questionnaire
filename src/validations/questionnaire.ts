@@ -8,8 +8,10 @@ const timeString = z
     message: 'Time must be in HH:MM format',
   });
 
-// 10-minute increment options for duration fields
-const minuteIncrements = z.enum(['10', '20', '30', '40', '50', '60', '70', '80', '90', '100', '110', '120', '>120']).nullable();
+// 10-minute increment options for duration fields (includes 0 for SOL/WASO)
+const minuteIncrements = z
+  .enum(['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100', '110', '120', '>120'])
+  .nullable();
 
 // Section 1: Daytime feelings schema
 export const daytimeSchema = z.object({

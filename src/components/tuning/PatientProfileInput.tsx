@@ -71,6 +71,7 @@ const sexOptions: OptionDefinition[] = [
 ];
 
 const minuteIncrementOptions: OptionDefinition[] = [
+  { value: '0', label: '0 minutes' },
   { value: '10', label: '10 minutes' },
   { value: '20', label: '20 minutes' },
   { value: '30', label: '30 minutes' },

@@ -20,7 +20,7 @@ export interface QuestionnaireData {
     plannedNaps: {
       daysPerWeek: number;
       napsPerWeek: number; // max 21 for narcolepsy patients
-      duration: '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90' | '100' | '110' | '120' | '>120' | null;
+      duration: '0' | '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90' | '100' | '110' | '120' | '>120' | null;
     };
     fallAsleepDuring: string[];
     sleepinessInterferes: boolean; // renamed from tirednessInterferes
@@ -47,10 +47,10 @@ export interface QuestionnaireData {
     lightsOutTime: string;
     lightsOutVaries: boolean; // varies more than 2 hours
     preBedActivity: string[]; // what you do in bed >15min before lights out
-    minutesToFallAsleep: '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90' | '100' | '110' | '120' | '>120' | null;
+    minutesToFallAsleep: '0' | '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90' | '100' | '110' | '120' | '>120' | null;
     nightWakeups: number;
     wakeupReasons: string[];
-    minutesAwakeAtNight: '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90' | '100' | '110' | '120' | '>120' | null;
+    minutesAwakeAtNight: '0' | '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90' | '100' | '110' | '120' | '>120' | null;
     wakeupTime: string;
     getOutOfBedTime: string;
     earlyWakeupDays: number;
@@ -62,10 +62,10 @@ export interface QuestionnaireData {
   // Note: Napping questions consolidated into Daytime section
   unscheduledSleep: {
     lightsOutTime: string;
-    minutesToFallAsleep: '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90' | '100' | '110' | '120' | '>120' | null;
+    minutesToFallAsleep: '0' | '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90' | '100' | '110' | '120' | '>120' | null;
     nightWakeups: number;
     wakeupReasons: string[];
-    minutesAwakeAtNight: '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90' | '100' | '110' | '120' | '>120' | null;
+    minutesAwakeAtNight: '0' | '10' | '20' | '30' | '40' | '50' | '60' | '70' | '80' | '90' | '100' | '110' | '120' | '>120' | null;
     wakeupTime: string;
     getOutOfBedTime: string;
     usesAlarm: boolean;
